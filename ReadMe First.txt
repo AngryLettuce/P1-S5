@@ -5,7 +5,7 @@ https://desktop.github.com/
 https://github.com/AngryLettuce/P1-S5.git
 
 
-3-follow those guidelines 
+3-follow those guidelines to understand how commits work
 https://guides.github.com/activities/hello-world/
 
 
