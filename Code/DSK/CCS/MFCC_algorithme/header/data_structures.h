@@ -29,6 +29,9 @@
 //--------------------------------------
 //  constant declaration
 //--------------------------------------
+
+
+
 //signal data
 #define SIGNAL_BLOCK_SIZE       256 //M
 #define SIGNAL_BLOCK_OVERLAP    100 //N
@@ -40,10 +43,19 @@
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
 
+//mel filter bank
+#define MEL_FILTER_NB 20
+
+
 
 //--------------------------------------
 //  data structure use in the algorithm
 //--------------------------------------
+
+
+//--------------------
+//  METRIC
+//--------------------
 
 typedef struct MetVec {
 
@@ -57,14 +69,37 @@ typedef struct MetVecTab {
     int size;
 } MetVecTab;
 
+typedef struct MelFilterBank {
 
-//structures related to codebook
+    float melFilter[MEL_FILTER_NB][SIGNAL_BLOCK_SIZE];
+} MelFilterBank;
+
+
+
+//--------------------
+//  CODEBOOK
+//--------------------
+
 typedef struct Codebook {
 
     MetVec codeword[CODEBOOK_CODEWORDS_NB];
     int speaker_ind;
 
 } Codebook;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //--------------------------------------
 //  speaker information data structrure

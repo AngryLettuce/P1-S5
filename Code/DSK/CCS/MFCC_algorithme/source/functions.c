@@ -30,11 +30,45 @@ void fvec_elementWise_mult(float *a, float *b, float *dest, int size) {
     }
 }
 
+//float to complex number DSPC6713 format
+void float2complex(float *a, float *b, int size) {
+
+    int i;
+    for(i = 0; i < size; i++) {
+        b[i*2] = a[i];
+        b[i*2 + 1] = 0;
+    }
+}
+
+//calculate euclidean distance without taking the square root of the result
+float euclideanDistPow2(float *a, float *b, int size) {
+
+    int i;
+    float acc = 0;
+
+    for(i = 0; i < size; i++) {
+        acc = acc + (a[i] - b[i])*(a[i] - b[i]);
+    }
+    acc = acc / (float) size;
+
+    return acc;
+}
 
 
 //--------------------------------------------
 //  HAMMING WINDOW
 //--------------------------------------------
+
+//pre-emphasis 1st order FIR filter
+float mfcc_preAmpFIR(float x, float x_last) {
+    return x - 0.95*x_last;
+}
+
+
+//--------------------------------------------
+//  HAMMING WINDOW
+//--------------------------------------------
+
 //apply hamming window to a signal
 void mfcc_hamming_window_256(float *x) {
 
@@ -81,7 +115,6 @@ void mfcc_hamming_window_256_opt(float *x) {
 //  Mel filter bank
 //--------------------------------------------
 
-
 //normal frequency to mel frequency
 float mfcc_freq2mel(float f) {
 
@@ -94,7 +127,39 @@ float mfcc_mel2freq(float mel) {
     return 700*exp(mel/1125) - 700;
 }
 
+//mel filter bank construct
+void mfcc_melFilterBank_create(MelFilterBank* melFilter, int freqL, int freqH, int filter_nb, int size_data, int sample_rate) {
+    /*-------------------------------------------
+    _              _
+   | |_ ___     __| | ___
+   | __/ _ \   / _` |/ _ \   O
+   | || (_) | | (_| | (_) |
+    \__\___/   \__,_|\___/   O
 
+    construct the data to be contained within "melFilter"
+     * (voir la fonction dans matlab : "melFilterBank.m"
+    -------------------------------------------*/
+
+}
+
+
+
+//--------------------------------------------
+//  Power spectrum
+//--------------------------------------------
+
+void mfcc_powerSpectrum(float *complexTab, int size) {
+    /*-------------------------------------------
+    _              _
+   | |_ ___     __| | ___
+   | __/ _ \   / _` |/ _ \   O
+   | || (_) | | (_| | (_) |
+    \__\___/   \__,_|\___/   O
+
+    construct the data to be contained within "melFilter"
+     * (voir la fonction dans matlab : "melFilterBank.m"
+    -------------------------------------------*/
+}
 
 
 

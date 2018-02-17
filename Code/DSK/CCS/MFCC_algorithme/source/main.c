@@ -7,12 +7,6 @@
 #include <DSPF_sp_cfftr4_dif.h>
 
 /*
- * TabInt[0] = (int) TabFloat[0]*pow(2,24);
- * TabInt[1] = (int) TabFloat[1]*pow(2,16);
- *
- *
-
-
 //tableau circulaire
 int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 #pragma DATA_ALIGN(TabDonnees, 32)
