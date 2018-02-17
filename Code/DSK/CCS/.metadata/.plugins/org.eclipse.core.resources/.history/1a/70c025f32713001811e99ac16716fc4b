@@ -1,0 +1,39 @@
+/*
+ * main.c
+ */
+
+#include "head.h"
+
+
+/*
+ * TabInt[0] = (int) TabFloat[0]*pow(2,24);
+ * TabInt[1] = (int) TabFloat[1]*pow(2,16);
+ *
+ *
+ */
+
+//tableau circulaire
+int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+#pragma DATA_ALIGN(TabDonnees, 32)
+
+
+
+int main(void) {
+
+
+    int Liste[3];
+    int TabIntS[2] = {0,0};
+    unsigned int TabIntNoS[2] = {0,0};
+    float TabFlottant[2] = {0,0};
+    double TabDouble[2] = {0,0};
+
+    while(1) {
+
+    ObtenirType(Liste);
+    ObtenirFormat(Liste);
+    ObtenirOperation(Liste);
+    AnalyserListe(Liste, TabIntS, TabIntNoS, TabFlottant, TabDouble, TabDonnees);
+
+    }
+
+}

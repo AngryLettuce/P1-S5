@@ -1,0 +1,24 @@
+
+**** Build of configuration Debug for project MFCC_algorithme ****
+
+"C:\\ti\\ccsv7\\utils\\bin\\gmake" -k -j 4 all -O 
+'Building file: ../source/main.c'
+'Invoking: C6000 Compiler'
+"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/bin/cl6x" -mv6700 --abi=coffabi -g --include_path="C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include" --include_path="C:/ti/ccsv7/ccs_base/C6700/dsplib/include" --include_path="C:/Users/pascal/Desktop/MFCC_algorithme/header" --include_path="C:/ti/dsk6713/include" --include_path="C:/ti/ccsv7/ccs_base/C6xCSL/include" --define=CHIP_6713 --diag_warning=225 --diag_wrap=off --display_error_number --mem_model:const=far --mem_model:data=far --preproc_with_compile --preproc_dependency="source/main.d" --obj_directory="source"  "../source/main.c"
+"../source/main.c", line 38: warning #225-D: function declared implicitly
+'Finished building: ../source/main.c'
+' '
+'Building file: ../source/functions.c'
+'Invoking: C6000 Compiler'
+"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/bin/cl6x" -mv6700 --abi=coffabi -g --include_path="C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include" --include_path="C:/ti/ccsv7/ccs_base/C6700/dsplib/include" --include_path="C:/Users/pascal/Desktop/MFCC_algorithme/header" --include_path="C:/ti/dsk6713/include" --include_path="C:/ti/ccsv7/ccs_base/C6xCSL/include" --define=CHIP_6713 --diag_warning=225 --diag_wrap=off --display_error_number --mem_model:const=far --mem_model:data=far --preproc_with_compile --preproc_dependency="source/functions.d" --obj_directory="source"  "../source/functions.c"
+'Finished building: ../source/functions.c'
+' '
+'Building target: MFCC_algorithme.out'
+'Invoking: C6000 Linker'
+"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/bin/cl6x" -mv6700 --abi=coffabi -g --define=CHIP_6713 --diag_warning=225 --diag_wrap=off --display_error_number --mem_model:const=far --mem_model:data=far -z -m"MFCC_algorithme.map" --stack_size=0x1000 --heap_size=0x1000 -i"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/lib" -i"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="MFCC_algorithme_linkInfo.xml" --rom_model -o "MFCC_algorithme.out" "./asm/addition.obj" "./asm/divide.obj" "./asm/encrypt.obj" "./asm/multiply.obj" "./asm/substraction.obj" "./source/functions.obj" "./source/main.obj" "../C6713dsk.cmd"  -llibc.a -l"C:/ti/ccsv7/ccs_base/C6700/dsplib/lib/dsp67x.lib" -l"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/lib/rts6700.lib" -l"C:/ti/ccsv7/ccs_base/C6xCSL/lib_3x/csl6713.lib" -l"C:/ti/dsk6713/lib/dsk6713bsl.lib" 
+<Linking>
+warning #16002-D: build attribute vendor section TI missing in "C:/ti/ccsv7/ccs_base/C6700/dsplib/lib/dsp67x.lib<DSPF_sp_cfftr4_dif.obj>": compatibility cannot be determined
+'Finished building target: MFCC_algorithme.out'
+' '
+
+**** Build Finished ****
