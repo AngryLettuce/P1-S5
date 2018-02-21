@@ -1375,6 +1375,7 @@ java.nio.channels.ClosedByInterruptException
 	at org.eclipse.cdt.internal.ui.text.c.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:144)
 	at org.eclipse.cdt.internal.ui.text.c.hover.CEditorTextHoverProxy.getHoverInfo2(CEditorTextHoverProxy.java:84)
 	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:165)
+<<<<<<< HEAD
 !SESSION 2018-02-21 10:43:23.659 -----------------------------------------------
 eclipse.buildId=4.6.0.I20160606-1100
 java.version=1.8.0_112
@@ -1390,4 +1391,18 @@ Command-line arguments:  -os win32 -ws win32 -arch x86 -product com.ti.ccstudio.
 !MESSAGE path=ccs_base/DebugServer
 
 !ENTRY com.ti.common.core 4 0 2018-02-21 10:43:29.942
+=======
+!SESSION 2018-02-21 10:42:41.704 -----------------------------------------------
+eclipse.buildId=4.6.0.I20160606-1100
+java.version=1.8.0_112
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=fr_CA
+Framework arguments:  -product com.ti.ccstudio.branding.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product com.ti.ccstudio.branding.product
+
+!ENTRY com.ti.common.core 4 0 2018-02-21 10:43:12.288
+!MESSAGE path=ccs_base/DebugServer
+
+!ENTRY com.ti.common.core 4 0 2018-02-21 10:43:12.436
+>>>>>>> 3ec1600d0c1e9815f4d834808879b41365527e70
 !MESSAGE debugServerDir=C:/ti/ccsv7/ccs_base/DebugServer
