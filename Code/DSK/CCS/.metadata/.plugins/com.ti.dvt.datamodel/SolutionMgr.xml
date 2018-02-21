@@ -5,7 +5,7 @@
    <string>defaultSolution</string>
    <void method="set">
     <object idref="SolutionManager$PersistState0"/>
-    <string>C:\ti\ccsv7\ccs_base\dvt_4.1.0.201612061750\CodeGen\solutions\CodeGenCoverage</string>
+    <string>C:\Users\pascal\Desktop\P1-S5\Code\DSK\CCS\dvt\AnalysisSolutionsTemp\AnalysisSolution1519228043082\null</string>
    </void>
   </void>
  </object>
@@ -14,14 +14,10 @@
  <void id="ArrayList0" method="get">
   <object idref="SolutionManager$PersistState0"/>
   <void method="add">
-<<<<<<< HEAD
-   <string>C:\Users\Guill\Documents\GitHub\P1-S5\Code MFCC\DSK\CCS\dvt\AnalysisSolutionsTemp\AnalysisSolution1519227834706\null</string>
-=======
-   <string>C:\Users\pascal\Desktop\P1-S5\Code\DSK\CCS\dvt\AnalysisSolutionsTemp\AnalysisSolution1518898501888\null</string>
->>>>>>> 3ec1600d0c1e9815f4d834808879b41365527e70
+   <string>C:\ti\ccsv7\ccs_base\dvt_4.1.0.201612061750\CodeGen\solutions\CodeGenCoverage</string>
   </void>
   <void method="add">
-   <string>C:\ti\ccsv7\ccs_base\dvt_4.1.0.201612061750\CodeGen\solutions\CodeGenCoverage</string>
+   <string>C:\Users\pascal\Desktop\P1-S5\Code\DSK\CCS\dvt\AnalysisSolutionsTemp\AnalysisSolution1519228043082\null</string>
   </void>
  </void>
 </void>
