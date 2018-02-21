@@ -2,11 +2,10 @@
 **** Build of configuration Debug for project MFCC_algorithme ****
 
 "C:\\ti\\ccsv7\\utils\\bin\\gmake" -k -j 4 all -O 
-'Building file: ../source/main.c'
+'Building file: ../source/functions.c'
 'Invoking: C6000 Compiler'
-"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/bin/cl6x" -mv6700 --abi=coffabi -g --include_path="C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include" --include_path="C:/ti/ccsv7/ccs_base/C6700/dsplib/include" --include_path="C:/Users/pascal/Desktop/P1-S5/Code/DSK/CCS/MFCC_algorithme/header" --include_path="C:/ti/dsk6713/include" --include_path="C:/ti/ccsv7/ccs_base/C6xCSL/include" --define=CHIP_6713 --diag_warning=225 --diag_wrap=off --display_error_number --mem_model:const=far --mem_model:data=far --preproc_with_compile --preproc_dependency="source/main.d" --obj_directory="source"  "../source/main.c"
-"../source/main.c", line 32: warning #225-D: function declared implicitly
-'Finished building: ../source/main.c'
+"C:/ti/ccsv7/tools/compiler/c6000_7.4.20/bin/cl6x" -mv6700 --abi=coffabi -g --include_path="C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include" --include_path="C:/ti/ccsv7/ccs_base/C6700/dsplib/include" --include_path="C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/header" --include_path="C:/ti/dsk6713/include" --include_path="C:/ti/ccsv7/ccs_base/C6xCSL/include" --define=CHIP_6713 --diag_warning=225 --diag_wrap=off --display_error_number --mem_model:const=far --mem_model:data=far --preproc_with_compile --preproc_dependency="source/functions.d" --obj_directory="source"  "../source/functions.c"
+'Finished building: ../source/functions.c'
 ' '
 'Building target: MFCC_algorithme.out'
 'Invoking: C6000 Linker'
