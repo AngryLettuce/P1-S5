@@ -53,6 +53,9 @@
 //--------------------------------------
 
 
+
+
+
 //--------------------
 //  METRIC
 //--------------------
@@ -69,11 +72,17 @@ typedef struct MetVecTab {
     int size;
 } MetVecTab;
 
+
+//--------------------
+//  MEL FILTER BANK
+//--------------------
+
 typedef struct MelFilterBank {
 
     float melFilter[MEL_FILTER_NB][SIGNAL_BLOCK_SIZE/2];
-} MelFilterBank;
+    int melFilter_nb;
 
+} MelFilterBank;
 
 
 //--------------------
@@ -86,19 +95,6 @@ typedef struct Codebook {
     int speaker_ind;
 
 } Codebook;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //--------------------------------------
@@ -119,6 +115,27 @@ typedef struct SpeakerDataList {
     struct SpeakerBank *next;
 
 } SpeakerDataList;
+
+
+//--------------------------------------
+//  MFCC general structure
+//--------------------------------------
+
+
+typedef struct MFCCModule {
+
+    MelFilterBank melFilterBank;
+    float fftCoeffTab[SIGNAL_BLOCK_SIZE];
+
+    float x[SIGNAL_BLOCK_SIZE];
+    float x_complex[SIGNAL_BLOCK_SIZE*2];
+
+    int x_size;
+
+} MFCC;
+
+
+
 
 
 

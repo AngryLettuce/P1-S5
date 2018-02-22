@@ -107,13 +107,6 @@ void mfcc_hamming_window_256_opt(float *x) {
 }
 
 
-//--------------------------------------------
-//  FAST FOURIER TRANSFORM (FFT)
-//--------------------------------------------
-// DSPF_sp_cfftr4_dif(float *src, float *dst, short n);
-// voir librairie du DSP, "DSPLIB"
-
-
 
 
 //--------------------------------------------
@@ -145,7 +138,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     mel[N-1] = mfcc_freq2mel(freqH);
     mel[0]   = mfcc_freq2mel(freqL);
 
-    float delta_mel = (mel[N-1] - mel[0])/ N;
+    float delta_mel = (mel[N-1] - mel[0]) / (N - 1);
 
 
     int i = 1 ;
@@ -159,7 +152,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     for (i = 0;  i <= N; i ++)
     {
         f[i]  = mfcc_mel2freq(mel[i]);
-        f[i]  = floor((size_data + 1) *f[1] /(sample_rate/2));
+        f[i]  = floor((size_data + 1)*f[1] / (sample_rate/2));
     }
 
     int n = 0 ;
@@ -169,7 +162,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
         {
             if (n >= f[i-1] && n <= f[i])
             {
-                melFilterBank->melFilter[i-1][n] = (n - f[i-1])/(f[i] - f[i-1]);
+                melFilterBank->melFilter[i-1][n] = (n - f[i-1]) / (f[i] - f[i-1]);
             }
 
             else if (n > f[i] && n <= f[i+1])
@@ -183,8 +176,13 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
             }
         }
     }
-
 }
+
+//--------------------------------------------
+//  FAST FOURIER TRANSFORM (FFT)
+//--------------------------------------------
+// DSPF_sp_cfftr2_dit(float *src, float *dst, short n);
+// voir librairie du DSP, "DSPLIB"
 
 void mfcc_fft256_init(float *fft256CoeffTab) {
 

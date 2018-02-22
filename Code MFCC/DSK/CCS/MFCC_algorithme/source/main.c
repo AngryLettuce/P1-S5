@@ -1,7 +1,7 @@
 /*
  * main.c
  */
-
+#include <stdio.h>
 #include "data_structures.h"
 #include "functions.h"
 
@@ -21,7 +21,15 @@ int main(void) {
 
 
 
+    float fft256CoeffTab[256];
+    mfcc_fft256_init(fft256CoeffTab);
 
+    for (i = 0; i < 256; i+=2) {
+
+        printf(" %f + %f i\n",fft256CoeffTab[i], fft256CoeffTab[i+1]);
+    }
+
+/*
     while(1){
 
         for(i = 0; i < 256; i++) {
@@ -43,6 +51,6 @@ int main(void) {
         DSPF_sp_cfftr4_dif(y,y,256);
         printf("chat");
     }
-
+*/
 
 }
