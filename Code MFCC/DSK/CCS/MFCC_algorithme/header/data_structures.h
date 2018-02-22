@@ -44,8 +44,8 @@
 #define CODEBOOK_CODEWORDS_NB 16
 
 //mel filter bank
-#define MEL_FILTER_NB 20
-
+#define MEL_FILTER_NB     20
+#define MEL_FILTER_NB_MAX 100
 
 
 //--------------------------------------

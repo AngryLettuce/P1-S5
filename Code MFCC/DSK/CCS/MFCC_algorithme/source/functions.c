@@ -133,17 +133,56 @@ float mfcc_mel2freq(float mel) {
 }
 
 //mel filter bank construct
-void mfcc_melFilterBank_create(MelFilterBank* melFilter, int freqL, int freqH, int filter_nb, int size_data, int sample_rate) {
+void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float freqH, int filter_number, int size_data, int sample_rate) {
     /*-------------------------------------------
-    _              _
-   | |_ ___     __| | ___
-   | __/ _ \   / _` |/ _ \   O
-   | || (_) | | (_| | (_) |
-    \__\___/   \__,_|\___/   O
-
     construct the data to be contained within "melFilter"
      * (voir la fonction dans matlab : "melFilterBank.m"
     -------------------------------------------*/
+    int N = filter_number + 1;
+
+    float mel[MEL_FILTER_NB_MAX] =  {0};
+
+    mel[N-1] = mfcc_freq2mel(freqH);
+    mel[0]   = mfcc_freq2mel(freqL);
+
+    float delta_mel = (mel[N-1] - mel[0])/ N;
+
+
+    int i = 1 ;
+    for (i = 1;  i <= N -1; i ++)
+    {
+        mel[i] = mel[i-1] + delta_mel;
+    }
+
+    float f[MEL_FILTER_NB + 1] = {0};
+
+    for (i = 0;  i <= N; i ++)
+    {
+        f[i]  = mfcc_mel2freq(mel[i]);
+        f[i]  = floor((size_data + 1) *f[1] /(sample_rate/2));
+    }
+
+    int n = 0 ;
+    for (n = 0;  n <= size_data +1; n++)
+    {
+        for (i = 1; i <= MEL_FILTER_NB; i++)
+        {
+            if (n >= f[i-1] && n <= f[i])
+            {
+                melFilterBank->melFilter[i-1][n] = (n - f[i-1])/(f[i] - f[i-1]);
+            }
+
+            else if (n > f[i] && n <= f[i+1])
+            {
+                melFilterBank->melFilter[i-1][n] = (f[i+1] - n) / (f[i+1] - f[i]);
+            }
+
+            else
+            {
+                melFilterBank->melFilter[i-1][n] = 0;
+            }
+        }
+    }
 
 }
 
