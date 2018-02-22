@@ -71,7 +71,7 @@ typedef struct MetVecTab {
 
 typedef struct MelFilterBank {
 
-    float melFilter[MEL_FILTER_NB][SIGNAL_BLOCK_SIZE];
+    float melFilter[MEL_FILTER_NB][SIGNAL_BLOCK_SIZE/2];
 } MelFilterBank;
 
 

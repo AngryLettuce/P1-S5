@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;MFCC_algorithme/include/utils&apos; to &apos;utils.h&apos;" description="Rename resource &apos;utils&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="include/utils" name="utils.h" stamp="1518792463304" updateReferences="true"/>
-</session>

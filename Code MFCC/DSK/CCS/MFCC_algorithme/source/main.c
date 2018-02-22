@@ -4,7 +4,6 @@
 
 #include "data_structures.h"
 #include "functions.h"
-#include <DSPF_sp_cfftr4_dif.h>
 
 /*
 //tableau circulaire

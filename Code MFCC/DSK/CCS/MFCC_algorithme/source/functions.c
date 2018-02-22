@@ -9,6 +9,11 @@
 
 #include "math.h"
 
+#include "fft_utility.h"
+#include <DSPF_sp_cfftr2_dit.h>
+
+
+
 //for FFT implementation
 #define MAX 200
 #define M_PI 3.1415926535897932384
@@ -142,7 +147,18 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilter, int freqL, int freqH, i
 
 }
 
+void mfcc_fft256_init(float *fft256CoeffTab) {
 
+    tw_genr2fft(fft256CoeffTab, 256); // Generate coefficient table
+    bit_rev(fft256CoeffTab, 128); // Bit-reverse coefficient table
+}
+
+
+void mfcc_fft256(float *complexTab, float *fft256CoeffTab) {
+
+    DSPF_sp_cfftr2_dit(complexTab, fft256CoeffTab, 256);
+    bit_rev(complexTab, 256);
+}
 
 //--------------------------------------------
 //  Power spectrum
@@ -160,11 +176,6 @@ void mfcc_powerSpectrum(float *complexTab, int size) {
      * (voir la fonction dans matlab : "melFilterBank.m"
     -------------------------------------------*/
 }
-
-
-
-
-
 
 
 

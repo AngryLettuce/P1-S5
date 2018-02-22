@@ -11,6 +11,7 @@
 #include "data_structures.h"
 
 
+
 //function prefix convention
 //
 //
@@ -59,7 +60,14 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilter,
                                          int size_data,
                                          int sample_rate);
 
+//fft of windowed signal
+void mfcc_fft256_init(float *fft256CoeffTab);
+void mfcc_fft256(float *complexTab, float *fft256CoeffTab);
+
+
+
 //power spectrum extraction from fft extracted complex table
 void mfcc_powerSpectrum(float *complexTab, int size);
+
 
 #endif /* INCLUDE_FUNCTIONS_H_ */
