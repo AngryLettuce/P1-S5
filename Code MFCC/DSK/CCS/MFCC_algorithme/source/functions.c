@@ -131,7 +131,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     construct the data to be contained within "melFilter"
      * (voir la fonction dans matlab : "melFilterBank.m"
     -------------------------------------------*/
-    int N = filter_number + 1;
+    int N = filter_number + 2;
 
     float mel[MEL_FILTER_NB_MAX] =  {0};
 
@@ -210,7 +210,7 @@ void mfcc_powerSpectrum(float *complexTab, int size) {
     \__\___/   \__,_|\___/   O
 
     construct the data to be contained within "melFilter"
-     * (voir la fonction dans matlab : "melFilterBank.m"
+     * (voir la fonction dans matlab : "powerSpectral.m"
     -------------------------------------------*/
 }
 
