@@ -9,7 +9,7 @@ data_size = size(data,2) - 1;
 
 %pre-emphasis
 for i = 2:data_size + 1
-   data(i-1) = data(i-1) - 0.95*data(i);  
+   data(i-1) = data(i) - 0.95*data(i-1);  
 end
 
 
@@ -93,9 +93,8 @@ if DEBUG == 1
 end
 
 
-%update the metrics matrix at "index"'ith speaker 
-normalization = [1 1 linspace(1,1,10)];
-M = [metrics ; pitch_norm' C'.*normalization];
+%update the metrics matrix at "index"'ith speaker
+M = [metrics ; pitch_norm' C'];
+
 
 end
-

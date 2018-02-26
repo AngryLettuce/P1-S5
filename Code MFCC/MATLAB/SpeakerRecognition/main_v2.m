@@ -3,7 +3,7 @@ close all
 clc
 
 global DEBUG
-DEBUG = 1;
+DEBUG = 0;
 
 c = strsplit(num2str(fix(clock)));%get time and date information
 
@@ -30,8 +30,8 @@ param.mfccCoeff_nb = 12;
 param.metrics_nb = param.mfccCoeff_nb + 1;
 
 
-param.melFilter_nb = 16;%nombre of Mel filter in the filter bank
-param.melFilter_flc = 50;%lower bound frequency for Mel filter bank
+param.melFilter_nb = 20;%nombre of Mel filter in the filter bank
+param.melFilter_flc = 40;%lower bound frequency for Mel filter bank
 param.melFilter_flh = 4000;%higher bound frequency for Mel filter bank
 param.melFilter_triangular = true;%if true, Mel filter bank consist of triangle filter, if false, Mel filter bank consist of rectangle filter
 param.sample_rate = 8000;%sample rate of the ADC, in this case, sample rate of inputed .wav files
@@ -41,12 +41,16 @@ param.pitch_norm_offset = 150;
 param.pitch_norm_gain = 1/8;
 
 %test analysis parameters
-param.dynamic_check_period = 0.1; %period in second
+param.dynamic_check_period = 0.0125; %period in second
 param.metric_vector_period = param.M / param.sample_rate; %period of time attribuated to a metric vector extracted from sound data
 
 param.test_dynamic_check        = 0;
 param.test_dynamic_movAvg_check = 1;
 param.test_singleShot_check     = 0;
+
+%index parameters
+param.index_avg = 100;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % METRICS TRAINING SAMPLE EXTRACTION
@@ -107,6 +111,26 @@ codebook = construct_speakerCodeBook(metrics, param);
 disp(' ')
 disp('//Total time :')
 toc
+
+ 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % METRICS OPTIMAL GAIN VECTOR
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tic
+% disp(' ')
+% disp('--------------------------------------')
+% disp('Executing optimal gain vector extraction')
+% disp('--------------------------------------')
+% disp(' ')
+% %construct the codebook for each speakers
+% metrics_gain_vector = extract_optimalMetricsGain(metrics, codebook, param);
+% 
+% disp(' ')
+% disp('//Total time :')
+% toc
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TEST WITH UNSEEN SAMPLE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,13 +182,13 @@ for i = 1:speaker_nb
 
             
             %averaging index
-            length_adjusted = length - metric_nb - 200;
+            length_adjusted = length - metric_nb - param.index_avg;
             for k = 1:length_adjusted
-                speaker_ind(k) = mode(speaker_ind(k:k + 200));
+                speaker_ind(k) = mode(speaker_ind(k:k + param.index_avg));
             end
             
             %accuracy
-            stat(i,j) = sum(speaker_ind(1:length_adjusted) == i)/(length - metric_nb - 200);
+            stat(i,j) = sum(speaker_ind(1:length_adjusted) == i)/(length - metric_nb - param.index_avg);
             disp(stat(i,j))
             
             figure()

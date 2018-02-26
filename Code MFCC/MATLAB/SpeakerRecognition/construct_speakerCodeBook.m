@@ -86,7 +86,7 @@ for i = 1:speaker_nb
             end
             
             %update the codebook with new centroid got with matched training vectors
-            C = C_acc(1:m,:) ./ C_vector_nb(1:m);
+            C = C_acc(1:m,:) ./ (C_vector_nb(1:m)*ones(1,param.metrics_nb));
 
             %get the distortion between traning vectors (metrics) and codebook
             D = distortion(metrics{i}, C);
