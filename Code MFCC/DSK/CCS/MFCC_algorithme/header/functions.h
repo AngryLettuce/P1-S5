@@ -67,7 +67,7 @@ void mfcc_fft256(float *complexTab, float *fft256CoeffTab);
 
 
 //power spectrum extraction from fft extracted complex table
-void mfcc_powerSpectrum(float *complexTab, int size);
+void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
 
 
 #endif /* INCLUDE_FUNCTIONS_H_ */
