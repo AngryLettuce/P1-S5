@@ -34,7 +34,6 @@ int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_
 
 
     fclose(fp);
-    //free(values);
 
     return 1;
 
