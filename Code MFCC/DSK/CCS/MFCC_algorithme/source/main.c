@@ -15,7 +15,7 @@ int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 int main(void) {
 
 
-    float x[256], y[512];
+   // float x[256], y[512];
     int i = 0;
 
 

@@ -201,17 +201,20 @@ void mfcc_fft256(float *complexTab, float *fft256CoeffTab) {
 //  Power spectrum
 //--------------------------------------------
 
-void mfcc_powerSpectrum(float *complexTab, int size) {
+void mfcc_powerSpectrum(float *x, float *x_complex,  int size) {
     /*-------------------------------------------
-    _              _
-   | |_ ___     __| | ___
-   | __/ _ \   / _` |/ _ \   O
-   | || (_) | | (_| | (_) |
-    \__\___/   \__,_|\___/   O
-
     construct the data to be contained within "melFilter"
      * (voir la fonction dans matlab : "powerSpectral.m"
     -------------------------------------------*/
+    int i = 0;
+    int index = 0;
+
+    for (i = 0; i < size; i += 2)
+    {
+        x[index] = x_complex[i]*x_complex[i] + x_complex[i+1]*x_complex[i+1];
+        index ++;
+    }
+
 }
 
 /*
