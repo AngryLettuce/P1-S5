@@ -209,17 +209,33 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size) {
     int i = 0;
     int index = 0;
 
-    for (i = 0; i < size; i += 2)
+    for (i = 0; i <= size; i += 2)
     {
-        x[index] = x_complex[i]*x_complex[i] + x_complex[i+1]*x_complex[i+1];
+        x[index] = (x_complex[i] * x_complex[i]) + (x_complex[i+1] * x_complex[i+1]);
         index ++;
     }
 
 }
 
 
+float moving_average(float beta_acc, int size, int acc_size){
+    static float alpha_p = 0;
+    static float alpha = 0;
+    float average;
 
+    average = (alpha_p * (size - 2 * acc_size) + alpha + beta_acc)/size;
 
+    // Reasign the old values for the next iteration
+    alpha_p = alpha;
+    alpha   = beta_acc;
+
+    return average;
+
+}
+
+void acc_interval(float *curr_data, float *beta_acc){
+    (*beta_acc) += *curr_data;
+}
 
 
 

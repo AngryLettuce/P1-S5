@@ -33,8 +33,10 @@ void float2complex(float *a, float *b, int size);
 //calculate euclidean distance without taking the square root of the result
 float euclideanDistPow2(float *a, float *b, int size);
 
+//Moving average for silent recognition
 
-
+float moving_average(float beta_acc, int size, int acc_size);
+void acc_interval(float *curr_data, float *beta_acc);
 
 //------------------------------------
 //  MFCC FUNCTIONS
