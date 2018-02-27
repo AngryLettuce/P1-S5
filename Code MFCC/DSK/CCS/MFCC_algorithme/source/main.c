@@ -4,7 +4,11 @@
 #include <stdio.h>
 #include "data_structures.h"
 #include "functions.h"
+#include "test_bench.h"
 
+
+float test_bench_matrix[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+#pragma DATA_SECTION(test_bench_matrix, ".EXT_RAM")
 /*
 //tableau circulaire
 int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -14,6 +18,9 @@ int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
 int main(void) {
 
+    char *filename = "C:\\Users\\Guill\\Downloads\\freq2Mel_x1.csv";
+    int lines, columns;
+    read_csv_float(filename, test_bench_matrix, TEST_BENCH_MATRIX_SIZE, &lines, &columns);
 
    // float x[256], y[512];
     int i = 0;
