@@ -7,8 +7,10 @@
 #include "test_bench.h"
 
 
-float test_bench_matrix[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
-#pragma DATA_SECTION(test_bench_matrix, ".EXT_RAM")
+float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+#pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
+#pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
 /*
 //tableau circulaire
 int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -16,11 +18,22 @@ int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 */
 
 
+
 int main(void) {
 
-    char *filename = "C:\\Users\\Guill\\Downloads\\freq2Mel_x1.csv";
-    int lines, columns;
-    read_csv_float(filename, test_bench_matrix, TEST_BENCH_MATRIX_SIZE, &lines, &columns);
+
+    global_testBench(test_bench_x, test_bench_y);
+
+    return 1;
+}
+
+
+
+/*
+
+int main123(void) {
+
+
 
    // float x[256], y[512];
     int i = 0;
@@ -36,7 +49,7 @@ int main(void) {
         printf(" %f + %f i\n",fft256CoeffTab[i], fft256CoeffTab[i+1]);
     }
 
-/*
+
     while(1){
 
         for(i = 0; i < 256; i++) {
@@ -58,6 +71,7 @@ int main(void) {
         DSPF_sp_cfftr4_dif(y,y,256);
         printf("chat");
     }
-*/
 
+    return 1;
 }
+*/
