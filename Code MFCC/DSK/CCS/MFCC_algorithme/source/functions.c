@@ -217,16 +217,8 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size) {
 
 }
 
-/*
-void mfcc_dct
 
-function [ C ] = discreteCosineTransform( y )
 
-% return the discrete cosine transform of y;
-K = size(y,2);
-C = zeros(1,K);#
-
-<<<<<<< HEAD
 float moving_average(float beta_acc, int size, int acc_size){
     static float alpha_p = 0;
     static float alpha = 0;
@@ -245,6 +237,19 @@ float moving_average(float beta_acc, int size, int acc_size){
 void acc_interval(float *curr_data, float *beta_acc){
     (*beta_acc) += *curr_data;
 }
+
+
+
+/*
+void mfcc_dct
+
+function [ C ] = discreteCosineTransform( y )
+
+% return the discrete cosine transform of y;
+K = size(y,2);
+C = zeros(1,K);#
+
+
 =======
 k = 1:K;
 
@@ -254,8 +259,6 @@ end
 
 end
 */
->>>>>>> ebd2bf633d7838fc7eebdf9ce3dca1f6ec285e06
-
 
 
 
