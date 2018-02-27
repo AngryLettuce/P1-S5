@@ -29,7 +29,6 @@ int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_
             fscanf(fp, "%f,", &value);
             test_bench_matrix[i][j]= value;
         }
-        printf("%d \n", i);
     }
 
 
