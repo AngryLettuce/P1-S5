@@ -101,5 +101,9 @@ int read_csv_float(const char *filename, float (*test_bench_matrix)[TEST_BENCH_M
     }
 
     fclose(fp);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 09bf0997b8e77d8f7b82e49d8a04e64a5ba97595
     return 1;
 }
