@@ -194,7 +194,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
 void mfcc_fft_init(float *w, short *index, int N) {
 
     tw_genr2fft(w, N); // Generate coefficient table
-    bit_rev(w, N >> 2); // Bit-reverse coefficient table
+    bit_rev(w, N >> 1); // Bit-reverse coefficient table
 
     bitrev_index(index, N);//generate index table for bit reverse output
 }

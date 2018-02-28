@@ -30,14 +30,14 @@ int global_testBench() {
     int success = 1;
 
     float threshold = 0.001;
-
+    /*
     success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", threshold);
     success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", threshold);
 
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", threshold);
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", threshold);
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", threshold);
-
+    */
     success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", threshold);
     success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", threshold);
     success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", threshold);
@@ -173,7 +173,7 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
     int i, lines, columns;
     float RMS = 0;
     float rErrAvg = 0;
-    float Ry0, Iy0, Ryr, Iyr, rErr;
+    float Ry0, Iy0, Ryr, Iyr, P0, Pr, rErr;
 
     float x[256];
     short index[256];
@@ -192,29 +192,35 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
 
     mfcc_fft_init(w, index, 256);
     mfcc_fft(x_complex, w, index, 256);
-    DSPF_sp_bitrev_cplx(x_complex, index, 256);
 
 
-    for(i = 0; i < lines; i+=2) {
+    for(i = 0; i < lines; i++) {
 
-        Ry0 = x_complex[i];
-        Iy0 = x_complex[i+1];
+        Ry0 = x_complex[i*2];
+        Iy0 = x_complex[i*2+1];
 
         Ryr = test_bench_y[i][0];
         Iyr = test_bench_y[i][1];
 
-        //rErr = fabs((Ry0 - Ryr)/Ry0) + fabs((Iy0 - Iyr)/Iy0);
-        //rErrAvg += rErr;
+        P0 = Ry0*Ry0 + Iy0*Iy0;
+        Pr = Ryr*Ryr + Iyr*Iyr;
 
-        printf("%lf + %lf, %f + %f \n", Ry0, Iy0, Ryr, Ryr);
+        rErr = fabs((P0 - Pr)/(P0 + 0.0001));
+        rErrAvg += rErr;
 
-        if (rErr > threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
+        printf("%f + %f j, %f + %f j, %f %% (%f %%) \n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
+
+        if (rErr > 2*threshold) {
+            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*200, i);
             return 0;
         }
 
         RMS += pow(Ry0 - Ryr, 2) + pow(Iy0 - Iyr, 2);
     }
+
+
+    mfcc_powerSpectrum(x, x_complex, 256);
+
 
     RMS /= lines;
     rErrAvg /= lines;
