@@ -7,10 +7,8 @@
 #include "test_bench.h"
 
 
-float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
-float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
-#pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
-#pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
+
+
 
 /*
 //tableau circulaire
@@ -23,7 +21,7 @@ int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 int main(void) {
 
 
-    global_testBench(test_bench_x, test_bench_y);
+    global_testBench();
 
     return 1;
 }

@@ -13,31 +13,41 @@
 #define TEST_BENCH_FOLDER "../testBench/"
 
 
-int global_testBench(float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE], float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+#pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
+#pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
+
+float x_complex[2*SIGNAL_BLOCK_SIZE];
+float w[SIGNAL_BLOCK_SIZE];
+#pragma DATA_ALIGN(x, 8);
+#pragma DATA_ALIGN(w, 8);
+
+
+
+int global_testBench() {
 
     int success = 1;
 
     float threshold = 0.001;
-    /*
-    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", threshold, test_bench_x, test_bench_y);
-    success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", threshold, test_bench_x, test_bench_y);
 
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", threshold, test_bench_x, test_bench_y);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", threshold, test_bench_x, test_bench_y);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", threshold, test_bench_x, test_bench_y);
-    */
-    success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", threshold, test_bench_x, test_bench_y);
-    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", threshold, test_bench_x, test_bench_y);
-    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", threshold);
+    success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", threshold);
+
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", threshold);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", threshold);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", threshold);
+
+    success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", threshold);
+    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", threshold);
+    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", threshold);
 
 
     return success;
 }
 
 
-int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold,
-                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold) {
 
     int i, lines, columns;
     float RMS = 0;
@@ -76,9 +86,7 @@ int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold,
     return 1;
 }
 
-int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold,
-                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold) {
 
     int i, lines, columns;
     float RMS = 0;
@@ -117,9 +125,7 @@ int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold,
 }
 
 
-int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float threshold,
-                               float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                               float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float threshold) {
 
     int i, lines, columns;
     float RMS = 0;
@@ -163,9 +169,7 @@ int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float thresh
     return 1;
 }
 
-int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold,
-                   float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                   float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
     int i, lines, columns;
     float RMS = 0;
     float rErrAvg = 0;
