@@ -63,8 +63,8 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank,
                                          int   sample_rate);
 
 //fft of windowed signal
-void mfcc_fft256_init(float *fft256CoeffTab);
-void mfcc_fft256(float *complexTab, float *fft256CoeffTab);
+void mfcc_fft_init(float *w, short *index, int N);
+void mfcc_fft(float *complexTab, float *w, short *index, int N);
 
 
 

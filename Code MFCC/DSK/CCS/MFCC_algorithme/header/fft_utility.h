@@ -12,6 +12,7 @@
 
 void tw_genSPxSPfft(float * w, int n);
 void bit_rev(float* x, int n); 
+void bitrev_index(short *index, int n);
 void tw_genr2fft(float* w, int n);
 void tw_genr4fft(float *, int);
 void R4DigitRevIndexTableGen(int n, int * count, unsigned short *IIndex, unsigned short *JIndex);

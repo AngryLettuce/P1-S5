@@ -13,7 +13,6 @@
 #include "DSPF_sp_cfftr2_dit.h"
 
 
-
 //for FFT implementation
 #define MAX 200
 #define M_PI 3.1415926535897932384
@@ -192,17 +191,19 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
 // DSPF_sp_cfftr2_dit(float *src, float *dst, short n);
 // voir librairie du DSP, "DSPLIB"
 
-void mfcc_fft256_init(float *fft256CoeffTab) {
+void mfcc_fft_init(float *w, short *index, int N) {
 
-    tw_genr2fft(fft256CoeffTab, 256); // Generate coefficient table
-    bit_rev(fft256CoeffTab, 128); // Bit-reverse coefficient table
+    tw_genr2fft(w, N); // Generate coefficient table
+    bit_rev(w, N >> 2); // Bit-reverse coefficient table
+
+    bitrev_index(index, N);//generate index table for bit reverse output
 }
 
 
-void mfcc_fft256(float *complexTab, float *fft256CoeffTab) {
+void mfcc_fft(float *complexTab, float *w, short* index, int N) {
 
-    DSPF_sp_cfftr2_dit(complexTab, fft256CoeffTab, 256);
-    bit_rev(complexTab, 256);
+    DSPF_sp_cfftr2_dit(complexTab, w, N);
+    DSPF_sp_bitrev_cplx(complexTab, index, N);
 }
 
 //--------------------------------------------

@@ -20,7 +20,7 @@ float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
 
 float x_complex[2*SIGNAL_BLOCK_SIZE];
 float w[SIGNAL_BLOCK_SIZE];
-#pragma DATA_ALIGN(x, 8);
+#pragma DATA_ALIGN(x_complex, 8);
 #pragma DATA_ALIGN(w, 8);
 
 
@@ -174,8 +174,10 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
     float RMS = 0;
     float rErrAvg = 0;
     float Ry0, Iy0, Ryr, Iyr, rErr;
-    float y[256], y_complex[256];
-    float fft256CoeffTab[256];
+
+    float x[256];
+    short index[256];
+
 
     if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
         return 0;
@@ -184,17 +186,19 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
         return 0;
 
     for(i = 0; i < 256; i++){
-        y[i] = test_bench_x[i][0];
+        x[i] = test_bench_x[i][0];
     }
+    float2complex(x, x_complex, 256);
 
-    mfcc_fft256_init(fft256CoeffTab);
-    float2complex(y, y_complex, 256);
-    mfcc_fft256(y_complex, fft256CoeffTab);
+    mfcc_fft_init(w, index, 256);
+    mfcc_fft(x_complex, w, index, 256);
+    DSPF_sp_bitrev_cplx(x_complex, index, 256);
+
 
     for(i = 0; i < lines; i+=2) {
 
-        Ry0 = y_complex[i];
-        Iy0 = y_complex[i+1];
+        Ry0 = x_complex[i];
+        Iy0 = x_complex[i+1];
 
         Ryr = test_bench_y[i][0];
         Iyr = test_bench_y[i][1];
