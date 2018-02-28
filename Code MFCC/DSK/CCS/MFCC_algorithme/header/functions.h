@@ -23,7 +23,7 @@
 //  UTILS FUNCTION
 //------------------------------------
 
-
+float float_abs(float x);
 //float element wise vector multiplication
 void fvec_elementWise_mult(float *a, float *b, float *dest, int size);
 

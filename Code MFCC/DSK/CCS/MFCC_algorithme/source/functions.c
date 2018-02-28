@@ -10,7 +10,7 @@
 #include "math.h"
 
 #include "fft_utility.h"
-#include <DSPF_sp_cfftr2_dit.h>
+#include "DSPF_sp_cfftr2_dit.h"
 
 
 
@@ -24,6 +24,14 @@
 //--------------------------------------------
 //  UTILS FUNCTIONS
 //--------------------------------------------
+
+
+float float_abs(float x) {
+    if (x < 0.0)
+        return -x;
+    return x;
+}
+
 
 //float element wise vector multiplication
 void fvec_elementWise_mult(float *a, float *b, float *dest, int size) {
@@ -116,13 +124,13 @@ void mfcc_hamming_window_256_opt(float *x) {
 //normal frequency to mel frequency
 float mfcc_freq2mel(float f) {
 
-    return  1125*log(1 + f/700);
+    return  1125.0*log(1.0 + f/700.0);
 }
 
 //mel frequency to normal frequency
 float mfcc_mel2freq(float mel) {
 
-    return 700*exp(mel/1125) - 700;
+    return 700.0*exp(mel/1125.0) - 700.0;
 }
 
 //mel filter bank construct

@@ -11,53 +11,42 @@
 #define TEST_BENCH_MATRIX_SIZE 1000
 
 
-int read_csv_float(const char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns);
+int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns);
 
 int global_testBench(float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE], float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
 
 
-int tb_freq2Mel(const char *filename_x, const char *filename_y,  float threshold,
-                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mel2Freq(const char *filename_x, const char *filename_y,  float threshold,
-                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
-
-int tb_mfcc_(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_(char *filename_x, char *filename_y,  float threshold,
              float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
              float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_preAmpFIR(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_preAmpFIR(char *filename_x, char *filename_y,  float threshold,
                       float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                       float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_hamming_window_256(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float threshold,
                                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_freq2mel(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_freq2mel(char *filename_x, char *filename_y,  float threshold,
                      float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                      float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_mel2freq(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_mel2freq(char *filename_x, char *filename_y,  float threshold,
                      float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                      float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_melFilterBank_create(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_melFilterBank_create(char *filename_x, char *filename_y,  float threshold,
                                  float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                                  float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_fft256_init(const char *filename_x, const char *filename_y,  float threshold,
-                        float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
-                        float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
-
-int tb_mfcc_fft256(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold,
                    float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                    float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 
-int tb_mfcc_powerSpectrum(const char *filename_x, const char *filename_y,  float threshold,
+int tb_mfcc_powerSpectrum(char *filename_x, char *filename_y,  float threshold,
                           float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                           float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]);
 

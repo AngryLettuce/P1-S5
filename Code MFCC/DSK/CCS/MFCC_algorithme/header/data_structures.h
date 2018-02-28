@@ -52,7 +52,10 @@
 //  data structure use in the algorithm
 //--------------------------------------
 
-
+float x_complex[2*SIGNAL_BLOCK_SIZE];
+float w[SIGNAL_BLOCK_SIZE];
+#pragma DATA_ALIGN(x, 8);
+#pragma DATA_ALIGN(w, 8);
 
 
 

@@ -4,11 +4,13 @@
 #include <math.h>
 #include <string.h>
 
+#include "data_structures.h"
 #include "test_bench.h"
 #include "functions.h"
 #include "fft_utility.h"
 
-#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+//#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+#define TEST_BENCH_FOLDER "../testBench/"
 
 
 int global_testBench(float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE], float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
@@ -16,24 +18,24 @@ int global_testBench(float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE], float (*test
     int success = 1;
 
     float threshold = 0.001;
-    success *= tb_freq2Mel(
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_x1.csv",
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_y1.csv",
-                    threshold, test_bench_x, test_bench_y);
-    success *= tb_freq2Mel(
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_x2.csv",
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_y2.csv",
-                    threshold, test_bench_x, test_bench_y);
-    success *= tb_freq2Mel(
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_x3.csv",
-                    "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/freq2Mel_y3.csv",
-                    threshold, test_bench_x, test_bench_y);
+    /*
+    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", threshold, test_bench_x, test_bench_y);
+
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", threshold, test_bench_x, test_bench_y);
+    */
+    success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", threshold, test_bench_x, test_bench_y);
+    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", threshold, test_bench_x, test_bench_y);
+
 
     return success;
 }
 
 
-int tb_freq2Mel(const char *filename_x, const char *filename_y, float threshold,
+int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold,
                 float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
                 float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
 
@@ -53,11 +55,14 @@ int tb_freq2Mel(const char *filename_x, const char *filename_y, float threshold,
         y0 = mfcc_freq2mel(test_bench_x[i][0]);
         yr = test_bench_y[i][0];
 
-        rErr = abs((y0 - yr)/y0);
+
+        rErr = fabs((y0 - yr)/y0);
         rErrAvg += rErr;
 
+        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
+
         if (rErr > threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f (%f), i = %d \n", filename_x, rErr, threshold, i);
+            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
             return 0;
         }
 
@@ -65,18 +70,175 @@ int tb_freq2Mel(const char *filename_x, const char *filename_y, float threshold,
     }
 
     RMS /= lines;
-    rErr /= lines;
+    rErrAvg /= lines;
 
-    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f (%f)Threshold \n", filename_x, RMS, rErrAvg, threshold);
+    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
+    return 1;
+}
+
+int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold,
+                float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
+                float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+
+    int i, lines, columns;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    for(i = 0; i < lines; i++) {
+
+        y0 = mfcc_mel2freq(test_bench_x[i][0]);
+        yr = test_bench_y[i][0];
+
+        rErr = fabs((y0 - yr)/y0);
+        rErrAvg += rErr;
+
+        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
+
+        if (rErr > threshold) {
+            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
+            return 0;
+        }
+
+        RMS += pow(y0 - yr, 2);
+    }
+
+    RMS /= lines;
+    rErrAvg /= lines;
+
+    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
+    return 1;
+}
+
+
+int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float threshold,
+                               float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
+                               float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+
+    int i, lines, columns;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+    float y[256];
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    for(i = 0; i < 256; i++){
+        y[i] = test_bench_x[i][0];
+    }
+    mfcc_hamming_window_256(y);
+
+    for(i = 0; i < lines; i++) {
+
+        y0 = y[i];
+        yr = test_bench_y[i][0];
+
+        rErr = fabs((y0 - yr)/y0);
+        rErrAvg += rErr;
+
+        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
+
+        if (rErr > threshold) {
+            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
+            return 0;
+        }
+
+        RMS += pow(y0 - yr, 2);
+    }
+
+    RMS /= lines;
+    rErrAvg /= lines;
+
+    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
+    return 1;
+}
+
+int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold,
+                   float (*test_bench_x)[TEST_BENCH_MATRIX_SIZE],
+                   float (*test_bench_y)[TEST_BENCH_MATRIX_SIZE]) {
+    int i, lines, columns;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float Ry0, Iy0, Ryr, Iyr, rErr;
+    float y[256], y_complex[256];
+    float fft256CoeffTab[256];
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    for(i = 0; i < 256; i++){
+        y[i] = test_bench_x[i][0];
+    }
+
+    mfcc_fft256_init(fft256CoeffTab);
+    float2complex(y, y_complex, 256);
+    mfcc_fft256(y_complex, fft256CoeffTab);
+
+    for(i = 0; i < lines; i+=2) {
+
+        Ry0 = y_complex[i];
+        Iy0 = y_complex[i+1];
+
+        Ryr = test_bench_y[i][0];
+        Iyr = test_bench_y[i][1];
+
+        //rErr = fabs((Ry0 - Ryr)/Ry0) + fabs((Iy0 - Iyr)/Iy0);
+        //rErrAvg += rErr;
+
+        printf("%lf + %lf, %f + %f \n", Ry0, Iy0, Ryr, Ryr);
+
+        if (rErr > threshold) {
+            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
+            return 0;
+        }
+
+        RMS += pow(Ry0 - Ryr, 2) + pow(Iy0 - Iyr, 2);
+    }
+
+    RMS /= lines;
+    rErrAvg /= lines;
+
+    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
     return 1;
 }
 
 
 
-int read_csv_float(const char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns){
+
+
+
+
+
+
+
+
+
+
+
+
+int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns){
     FILE *fp;
 
-    fp = fopen(filename, "r");
+    char dir[] = TEST_BENCH_FOLDER;
+    char scr[100];
+
+    strcpy(scr, filename);
+    strcat(dir, scr);
+
+    fp = fopen(dir, "r");
 
     float value;
 
@@ -101,9 +263,5 @@ int read_csv_float(const char *filename, float (*test_bench_matrix)[TEST_BENCH_M
     }
 
     fclose(fp);
-<<<<<<< HEAD
-=======
-
->>>>>>> 09bf0997b8e77d8f7b82e49d8a04e64a5ba97595
     return 1;
 }
