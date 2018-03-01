@@ -1,7 +1,5 @@
-function [  ] = write_testBench_data( filename, x, y )
+function [  ] = write_testBench_data( filename, x, y, N )
 
-
-N = size(x,2);
 
 for i = 1:N
     filename_x = ['testBench/',filename,'_x',num2str(i),'.csv'];

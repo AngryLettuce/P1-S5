@@ -1,0 +1,29 @@
+function [  ] = write_testBench_data( filename, x, y )
+%UNTITLED4 Summary of this function goes here
+%   Detailed explanation goes here
+
+
+N = size(x,1);
+
+for i = 1:N
+    filename_x = ['testBench/',filename,'_x',num2str(i),'.csv'];
+    filename_y = ['testBench/',filename,'_y',num2str(i),'.csv'];
+    
+    %write header to file
+    fid = fopen(filename_x,'w'); 
+    fprintf(fid,'%s\n',[num2str(size(x{i},1)), ',', num2str()]);
+    fclose(fid);
+
+    fid = fopen(filename_y,'w'); 
+    fprintf(fid,'%s\n',textHeader);
+    fclose(fid);
+
+    dlmwrite(filename_x,x{i});   
+    dlmwrite(filename_y,y{i});
+end
+
+
+
+
+end
+

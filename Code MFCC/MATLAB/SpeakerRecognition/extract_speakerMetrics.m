@@ -66,6 +66,9 @@ while(y0 + N - 1 < size(data,2))
     if (mean(abs(y)) <= data_silence_threshold) 
         continue;
     end
+    
+    figure(1)
+    plot(y)
       
     C{n} = mfcc_extraction(y, param);
     C{n} = C{n}(2:param.mfccCoeff_nb + 1);%we remove the first coefficient because it's speaker independente, it only represent the average volume of the speech
