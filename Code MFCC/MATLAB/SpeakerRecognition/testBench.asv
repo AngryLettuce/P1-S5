@@ -22,6 +22,10 @@ for i = 3:-1:1
     y_complex{i} = [real(y{i}),imag(y{i})];
 end
 write_testBench_data('mfcc_fft',x,y_complex);
+    y{i} = [real(y{i}),imag(y{i})];
+end
+write_testBench_data('mfcc_fft',x,y);
+
 
 
 %powerSpectrum ----------------------------------
@@ -37,11 +41,19 @@ write_testBench_data('mfcc_powerSpectrum',x,y);
 %% MODULE MEL FILTER BANK
 %freq2Mel ---------------------------------------
 x{1} = (1:1000);
+    x{i} = [real(x{i}),imag(x{i})];
+end
+write_testBench_data('mfcc_powerSpectrum',x,powerSpectrum);
+
+%% MODULE MEL FILTER BANK
+%freq2Mel ---------------------------------------
+x{1} = (1:8000);
 y{1} = freq2Mel(x{1});
 write_testBench_data('freq2Mel',x,y);
 
 %mel2Freq ---------------------------------------
 x{1} = (1:1000);
+x{1} = (1:8000);
 y{1} = mel2Freq(x{1});
 write_testBench_data('mel2Freq',x,y);
 
@@ -74,6 +86,8 @@ x = sin(3*t) + sin(4*t);
 acc_size = 256;
 step_size = 100;
 
+    y{i} = melFilters{i} .* (ones(size(powerSpectrum{i}, 2) * powerSpectrum{i});
+end
 
 
 
