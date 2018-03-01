@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
+
+
 
 #include "data_structures.h"
 #include "test_bench.h"
@@ -11,7 +14,7 @@
 
 //#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 #define TEST_BENCH_FOLDER "../testBench/"
-
+#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
 float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
@@ -25,31 +28,94 @@ float w[SIGNAL_BLOCK_SIZE];
 
 
 
-int global_testBench() {
+//utils local function for result writing and display
+void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns) {
+    fprintf(fp,"------------------------------------------------\n");
+    fprintf(fp,"         %s         \n", name);
+    fprintf(fp,"------------------------------------------------\n\n");
+    fprintf(fp,"    Source file : %s ,  %s\n", filename_x, filename_y);
+    fprintf(fp,"    data : %d x %d\n\n", lines, columns);
+}
+
+void write_test_result(FILE *fp, char * filename, int success, float RMS, float rErrAvg, float threshold) {
+    if (!success) {
+        printf(     "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+    } else {
+        printf(     "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+    }
+}
+
+void write_test_subresult_float(FILE *fp, float y0, float yr, float rErr, float threshold, int i, int *success) {
+    fprintf(fp,"%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%)\n", i, y0, yr, rErr*100, threshold*100);
+    if (rErr > threshold) {
+        fprintf(fp, "%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%) <---------- Failed\n", i, y0, yr, rErr*100, threshold*100);
+        *success = 0;
+    }
+}
+
+void write_test_subresult_complex(FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success) {
+    fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) \n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
+
+    if (rErr > threshold) {
+        fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) <---------- Failed\n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
+        success = 0;
+    }
+}
+
+// TEST BENCH MAIN FUNCTION
+
+int global_testBench(float g_threshold) {
+
+    //get current date and time
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+
+    char filename[100];
+    char dir[100] = TEST_BENCH_LOG_FOLDER;
+
+    sprintf(filename, "TB_%d-%02d-%02d_%02dh%02dm%02ds.txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+    strcat(dir, filename);
+
+    FILE *fp;
+    fp = fopen(dir,"a");
+    fprintf(fp,"\n");
+    fprintf(fp, "   TB_%d-%02d-%02d_%02dh%02dm%02ds.txt\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(fp,"\n");
+    fclose(fp);
 
     int success = 1;
 
-    float threshold = 0.001;
-    /*
-    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", threshold);
-    success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", threshold);
+    float threshold = g_threshold;
 
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", threshold);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", threshold);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", threshold);
-    */
-    success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", threshold);
-    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", threshold);
-    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", threshold);
+    //start of unit tests
+
+    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
+    success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", dir, threshold);
+
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", dir, threshold);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", dir, threshold);
+    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", dir, threshold);
+
+    success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", dir, threshold);
+    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", dir, threshold);
+    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", dir, threshold);
 
 
     return success;
 }
 
 
-int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold) {
+int tb_mfcc_freq2mel(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+
+    FILE* fp;
 
     int i, lines, columns;
+    int success = 1;
     float RMS = 0;
     float rErrAvg = 0;
     float y0,yr,rErr;
@@ -60,35 +126,41 @@ int tb_mfcc_freq2mel(char *filename_x, char *filename_y, float threshold) {
     if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
         return 0;
 
-    for(i = 0; i < lines; i++) {
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Frequency to Mel", filename_x, filename_y, lines, columns);
 
+    for(i = 0; i < lines; i++) {
+        //output calculation
         y0 = mfcc_freq2mel(test_bench_x[i][0]);
         yr = test_bench_y[i][0];
 
-
+        //relative error calculation
         rErr = fabs((y0 - yr)/y0);
         rErrAvg += rErr;
 
-        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
-
-        if (rErr > threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
-            return 0;
-        }
+        //write subresult to log file
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
 
         RMS += pow(y0 - yr, 2);
     }
-
     RMS /= lines;
     rErrAvg /= lines;
 
-    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
-    return 1;
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
 }
 
-int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold) {
+int tb_mfcc_mel2freq(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+    FILE* fp;
 
     int i, lines, columns;
+    int success = 1;
     float RMS = 0;
     float rErrAvg = 0;
     float y0,yr,rErr;
@@ -98,36 +170,43 @@ int tb_mfcc_mel2freq(char *filename_x, char *filename_y, float threshold) {
 
     if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
         return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Mel to Frequency", filename_x, filename_y, lines, columns);
 
     for(i = 0; i < lines; i++) {
 
         y0 = mfcc_mel2freq(test_bench_x[i][0]);
         yr = test_bench_y[i][0];
 
+        //relative error calculation
         rErr = fabs((y0 - yr)/y0);
         rErrAvg += rErr;
 
-        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
-
-        if (rErr > threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
-            return 0;
-        }
+        //write subresult to log file
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
 
         RMS += pow(y0 - yr, 2);
     }
-
     RMS /= lines;
     rErrAvg /= lines;
 
-    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
-    return 1;
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
 }
 
 
-int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float threshold) {
+int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+    FILE* fp;
 
     int i, lines, columns;
+    int success = 1;
     float RMS = 0;
     float rErrAvg = 0;
     float y0,yr,rErr;
@@ -139,6 +218,11 @@ int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float thresh
     if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
         return 0;
 
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Hamming Window 256", filename_x, filename_y, lines, columns);
+
     for(i = 0; i < 256; i++){
         y[i] = test_bench_x[i][0];
     }
@@ -149,28 +233,31 @@ int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y,  float thresh
         y0 = y[i];
         yr = test_bench_y[i][0];
 
+        //relative error calculation
         rErr = fabs((y0 - yr)/y0);
         rErrAvg += rErr;
 
-        printf("%f %f rErr: %f %%\n", y0, yr, rErr*100);
-
-        if (rErr > threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*100, i);
-            return 0;
-        }
+        //write subresult to log file
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
 
         RMS += pow(y0 - yr, 2);
     }
-
     RMS /= lines;
     rErrAvg /= lines;
 
-    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
-    return 1;
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
 }
 
-int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
+int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+    FILE* fp;
+
     int i, lines, columns;
+    int success = 1;
     float RMS = 0;
     float rErrAvg = 0;
     float Ry0, Iy0, Ryr, Iyr, P0, Pr, rErr;
@@ -184,6 +271,11 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
 
     if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
         return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Fast Fourier Transform (FFT)", filename_x, filename_y, lines, columns);
 
     for(i = 0; i < 256; i++){
         x[i] = test_bench_x[i][0];
@@ -208,25 +300,19 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y,  float threshold) {
         rErr = fabs((P0 - Pr)/(P0 + 0.0001));
         rErrAvg += rErr;
 
-        printf("%f + %f j, %f + %f j, %f %% (%f %%) \n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
-
-        if (rErr > 2*threshold) {
-            printf("F - Test \"%s\" failed!, rErr = %f %% (%f %%), i = %d \n", filename_x, rErr*100, threshold*200, i);
-            return 0;
-        }
+        write_test_subresult_complex(fp, Ry0, Iy0, Ryr, Iyr, rErr, threshold, i, &success);
 
         RMS += pow(Ry0 - Ryr, 2) + pow(Iy0 - Iyr, 2);
     }
 
-
-    mfcc_powerSpectrum(x, x_complex, 256);
-
-
     RMS /= lines;
     rErrAvg /= lines;
 
-    printf("S - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename_x, RMS, rErrAvg*100, threshold*100);
-    return 1;
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
 }
 
 
