@@ -3,6 +3,8 @@ function [ C ] = mfcc_extraction( y, param )
 
     global DEBUG 
 
+    
+    
     y = hammingWindow(y);%apply the hamming window to attenuate start and end of 256 block
 
     y = fft(y);%apply fft to 256 data block

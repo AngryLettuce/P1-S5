@@ -48,11 +48,12 @@ void write_test_result(FILE *fp, char * filename, int success, float RMS, float 
 }
 
 void write_test_subresult_float(FILE *fp, float y0, float yr, float rErr, float threshold, int i, int *success) {
-    fprintf(fp,"%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%)\n", i, y0, yr, rErr*100, threshold*100);
     if (rErr > threshold) {
         fprintf(fp, "%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%) <---------- Failed\n", i, y0, yr, rErr*100, threshold*100);
         *success = 0;
     }
+    else
+        fprintf(fp,"%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%)\n", i, y0, yr, rErr*100, threshold*100);
 }
 
 void write_test_subresult_complex(FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success) {
@@ -332,7 +333,7 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float thre
 int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns){
     FILE *fp;
 
-    char dir[] = TEST_BENCH_FOLDER;
+    char dir[100] = TEST_BENCH_FOLDER;
     char scr[100];
 
     strcpy(scr, filename);
