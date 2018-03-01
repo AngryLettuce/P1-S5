@@ -65,13 +65,15 @@ write_testBench_data('mfcc_coeff',x,melFilters);
 
 %% 
 
+clearvars
+close all
+clc
+
 t = 1:2500;
-x{1} = abs(sin(3*t) + sin(4*t));
-acc_size  = 256;
+x = sin(3*t) + sin(4*t);
+acc_size = 256;
 step_size = 100;
 
-moving_average{1} = movingAverage(x{1}, acc_size, step_size);
-write_testBench_data('moving_average',x,moving_average);
 
 
 
