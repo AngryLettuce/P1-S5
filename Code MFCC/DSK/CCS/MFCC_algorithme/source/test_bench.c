@@ -13,8 +13,10 @@
 #include "fft_utility.h"
 
 //#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
-#define TEST_BENCH_FOLDER "../testBench/"
-#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+//#define TEST_BENCH_FOLDER "../testBench/"
+//#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+#define TEST_BENCH_LOG_FOLDER  "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 float test_bench_x[TEST_BENCH_MATRIX_SIZE][100];
 float test_bench_y[TEST_BENCH_MATRIX_SIZE][100];
@@ -39,11 +41,11 @@ void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y,
 
 void write_test_result(FILE *fp, char * filename, int success, float RMS, float rErrAvg, float threshold) {
     if (!success) {
-        printf(     "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
-        fprintf(fp, "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+        printf(     "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
     } else {
-        printf(     "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
-        fprintf(fp, "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n", filename, RMS, rErrAvg*100, threshold*100);
+        printf(     "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
     }
 }
 
@@ -74,8 +76,8 @@ int global_testBench(float g_threshold) {
     struct tm tm = *localtime(&t);
 
 
-    char filename[100];
-    char dir[100] = TEST_BENCH_LOG_FOLDER;
+    char filename[200];
+    char dir[200] = TEST_BENCH_LOG_FOLDER;
 
     sprintf(filename, "TB_%d-%02d-%02d_%02dh%02dm%02ds.txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
@@ -96,6 +98,8 @@ int global_testBench(float g_threshold) {
 
     success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
     success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", dir, threshold);
+
+    success *= tb_moving_average("moving_average_x1.csv", "moving_average_y1.csv", dir, threshold);
 
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", dir, threshold);
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", dir, threshold);
@@ -318,11 +322,65 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float thre
 
 
 
+int tb_moving_average(char *filename_x, char *filename_y, char *logfile, float threshold) {
 
+    FILE* fp;
 
+    int i, j, lines_x, lines_y, columns_x, columns_y;
+    int success = 1;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+    float y[25];
+    float *beta_acc = 0;
+    int size = 256;
+    int acc_size = 100;
+    int k = 0;
 
+    if (read_csv_float(filename_x, test_bench_x, &lines_x, &columns_x) < 0)
+        return 0;
 
+    if (read_csv_float(filename_y, test_bench_y, &lines_y, &columns_y) < 0)
+        return 0;
 
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Moving Average", filename_x, filename_y, lines_y, columns_y);
+
+    for(j = 0; j < columns_x; j += acc_size){
+        for(i = 0; i < acc_size; i++){
+            acc_interval(&test_bench_x[0][i + j], beta_acc);
+        }
+
+        y[k] = moving_average(beta_acc, size, acc_size);
+        k += 1;
+        i = 0;
+    }
+
+    for(i = 0; i < lines_y; i++) {
+
+        y0 = y[i];
+        yr = test_bench_y[i][0];
+
+        //relative error calculation
+        rErr = fabs((y0 - yr)/y0);
+        rErrAvg += rErr;
+
+        //write subresult to log file
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+        RMS += pow(y0 - yr, 2);
+    }
+    RMS /= lines_y;
+    rErrAvg /= lines_y;
+
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
+}
 
 
 
@@ -333,8 +391,8 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float thre
 int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns){
     FILE *fp;
 
-    char dir[100] = TEST_BENCH_FOLDER;
-    char scr[100];
+    char dir[200] = TEST_BENCH_FOLDER;
+    char scr[200];
 
     strcpy(scr, filename);
     strcat(dir, scr);
