@@ -8,7 +8,7 @@
 #ifndef HEADER_TEST_BENCH_H_
 #define HEADER_TEST_BENCH_H_
 
-#define TEST_BENCH_MATRIX_SIZE 1000
+#define TEST_BENCH_MATRIX_SIZE 2560
 
 
 int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns);

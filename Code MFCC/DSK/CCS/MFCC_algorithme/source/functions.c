@@ -167,22 +167,18 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     {
         for (i = 1; i <= MEL_FILTER_NB; i++)
         {
+            melFilterBank->index[i][0] = f[i-1];
+            melFilterBank->index[i][1] = f[i+1];
+
             if (n >= f[i-1] && n <= f[i])
-            {
                 melFilterBank->melFilter[i-1][n] = (n - f[i-1]) / (f[i] - f[i-1]);
-            }
-
             else if (n > f[i] && n <= f[i+1])
-            {
                 melFilterBank->melFilter[i-1][n] = (f[i+1] - n) / (f[i+1] - f[i]);
-            }
-
             else
-            {
                 melFilterBank->melFilter[i-1][n] = 0;
-            }
         }
     }
+    melFilterBank->melFilter_nb = filter_number;
 }
 
 //--------------------------------------------
@@ -247,6 +243,25 @@ void acc_interval(float *curr_data, float *beta_acc){
     (*beta_acc) += *curr_data;
 }
 
+
+void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank melFilterBank) {
+
+    int i;
+    int filter_nb = melFilterBank->melFilter_nb;
+    float* filters = melFilterBank->melFilter;
+
+    for(i = 0; i < filter_nb; i++) {
+        coeff[i] = 0;
+        for(j = melFilterBank->melFilter[i][0]; j <= melFilterBank->melFilter[i][1]; j++) {
+            coeff[i] += x[j] * filters[i][j];
+        }
+    }
+}
+
+
+void mfcc_dct(float *coeff, int coeff_nb) {
+
+}
 
 
 /*

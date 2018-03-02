@@ -55,12 +55,10 @@ float mfcc_freq2mel(float f);//normal frequency to mel frequency
 float mfcc_mel2freq(float mel);//mel frequency to normal frequency
 
 //mel filter bank
-void mfcc_melFilterBank_create(MelFilterBank* melFilterBank,
-                                         float freqL,
-                                         float freqH,
-                                         int   filter_number,
-                                         int   size_data,
-                                         int   sample_rate);
+void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL,
+                               float freqH, int filter_number, int size_data, int sample_rate);
+
+void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank melFilterBank);
 
 //fft of windowed signal
 void mfcc_fft_init(float *w, short *index, int N);
