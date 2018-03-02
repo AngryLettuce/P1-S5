@@ -67,17 +67,17 @@ acc_size  = 256;
 step_size = 100;
 
 moving_average{1} = movingAverage(x{1}, acc_size, step_size);
-write_testBench_data('moving_average',x,moving_average);
+write_testBench_data('moving_average',x,moving_average',1);
 
 
 
 
 
 %powerSpectrum X melFilterBank ------------------
-for i = 3:-1:1
-    y{i} = sum(melFilters{i} .* (powerSpectrum{i} * ones(1,size(melFilters{i},2))),1)';
-end
-write_testBench_data('mfcc_coeff',x,melFilters);
+% for i = 3:-1:1
+%     y{i} = sum(melFilters{i} .* (powerSpectrum{i} * ones(1,size(melFilters{i},2))),1)';
+% end
+% write_testBench_data('mfcc_coeff',x,melFilters,3);
 
 
 
