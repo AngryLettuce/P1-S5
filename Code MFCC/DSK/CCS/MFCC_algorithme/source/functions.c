@@ -233,7 +233,7 @@ float moving_average(float *beta_acc, int size, int acc_size){
     static float alpha = 0;
     float average;
 
-    average = (alpha_p * (size - 2 * acc_size)/100 + alpha + *beta_acc)/size;
+    average = (alpha_p * (size - 2 * acc_size)/acc_size + alpha + *beta_acc)/size;
     // Reasign the old values for the next iteration
     alpha_p = alpha;
     alpha   = *beta_acc;
