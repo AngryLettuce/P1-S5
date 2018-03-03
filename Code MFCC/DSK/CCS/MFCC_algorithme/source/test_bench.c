@@ -18,8 +18,8 @@
 #define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 #define TEST_BENCH_LOG_FOLDER  "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
-float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
-float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE];
+float test_bench_x[TEST_BENCH_MATRIX_SIZE][100];
+float test_bench_y[TEST_BENCH_MATRIX_SIZE][100];
 #pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
 #pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
 
