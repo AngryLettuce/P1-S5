@@ -8,7 +8,32 @@ from PIL import Image, ImageTk
 import os
 import serial
 from time import sleep
-import threading
+from threading import Timer
+
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
 
     
 def ImageDictionnary(Orateur):
@@ -23,65 +48,82 @@ def ImageDictionnary(Orateur):
 
 class Application(tk.Frame):         
 
+
     def __init__(self, master=None):
+        baurate = 38400
+        readingTimeout = 1e-6
+
         tk.Frame.__init__(self, master)  
         self.grid()                      
         self.createWidgets()
-        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0")
-        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0")
-        self.CyclePhoto = 0
+        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.cyclePhoto = 0
+        self.startReadingThread(0.01)
 
     def createWidgets(self):
         #self.quitButton = tk.Button(self,  text='Exit',     command=self.quit)         
-        #self.quitButton.grid(row=1, column=3)   
+        #self.quitButton.grid(row=1, column=9)   
 
-        self.TrainButton = tk.Button(self, text='Training', command=lambda: self.CycleImage())            
-        self.TrainButton.grid(row=1, column=1)
-
-        self.ReadSerial = tk.Button(self,  text='Read Serial',  command=lambda: self.readSerial())
-        self.ReadSerial.grid()
-
-        self.WriteSerial = tk.Button(self, text='Write Serial', command=lambda: self.writingSerialButton())
-        self.WriteSerial.grid(row=1, column=2)
+        self.writingSerial_B = tk.Button(self, text='Write', command=lambda: self.writingSerialButton())
+        self.writingSerial_B.grid(columnspan=1, row=1, column=1)
 
         self.writingBox = tk.Entry(self)
-        self.writingBox.grid(columnspan=4, row=2, column=1)
+        self.writingBox.grid(columnspan=1, row=1, column=2)
 
-        self.ReadingLabel = tk.Label(self)
-        self.ReadingLabel.grid(columnspan=4, row=3, column=4)
+        self.readSerial_B = tk.Button(self,  text='Read', command=lambda: self.readSerial())
+        self.readSerial_B.grid(columnspan=1, row=2, columns=1)
 
-        self.OrateurPicLabel = tk.Label(self)
-        self.OrateurPicLabel.grid(columnspan=15, row=4, column=5)
+        self.readingLabel = tk.Label(self, text='This is the reading Label')
+        self.readingLabel.grid(columnspan=1, row=2, column=2)
 
-    def setupSerialPort(self, port):
-        ser = serial.Serial(port, 38400, timeout=0.000001)
+        self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
+        self.trainButton_B.grid(columnspan=1, row=3, column=1)
+
+        self.orateurPicLabel = tk.Label(self)
+        self.orateurPicLabel.grid(columnspan=15, row=4, column=5)
+
+
+    def startReadingThread(self, time):
+        RepeatedTimer(time, self.readSerial) 
+
+    def setupSerialPort(self, port, baudrate, timeout):
+        ser = serial.Serial(port, baudrate, timeout=timeout)
         return ser
 
-    def CycleImage(self):
-        if self.CyclePhoto == 0 : 
+    def cycleImage(self):
+        if self.cyclePhoto == 0 : 
             OrateurVariable = "Guillaume"
-            self.CyclePhoto = 1
+            self.cyclePhoto = 1
         else :
             OrateurVariable = "Pascal"
-            self.CyclePhoto = 0 
+            self.cyclePhoto = 0 
 
         photo = ImageDictionnary(OrateurVariable)
-        self.OrateurPicLabel.configure(image=photo)
-        self.OrateurPicLabel.photo = photo
+        self.orateurPicLabel.configure(image=photo)
+        self.orateurPicLabel.photo = photo
 
     def readSerial(self):
         data = self.ser2.read(9999)
-        self.ReadingLabel.configure(text=data.decode('ascii'))
-        self.ReadingLabel.text = data.decode('ascii')
+        data = data.decode('ascii')
+        if data != '':
+            self.readingLabel.configure(text=data)
+            self.readingLabel.text = data
 
-    def writeSerial(self):
+    def writingSerial(self):
         data = self.writingBox.get()
         self.ser1.write(data.encode())
 
 
     def writingSerialButton(self):
-        self.writeSerial()
+        self.writingSerial()
         #self.readSerial()
+
+    def printit(self):
+      threading.Timer(5.0, self.printit).start()
+      print("Hello, World!")
+
+
 
 
 
@@ -101,6 +143,8 @@ app.master.title('Projet S5 P01')
 w = MyRoot.winfo_screenwidth()
 h = MyRoot.winfo_screenheight()
 MyRoot.geometry("%dx%d+0+0" % (w, h))
+
+
 
 app.mainloop()
    
