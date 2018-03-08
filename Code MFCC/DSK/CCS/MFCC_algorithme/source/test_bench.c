@@ -12,16 +12,18 @@
 #include "functions.h"
 #include "fft_utility.h"
 
-//#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 //#define TEST_BENCH_FOLDER "../testBench/"
-//#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
-#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
-#define TEST_BENCH_LOG_FOLDER  "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+//#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+//#define TEST_BENCH_LOG_FOLDER  "C:/Users/Guill/Documents/GitHub/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
-float test_bench_x[TEST_BENCH_MATRIX_SIZE][100];
-float test_bench_y[TEST_BENCH_MATRIX_SIZE][100];
+float test_bench_x[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
+float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
 #pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
 #pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
+
+MelFilterBank melFilterBank;
 
 float x_complex[2*SIGNAL_BLOCK_SIZE];
 float w[SIGNAL_BLOCK_SIZE];
@@ -32,6 +34,7 @@ float w[SIGNAL_BLOCK_SIZE];
 
 //utils local function for result writing and display
 void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns) {
+
     fprintf(fp,"------------------------------------------------\n");
     fprintf(fp,"         %s         \n", name);
     fprintf(fp,"------------------------------------------------\n\n");
@@ -96,7 +99,9 @@ int global_testBench(float g_threshold) {
 
     //start of unit tests
 
-    success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
+
+    //success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
+    /*
     success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", dir, threshold);
 
     success *= tb_moving_average("moving_average_x1.csv", "moving_average_y1.csv", dir, threshold);
@@ -108,6 +113,9 @@ int global_testBench(float g_threshold) {
     success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", dir, threshold);
     success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", dir, threshold);
     success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", dir, threshold);
+    */
+    //success *= tb_moving_average("moving_average_x1.csv", "moving_average_y1.csv", dir, threshold);
+    success *= tb_mfcc_melFilterBank_create("mfcc_melFilterBank_x1.csv", "mfcc_melFilterBank_y1.csv", dir, threshold);
 
 
     return success;
@@ -257,6 +265,113 @@ int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y, char *logfile
     return success;
 }
 
+
+int tb_mfcc_melFilterBank_create(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+    FILE* fp;
+
+    int i, j, lines, columns;
+    int success = 1;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Mel Filter Bank", filename_x, filename_y, lines, columns);
+
+
+    mfcc_melFilterBank_create(&melFilterBank, test_bench_x[0][0],  test_bench_x[0][1],  test_bench_x[0][2],  test_bench_x[0][3],  test_bench_x[0][4]);
+
+    for(i = 0; i < lines; i++) {
+        for(j = 0; j < columns; j++) {
+            y0 = melFilterBank.melFilter[i][j];
+            yr = test_bench_y[i][j];
+
+            //relative error calculation
+            if (y0 != 0.)
+                rErr = fabs((y0 - yr)/y0);
+            else
+                rErr = 0;
+            rErrAvg += rErr;
+
+            //write subresult to log file
+            write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+            RMS += pow(y0 - yr, 2);
+        }
+    }
+    RMS /= lines*columns;
+    rErrAvg /= lines;
+
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
+}
+
+int tb_mfcc_getMelCoeff(char *filename_x, char *filename_y, char* logfile, float threshold) {
+
+    FILE* fp;
+
+    int i, lines, columns;
+    int success = 1;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+    float y[256];
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "Hamming Window 256", filename_x, filename_y, lines, columns);
+
+    for(i = 0; i < 256; i++){
+        y[i] = test_bench_x[i][0];
+    }
+    mfcc_hamming_window_256(y);
+
+    for(i = 0; i < lines; i++) {
+
+        y0 = y[i];
+        yr = test_bench_y[i][0];
+
+        //relative error calculation
+        rErr = fabs((y0 - yr)/y0);
+        rErrAvg += rErr;
+
+        //write subresult to log file
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+        RMS += pow(y0 - yr, 2);
+    }
+    RMS /= lines;
+    rErrAvg /= lines;
+
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
+}
+
+
+
 int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float threshold) {
 
     FILE* fp;
@@ -388,7 +503,7 @@ int tb_moving_average(char *filename_x, char *filename_y, char *logfile, float t
 
 
 
-int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE], int *lines, int *columns){
+int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE_J], int *lines, int *columns){
     FILE *fp;
 
     char dir[200] = TEST_BENCH_FOLDER;

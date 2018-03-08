@@ -58,16 +58,18 @@ float mfcc_mel2freq(float mel);//mel frequency to normal frequency
 void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL,
                                float freqH, int filter_number, int size_data, int sample_rate);
 
-void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank melFilterBank);
+void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank *melFilterBank);
 
 //fft of windowed signal
 void mfcc_fft_init(float *w, short *index, int N);
 void mfcc_fft(float *complexTab, float *w, short *index, int N);
 
-
-
 //power spectrum extraction from fft extracted complex table
 void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
+
+//DCT, frequency to temporal transformation
+void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb);
+void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb);
 
 
 #endif /* INCLUDE_FUNCTIONS_H_ */

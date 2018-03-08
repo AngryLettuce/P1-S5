@@ -12,11 +12,11 @@ mel(:) = mel(1):delta_mel:mel(N);
 
 
 f = mel2Freq(mel);
-f = floor((size_data + 1)*f/(sample_rate/2));
+f = floor((size_data)*f/(sample_rate/2));
 
 melFB = zeros(nb, size_data);%preassign mel filter bank matrix
 
-n = 1:size_data;
+n = 0:size_data-1;
 for i = 2:nb+1
     C1 = n >= f(i-1) & n <= f(i);
     C2 = n > f(i) & n <= f(i+1);

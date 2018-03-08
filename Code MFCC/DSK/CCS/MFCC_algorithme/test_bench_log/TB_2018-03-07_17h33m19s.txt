@@ -1,0 +1,9 @@
+
+   TB_2018-03-07_17h33m19s.txt
+
+------------------------------------------------
+         Mel Filter Bank         
+------------------------------------------------
+
+    Source file : mfcc_melFilterBank_x1.csv ,  mfcc_melFilterBank_y1.csv
+    data : 20 x 256
