@@ -1,0 +1,13 @@
+
+   TB_2018-03-08_13h50m23s.txt
+
+------------------------------------------------
+         Mel Filter Bank         
+------------------------------------------------
+
+    Source file : mfcc_melFilterBank_x1.csv ,  mfcc_melFilterBank_y1.csv
+    data : 20 x 128
+
+
+S - Test "mfcc_melFilterBank_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.003978 % (0.500000 %)Threshold 
+

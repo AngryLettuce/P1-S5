@@ -57,8 +57,26 @@ end
 write_testBench_data('mfcc_melFilterBank',x,melFilters',3);
 
 
-%get Mel coeff
+%get Mel coeff -----------------------------------
+x{1} = powerSpectrum{1}(1:end/2);
+x{2} = powerSpectrum{2}(1:end/2);
+x{3} = powerSpectrum{3}(1:end/2);
 
+for i = 3:-1:1
+    melCoeff{i} = sum(ones(size(melFilters{i},1),1) * x{i}' .*  melFilters{i},2);
+end
+write_testBench_data('mfcc_getMelCoeff',x,melCoeff,3);
+
+
+%% Discret Cosinus Transform
+x{1} = melCoeff{1};
+x{2} = melCoeff{2};
+x{3} = melCoeff{3};
+
+for i = 3:-1:1
+	y{i} = discreteCosineTransform(x{i}')';
+end
+write_testBench_data('mfcc_dct',x,y,3);
 
 
 

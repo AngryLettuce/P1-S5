@@ -182,6 +182,24 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     melFilterBank->melFilter_nb = filter_number;
 }
 
+
+void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank *melFilterBank) {
+
+    int i, j;
+    int filter_nb = melFilterBank->melFilter_nb;
+    float (*filters)[SIGNAL_BLOCK_SIZE/2] = melFilterBank->melFilter;
+    int (*index)[2] = melFilterBank->index;
+
+    for(i = 0; i < filter_nb; i++) {
+        coeff[i] = 0;
+        for(j = index[i][0] + 1; j <= index[i][1] - 1; j++) {
+            coeff[i] += x[j] * filters[i][j];
+        }
+    }
+}
+
+
+
 //--------------------------------------------
 //  FAST FOURIER TRANSFORM (FFT)
 //--------------------------------------------
@@ -246,20 +264,6 @@ void acc_interval(float *curr_data, float *beta_acc){
 }
 
 
-void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank *melFilterBank) {
-
-    int i, j;
-    int filter_nb = melFilterBank->melFilter_nb;
-    float (*filters)[SIGNAL_BLOCK_SIZE/2] = melFilterBank->melFilter;
-
-    for(i = 0; i < filter_nb; i++) {
-        coeff[i] = 0;
-        for(j = melFilterBank->melFilter[i][0]; j <= melFilterBank->melFilter[i][1]; j++) {
-            coeff[i] += x[j] * filters[i][j];
-        }
-    }
-}
-
 
 
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb) {
@@ -267,7 +271,7 @@ void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb) {
     int n, k;
     for(n = 0; n < out_coeff_nb; n++)
     for(k = 0; k < in_coeff_nb; k++)
-        cosTab[n*in_coeff_nb + k] = cos(n * M_PI * (k - 0.5) / in_coeff_nb);
+        cosTab[n*in_coeff_nb + k] = cos(n * M_PI * (k + 0.5) / in_coeff_nb);
 }
 
 void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb) {

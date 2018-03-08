@@ -27,6 +27,7 @@ int tb_mfcc_melFilterBank_create(char *filename_x, char *filename_y, char* logfi
 int tb_mfcc_getMelCoeff         (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_mfcc_fft256              (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_mfcc_powerSpectrum       (char *filename_x, char *filename_y, char* logfile, float threshold);
+int tb_mfcc_dct                 (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_moving_average           (char *filename_x, char *filename_y, char *logfile, float threshold);
 
 
