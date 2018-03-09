@@ -47,6 +47,9 @@ float mfcc_preAmpFIR(float x, float x_last);
 
 
 //apply hamming window to a signal
+void mfcc_hamming_window_init(float *h, int size);
+void mfcc_hamming_window(float *x, float *h);
+//fixed size hamming window
 void mfcc_hamming_window_256(float *x);
 void mfcc_hamming_window_256_opt(float *x);//optimized version
 
@@ -70,6 +73,5 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
 //DCT, frequency to temporal transformation
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb);
 void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb);
-
 
 #endif /* INCLUDE_FUNCTIONS_H_ */

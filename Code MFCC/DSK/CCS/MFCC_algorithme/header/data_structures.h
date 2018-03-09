@@ -74,6 +74,17 @@ typedef struct MetVecTab {
 
 
 //--------------------
+// HAMMING WINDOW
+//--------------------
+
+typedef struct HammingWindow {
+
+    float h[SIGNAL_BLOCK_SIZE];
+
+} HammingWindow;
+
+
+//--------------------
 //  MEL FILTER BANK
 //--------------------
 
@@ -104,7 +115,7 @@ typedef struct FFTmodule {
 typedef struct DCTmodule {
 
     float cosTab[MEL_FILTER_NB * MEL_FILTER_NB];
-
+    float coeff[MEL_FILTER_NB];
 } DCTmodule;
 
 
@@ -151,6 +162,7 @@ typedef struct MFCCModule {
     float x[SIGNAL_BLOCK_SIZE];
     int x_size;
 
+    HammingWindow hwin;
     MelFilterBank mfb;
     FFTmodule fft;//aligned to 8 byte since there a double size member, will force "w" twiddle to align to double. will in turn also force x_complex to be align to double
     DCTmodule dct;

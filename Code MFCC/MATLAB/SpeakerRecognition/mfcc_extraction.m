@@ -19,7 +19,7 @@ function [ C ] = mfcc_extraction( y, param )
     y = melCoeff(y, param.melFilter_flc, param.melFilter_flh, param.melFilter_nb, param.sample_rate, param.melFilter_triangular);%extract the melCoeff from the power spectrum
     
     
-    y = log(y);%get the logarithm of the coeffcient
+    y = log10(y);%get the logarithm of the coeffcient
     
     %save data to variables
     C = discreteCosineTransform(y);

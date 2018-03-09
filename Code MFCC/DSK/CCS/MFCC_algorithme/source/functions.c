@@ -81,6 +81,18 @@ float mfcc_preAmpFIR(float x, float x_last) {
 //  HAMMING WINDOW
 //--------------------------------------------
 
+//general purpose hamming window
+void mfcc_hamming_window_init(float *h, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        h[i] = 0.54 - 0.46*cos(2*M_PI*i/(size-1));
+}
+void mfcc_hamming_window(float *x, float *h) {
+    int i;
+    for(i = 0; i < 256; i++)
+        x[i] = x[i] * h[i];
+}
+
 //apply hamming window to a signal
 void mfcc_hamming_window_256(float *x) {
 
@@ -195,6 +207,7 @@ void mfcc_getMelCoeff(float *x, float *coeff, MelFilterBank *melFilterBank) {
         for(j = index[i][0] + 1; j <= index[i][1] - 1; j++) {
             coeff[i] += x[j] * filters[i][j];
         }
+        coeff[i] = log10(coeff[i]);
     }
 }
 

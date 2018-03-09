@@ -102,7 +102,7 @@ int global_testBench(float g_threshold) {
 
     //start of unit tests
 
-
+    /*
     success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
     success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", dir, threshold);
 
@@ -119,8 +119,10 @@ int global_testBench(float g_threshold) {
 
     success *= tb_mfcc_melFilterBank_create("mfcc_melFilterBank_x1.csv", "mfcc_melFilterBank_y1.csv", dir, threshold);
     success *= tb_mfcc_getMelCoeff("mfcc_getMelCoeff_x1.csv", "mfcc_getMelCoeff_y1.csv", dir, threshold);//need to be after the proper melfilterbank create test
-
+    */
     success *= tb_mfcc_dct("mfcc_dct_x1.csv", "mfcc_dct_y1.csv", dir, threshold);
+
+    success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
 
     return success;
 }
@@ -252,7 +254,7 @@ int tb_mfcc_hamming_window_256(char *filename_x, char *filename_y, char *logfile
     for(i = 0; i < 256; i++){
         y[i] = test_bench_x[i][0];
     }
-    mfcc_hamming_window_256(y);
+    mfcc_hamming_window(y, mfcc.hwin.h);
 
     for(i = 0; i < lines; i++) {
 
@@ -589,6 +591,62 @@ int tb_moving_average(char *filename_x, char *filename_y, char *logfile, float t
 
 
 
+
+/*----------------------------------------------------------*/
+/*                      MFCC PIPELINE                       */
+/*----------------------------------------------------------*/
+int tb_mfcc_get_metrics(char *filename_x, char *filename_y, char* logfile, float threshold) {
+
+    FILE* fp;
+
+    int i, lines, columns;
+    int success = 1;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+    MetVec metVec;
+
+    if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &lines, &columns) < 0)
+        return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "MFCC Pipeline", filename_x, filename_y, lines, columns);
+
+    for(i = 0; i < 256; i++){
+        mfcc.x[i] = test_bench_x[i][0];
+    }
+
+    mfcc_get_metrics(metVec.met, &mfcc);
+
+    for(i = 0; i < 13; i++) {
+
+        y0 = metVec.met[i];
+        yr = test_bench_y[i][0];
+
+        //relative error calculation
+        rErr = fabs((y0 - yr)/y0);
+        rErrAvg += rErr;
+
+        //write subresult to log file
+        if (TEST_BENCH_LOG_SUBPRINT == 1)
+            write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+        RMS += pow(y0 - yr, 2);
+    }
+    RMS /= lines;
+    rErrAvg /= lines;
+
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
+}
 
 
 
