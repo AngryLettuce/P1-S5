@@ -11,6 +11,7 @@
 #include "test_bench.h"
 #include "functions.h"
 #include "fft_utility.h"
+#include "dsk.h"
 
 //select if print subresult to log file, if 1, take longer to do all test
 #define TEST_BENCH_LOG_SUBPRINT 0
@@ -26,14 +27,8 @@ float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
 #pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
 #pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
 
-MelFilterBank melFilterBank;
 
-float x_complex[2*SIGNAL_BLOCK_SIZE];
-float w[SIGNAL_BLOCK_SIZE];
-#pragma DATA_ALIGN(x_complex, 8);
-#pragma DATA_ALIGN(w, 8);
-
-
+static MFCCModule mfcc;
 
 //utils local function for result writing and display
 void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns) {
@@ -77,6 +72,11 @@ void write_test_subresult_complex(FILE *fp, float Ry0, float Iy0, float Ryr, flo
 
 int global_testBench(float g_threshold) {
 
+    //generate the proper mfcc structure for test bench
+    mfcc_init(&mfcc);
+
+
+
     //get current date and time
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -102,24 +102,24 @@ int global_testBench(float g_threshold) {
 
     //start of unit tests
 
-    /*
+
     success *= tb_mfcc_freq2mel("freq2Mel_x1.csv", "freq2Mel_y1.csv", dir, threshold);
     success *= tb_mfcc_mel2freq("mel2Freq_x1.csv", "mel2Freq_y1.csv", dir, threshold);
 
     success *= tb_moving_average("moving_average_x1.csv", "moving_average_y1.csv", dir, threshold);
 
     success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x1.csv", "mfcc_hammingWindow_y1.csv", dir, threshold);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", dir, threshold);
-    success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", dir, threshold);
+    //success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x2.csv", "mfcc_hammingWindow_y2.csv", dir, threshold);
+    //success *= tb_mfcc_hamming_window_256("mfcc_hammingWindow_x3.csv", "mfcc_hammingWindow_y3.csv", dir, threshold);
 
     success *= tb_mfcc_fft256("mfcc_fft_x1.csv", "mfcc_fft_y1.csv", dir, threshold);
-    success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", dir, threshold);
-    success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", dir, threshold);
+    //success *= tb_mfcc_fft256("mfcc_fft_x2.csv", "mfcc_fft_y2.csv", dir, threshold);
+    //success *= tb_mfcc_fft256("mfcc_fft_x3.csv", "mfcc_fft_y3.csv", dir, threshold);
     //success *= tb_moving_average("moving_average_x1.csv", "moving_average_y1.csv", dir, threshold);
 
     success *= tb_mfcc_melFilterBank_create("mfcc_melFilterBank_x1.csv", "mfcc_melFilterBank_y1.csv", dir, threshold);
     success *= tb_mfcc_getMelCoeff("mfcc_getMelCoeff_x1.csv", "mfcc_getMelCoeff_y1.csv", dir, threshold);//need to be after the proper melfilterbank create test
-    */
+
     success *= tb_mfcc_dct("mfcc_dct_x1.csv", "mfcc_dct_y1.csv", dir, threshold);
 
     return success;
@@ -305,11 +305,11 @@ int tb_mfcc_melFilterBank_create(char *filename_x, char *filename_y, char *logfi
     write_test_header(fp, "Mel Filter Bank", filename_x, filename_y, lines, columns);
 
 
-    mfcc_melFilterBank_create(&melFilterBank, test_bench_x[0][0],  test_bench_x[0][1],  test_bench_x[0][2],  test_bench_x[0][3],  test_bench_x[0][4]);
+    mfcc_melFilterBank_create(&mfcc.mfb, test_bench_x[0][0],  test_bench_x[0][1],  test_bench_x[0][2],  test_bench_x[0][3],  test_bench_x[0][4]);
 
     for(i = 0; i < lines; i++) {
         for(j = 0; j < columns; j++) {
-            y0 = melFilterBank.melFilter[i][j];
+            y0 = mfcc.mfb.melFilter[i][j];
             yr = test_bench_y[i][j];
 
             //relative error calculation
@@ -367,7 +367,7 @@ int tb_mfcc_getMelCoeff(char *filename_x, char *filename_y, char* logfile, float
     }
 
     float coeff[MEL_FILTER_NB];
-    mfcc_getMelCoeff(y, coeff, &melFilterBank);
+    mfcc_getMelCoeff(y, coeff, &mfcc.mfb);
 
     for(i = 0; i < lines; i++) {
 
@@ -426,16 +426,14 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float thre
     for(i = 0; i < 256; i++){
         x[i] = test_bench_x[i][0];
     }
-    float2complex(x, x_complex, 256);
-
-    mfcc_fft_init(w, index, 256);
-    mfcc_fft(x_complex, w, index, 256);
+    float2complex(x, mfcc.x_complex, 256);
+    mfcc_fft(mfcc.x_complex, mfcc.fft.w, mfcc.fft.index, 256);
 
 
     for(i = 0; i < lines; i++) {
 
-        Ry0 = x_complex[i*2];
-        Iy0 = x_complex[i*2+1];
+        Ry0 = mfcc.x_complex[i*2];
+        Iy0 = mfcc.x_complex[i*2+1];
 
         Ryr = test_bench_y[i][0];
         Iyr = test_bench_y[i][1];
@@ -497,8 +495,7 @@ int tb_mfcc_dct(char *filename_x, char *filename_y, char* logfile, float thresho
     float cosTab[400];
     float coeff[20];
 
-    mfcc_dct_init(cosTab, lines, lines);
-    mfcc_dct(y, coeff, cosTab, lines, lines);
+    mfcc_dct(y, coeff, mfcc.dct.cosTab, lines, lines);
 
     for(i = 0; i < lines; i++) {
 

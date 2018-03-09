@@ -19,8 +19,6 @@ int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
 
 int main(void) {
-
-
     global_testBench(0.005);
 
     return 1;
