@@ -5,66 +5,17 @@
  *      Author: pascal
  */
 
-#include "functions.h"
+#include "mfcc.h"
+#include "utils.h"
+#include "fft_utility.h"
 
 #include "math.h"
 
-#include "fft_utility.h"
 #include "DSPF_sp_cfftr2_dit.h"
 
 
-//for FFT implementation
-#define MAX 200
 #define M_PI 3.1415926535897932384
 
-
-
-
-//--------------------------------------------
-//  UTILS FUNCTIONS
-//--------------------------------------------
-
-
-float float_abs(float x) {
-    if (x < 0.0)
-        return -x;
-    return x;
-}
-
-
-//float element wise vector multiplication
-void fvec_elementWise_mult(float *a, float *b, float *dest, int size) {
-
-    int i;
-    for(i = 0; i < size; i++) {
-
-        dest[i] = a[i] * b[i];
-    }
-}
-
-//float to complex number DSPC6713 format
-void float2complex(float *a, float *b, int size) {
-
-    int i;
-    for(i = 0; i < size; i++) {
-        b[i*2] = a[i];
-        b[i*2 + 1] = 0;
-    }
-}
-
-//calculate euclidean distance without taking the square root of the result
-float euclideanDistPow2(float *a, float *b, int size) {
-
-    int i;
-    float acc = 0;
-
-    for(i = 0; i < size; i++) {
-        acc = acc + (a[i] - b[i])*(a[i] - b[i]);
-    }
-    acc = acc / (float) size;
-
-    return acc;
-}
 
 
 //--------------------------------------------

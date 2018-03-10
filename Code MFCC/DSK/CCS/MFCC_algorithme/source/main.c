@@ -3,7 +3,7 @@
  */
 #include <stdio.h>
 #include "data_structures.h"
-#include "functions.h"
+#include "mfcc.h"
 #include "test_bench.h"
 
 
@@ -15,6 +15,38 @@
 int TabDonnees[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 #pragma DATA_ALIGN(TabDonnees, 32)
 */
+
+
+
+
+
+
+
+/*
+void main(void) {
+
+   int j = 0;
+
+   short *ind = circTab + 4;
+   short newTab[256];
+
+   while(1){
+        short input = (*ind) + 1; //read new input sample from ADC
+        ind = asm_storeCircularTab256(ind, input);
+
+        j++;
+        if (j >= LENGHT){
+            j = 0;
+            cpy_circTab_int16(newTab, circTab, ind, 256);
+        }
+    }
+}
+*/
+
+//interrupt void c_int11(void){
+
+//}
+
 
 
 

@@ -9,9 +9,24 @@
 
 #include "data_structures.h"
 #include "test_bench.h"
-#include "functions.h"
+#include "mfcc.h"
+#include "utils.h"
 #include "fft_utility.h"
 #include "dsk.h"
+
+
+//set circular buffer and converted wav signal
+#include "Thomas_CB_1.dat"
+#pragma DATA_SECTION(Thomas_CB_1, ".EXT_RAM")
+
+#define LENGHT 256
+short circTab[LENGHT];
+#pragma DATA_ALIGN(circTab, LENGHT*2)
+#pragma DATA_SECTION(circTab,".EXT_RAM")
+
+short* asm_storeCircularTab256(short*tabData, short data);
+
+
 
 //select if print subresult to log file, if 1, take longer to do all test
 #define TEST_BENCH_LOG_SUBPRINT 0
@@ -27,55 +42,65 @@ float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
 #pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
 #pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
 
-
 static MFCCModule mfcc;
+static DSKstate DSK_state;
 
-//utils local function for result writing and display
-void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns) {
+/*------------------------------------------------------
+ *
+ *  SIMULATION OF REAL TIME SIGNAL TEST
+ *
+ ------------------------------------------------------*/
 
-    fprintf(fp,"------------------------------------------------\n");
-    fprintf(fp,"         %s         \n", name);
-    fprintf(fp,"------------------------------------------------\n\n");
-    fprintf(fp,"    Source file : %s ,  %s\n", filename_x, filename_y);
-    fprintf(fp,"    data : %d x %d\n\n", lines, columns);
-}
+void simulation_routine(unsigned char* data) {
 
-void write_test_result(FILE *fp, char * filename, int success, float RMS, float rErrAvg, float threshold) {
-    if (!success) {
-        printf(     "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
-        fprintf(fp, "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
-    } else {
-        printf(     "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
-        fprintf(fp, "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
+    int i;
+    int step = 0;
+    unsigned short sampleADC;
+    short *ind; //current index of circTab
+
+    DSK_state = DSK_INIT;
+
+    for(i = 0; i < 256; i++)                    //store 0 in all circular table (initialization)
+        ind = asm_storeCircularTab256(ind, 0);
+
+    int data_size = sizeof(data) / sizeof(char);//find the size of the inputed signal
+    printf("Data size : %d\n", data_size);
+
+    /*------------------------------------------------------/
+     *  main loop of the simulation
+    /*-----------------------------------------------------*/
+    while(step < data_size) {
+
+        //emulate ADC by loading sample from converted wav file data array
+        sampleADC = data[step] - 128; //format data to proper type
+
+        asm_storeCircularTab256(ind, (short) sampleADC);
+
+        //\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@
+        //
+        //     TO DO  !!!!
+        //
+        //\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@
+
+
+        //increment the counter
+        step++;
     }
 }
 
-void write_test_subresult_float(FILE *fp, float y0, float yr, float rErr, float threshold, int i, int *success) {
-    if (rErr > threshold) {
-        fprintf(fp, "%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%) <---------- Failed\n", i, y0, yr, rErr*100, threshold*100);
-        *success = 0;
-    }
-    else
-        fprintf(fp,"%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%)\n", i, y0, yr, rErr*100, threshold*100);
-}
 
-void write_test_subresult_complex(FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success) {
-    fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) \n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
 
-    if (rErr > threshold) {
-        fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) <---------- Failed\n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
-        success = 0;
-    }
-}
 
-// TEST BENCH MAIN FUNCTION
+/*------------------------------------------------------
+ *
+ *  MAIN GLOBAL UNIT TEST BENCH
+ *
+ ------------------------------------------------------*/
 
 int global_testBench(float g_threshold) {
 
     //generate the proper mfcc structure for test bench
     mfcc_init(&mfcc);
-
-
 
     //get current date and time
     time_t t = time(NULL);
@@ -95,6 +120,7 @@ int global_testBench(float g_threshold) {
     fprintf(fp, "   TB_%d-%02d-%02d_%02dh%02dm%02ds.txt\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
     fprintf(fp,"\n");
     fclose(fp);
+
 
     int success = 1;
 
@@ -127,6 +153,12 @@ int global_testBench(float g_threshold) {
     return success;
 }
 
+
+/*------------------------------------------------------
+ *
+ *  TEST BENCH FOR EACH CRUCIAL FUNCTION
+ *
+ ------------------------------------------------------*/
 /*----------------------------------------------------------*/
 /*                   FREQ TO MEL                            */
 /*----------------------------------------------------------*/
@@ -589,9 +621,6 @@ int tb_moving_average(char *filename_x, char *filename_y, char *logfile, float t
 }
 
 
-
-
-
 /*----------------------------------------------------------*/
 /*                      MFCC PIPELINE                       */
 /*----------------------------------------------------------*/
@@ -648,6 +677,54 @@ int tb_mfcc_get_metrics(char *filename_x, char *filename_y, char* logfile, float
     return success;
 }
 
+
+
+
+
+
+/*------------------------------------------------------
+ *
+ *  UTILS FUNCTION
+ *
+ ------------------------------------------------------*/
+
+//utils local function for result writing and display
+void write_test_header(FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns) {
+
+    fprintf(fp,"------------------------------------------------\n");
+    fprintf(fp,"         %s         \n", name);
+    fprintf(fp,"------------------------------------------------\n\n");
+    fprintf(fp,"    Source file : %s ,  %s\n", filename_x, filename_y);
+    fprintf(fp,"    data : %d x %d\n\n", lines, columns);
+}
+
+void write_test_result(FILE *fp, char * filename, int success, float RMS, float rErrAvg, float threshold) {
+    if (!success) {
+        printf(     "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nF - Test \"%s\" failed!, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
+    } else {
+        printf(     "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n",   filename, RMS, rErrAvg*100, threshold*100);
+        fprintf(fp, "\nS - Test \"%s\" succeed, RMS = %f, rErrAvg = %f %% (%f %%)Threshold \n\n", filename, RMS, rErrAvg*100, threshold*100);
+    }
+}
+
+void write_test_subresult_float(FILE *fp, float y0, float yr, float rErr, float threshold, int i, int *success) {
+    if (rErr > threshold) {
+        fprintf(fp, "%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%) <---------- Failed\n", i, y0, yr, rErr*100, threshold*100);
+        *success = 0;
+    }
+    else
+        fprintf(fp,"%3d :    %6.6f   %6.6f   rErr: %6f %%(%6f %%)\n", i, y0, yr, rErr*100, threshold*100);
+}
+
+void write_test_subresult_complex(FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success) {
+    fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) \n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
+
+    if (rErr > threshold) {
+        fprintf(fp,"%5f  +  %5f j,    %5f   +   %5f j,  rErr: %5f %% (%5f %%) <---------- Failed\n", Ry0, Iy0, Ryr, Iyr, 100*rErr, 200*threshold);
+        *success = 0;
+    }
+}
 
 
 int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_SIZE_J], int *lines, int *columns){

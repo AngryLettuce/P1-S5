@@ -5,11 +5,10 @@
  *      Author: pascal
  */
 
-#ifndef INCLUDE_FUNCTIONS_H_
-#define INCLUDE_FUNCTIONS_H_
+#ifndef INCLUDE_MFCC_H_
+#define INCLUDE_MFCC_H_
 
 #include "data_structures.h"
-
 
 
 //function prefix convention
@@ -17,26 +16,6 @@
 //
 //  mfcc = mfcc pipeline function
 //
-
-
-//------------------------------------
-//  UTILS FUNCTION
-//------------------------------------
-
-float float_abs(float x);
-//float element wise vector multiplication
-void fvec_elementWise_mult(float *a, float *b, float *dest, int size);
-
-//float tab to complex tab numbers from DSPC6713 format
-void float2complex(float *a, float *b, int size);
-
-//calculate euclidean distance without taking the square root of the result
-float euclideanDistPow2(float *a, float *b, int size);
-
-//Moving average for silent recognition
-
-float moving_average(float *beta_acc, int size, int acc_size);
-void acc_interval(float *curr_data, float *beta_acc);
 
 //------------------------------------
 //  MFCC FUNCTIONS
@@ -74,4 +53,4 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb);
 void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb);
 
-#endif /* INCLUDE_FUNCTIONS_H_ */
+#endif /* INCLUDE_MFCC_H_ */

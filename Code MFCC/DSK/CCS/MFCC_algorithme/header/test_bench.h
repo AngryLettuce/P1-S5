@@ -15,7 +15,11 @@ int read_csv_float(char *filename, float (*test_bench_matrix)[TEST_BENCH_MATRIX_
 
 int global_testBench(float g_threshold);
 
-
+//utils local function for result writing and display
+void write_test_header              (FILE *fp, char *name, char *filename_x, char *filename_y, int lines, int columns);
+void write_test_result              (FILE *fp, char * filename, int success, float RMS, float rErrAvg, float threshold);
+void write_test_subresult_float     (FILE *fp, float y0, float yr, float rErr, float threshold, int i, int *success);
+void write_test_subresult_complex   (FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success);
 
 
 int tb_mfcc_                    (char *filename_x, char *filename_y, char* logfile, float threshold);

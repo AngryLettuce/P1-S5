@@ -172,6 +172,27 @@ typedef struct MFCCModule {
 } MFCCModule;
 
 
+//--------------------------------------
+//  DSK MEF structure
+//--------------------------------------
+
+
+typedef enum DSKstate {
+
+    DSK_INIT = 0,
+    DSK_TEST_INIT,
+    DSK_TEST_ACQUISITION,
+    DSK_TRAIN_INIT,
+    DSK_TRAIN_ACQUISITION,
+    DSK_TRAIN_CODEBOOK_CONSTRUCTION,
+    DSK_WAITING,
+    DSK_ERROR,
+    //use to store the number of state
+    DSK_STATE_COUNT,
+
+} DSKstate;
+
+
 
 
 

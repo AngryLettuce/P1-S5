@@ -14,18 +14,12 @@
 
 #include "dsk.h"
 #include "data_structures.h"
-#include "functions.h"
+#include "mfcc.h"
+#include "utils.h"
 #include "fft_utility.h"
 
 static MFCCModule mfcc;
 
-//init for DSP FFT usage
-/*
-float x_complex[2*SIGNAL_BLOCK_SIZE];
-float w[SIGNAL_BLOCK_SIZE];
-#pragma DATA_ALIGN(x_complex, 8);
-#pragma DATA_ALIGN(w, 8);
-*/
 
 
 /*------------------------------------------------------*/
@@ -91,12 +85,6 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
 
     //pitch pipeline (value store at the location of the first mfcc coefficient, which do not have any speaker dependant information)
 }
-
-
-
-
-
-
 
 
 
