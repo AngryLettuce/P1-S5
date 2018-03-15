@@ -18,7 +18,7 @@ class RepeatedTimer(object):
         self.args       = args
         self.kwargs     = kwargs
         self.is_running = False
-        self.start()
+        #self.start()
 
     def _run(self):
         self.is_running = False
@@ -46,7 +46,7 @@ def ImageDictionnary(Orateur):
     return photo
 
 
-class Application(tk.Frame):         
+class ApplicationProjetS5(tk.Frame):         
 
 
     def __init__(self, master=None):
@@ -56,10 +56,14 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master)  
         self.grid()                      
         self.createWidgets()
-        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
+        self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
+
+        self.readingThread = RepeatedTimer(0.001, self.readSerial)
+
+        #self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
         self.cyclePhoto = 0
-        self.startReadingThread(0.01)
 
     def createWidgets(self):
         #self.quitButton = tk.Button(self,  text='Exit',     command=self.quit)         
@@ -67,25 +71,27 @@ class Application(tk.Frame):
 
         self.writingSerial_B = tk.Button(self, text='Write', command=lambda: self.writingSerialButton())
         self.writingSerial_B.grid(columnspan=1, row=1, column=1)
+        self.writingSerial_B.config( height = 3, width = 10 )
 
         self.writingBox = tk.Entry(self)
-        self.writingBox.grid(columnspan=1, row=1, column=2)
+        self.writingBox.grid(columnspan=1, row=1, column=6)
 
-        self.readSerial_B = tk.Button(self,  text='Read', command=lambda: self.readSerial())
-        self.readSerial_B.grid(columnspan=1, row=2, columns=1)
+        self.readSerial_B = tk.Button(self,  text='Read', command=lambda: self.startThread(self.readingThread))
+        self.readSerial_B.grid(columnspan=1, row=4, columns=2)
+        self.readSerial_B.config( height = 3, width = 10 )
+
+        self.stopReading_B = tk.Button(self,  text='Stop', command=lambda: self.stopThread(self.readingThread))
+        self.stopReading_B.grid(columnspan=1, row=5, columns=2)
+        self.stopReading_B.config( height = 3, width = 10 )
 
         self.readingLabel = tk.Label(self, text='This is the reading Label')
-        self.readingLabel.grid(columnspan=1, row=2, column=2)
+        self.readingLabel.grid(columnspan=1, row=1, column=7)
 
-        self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
-        self.trainButton_B.grid(columnspan=1, row=3, column=1)
+        #self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
+        #self.trainButton_B.grid(columnspan=1, row=3, column=1)
 
         self.orateurPicLabel = tk.Label(self)
         self.orateurPicLabel.grid(columnspan=15, row=4, column=5)
-
-
-    def startReadingThread(self, time):
-        RepeatedTimer(time, self.readSerial) 
 
     def setupSerialPort(self, port, baudrate, timeout):
         ser = serial.Serial(port, baudrate, timeout=timeout)
@@ -119,9 +125,11 @@ class Application(tk.Frame):
         self.writingSerial()
         #self.readSerial()
 
-    def printit(self):
-      threading.Timer(5.0, self.printit).start()
-      print("Hello, World!")
+    def stopThread(self, thread):
+        thread.stop()
+
+    def startThread(self, thread):
+        thread.start()
 
 
 
@@ -137,7 +145,7 @@ class Application(tk.Frame):
 
 MyRoot = tk.Tk()
 
-app = Application(MyRoot)                       
+app = ApplicationProjetS5(MyRoot)                       
 app.master.title('Projet S5 P01')    
 
 w = MyRoot.winfo_screenwidth()
