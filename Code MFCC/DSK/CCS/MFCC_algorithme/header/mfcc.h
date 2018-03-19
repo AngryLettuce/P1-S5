@@ -53,4 +53,27 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb);
 void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb);
 
+
+
+//------------------------------------
+//  MFCC CODEBOOK FUNCTIONS
+//------------------------------------
+
+void cb_get_nearestCodeword(float *dist_min, int *ind_min, float *met, Codebook *codebook, int met_size, int curr_codebook_size);
+void cb_get_newCodewordCentroid(MetVecTab *metVecTab, Codebook *codebook, int curr_codebook_size);
+void cb_construct_codebook(MetVecTab *metVecTab,
+                           Codebook *codebook,
+                           int codebook_size,
+                           int speaker_ind,
+                           float epsilon,
+                           float distortion_Err);
+
+void cb_clear_metVecTab(MetVecTab *metVecTab);
+
+
+
+
+
+
+
 #endif /* INCLUDE_MFCC_H_ */

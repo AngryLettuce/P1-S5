@@ -45,6 +45,7 @@
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
+#define SPEAKER_NB_MAX 8
 
 //mel filter bank
 #define MEL_FILTER_NB     20
@@ -69,7 +70,9 @@ typedef struct MetVec {
 typedef struct MetVecTab {
 
     MetVec metVec[METRIC_VECTOR_TAB_LENGTH];
-    int size;
+    char metCodewordInd[METRIC_VECTOR_TAB_LENGTH];
+    int metVecTab_size;
+    int metVec_size;
 } MetVecTab;
 
 
@@ -126,7 +129,8 @@ typedef struct DCTmodule {
 typedef struct Codebook {
 
     MetVec codeword[CODEBOOK_CODEWORDS_NB];
-    int speaker_ind;
+    int N[CODEBOOK_CODEWORDS_NB]; //use when creating the codewords
+    int codeword_nb;
 
 } Codebook;
 
@@ -137,16 +141,16 @@ typedef struct Codebook {
 
 typedef struct SpeakerData {
 
-    int speaker_ind;
     Codebook codebook;
+    int speaker_ind;
 
 } SpeakerData;
 
 
 typedef struct SpeakerDataList {
 
-    SpeakerData speaker_data;
-    struct SpeakerBank *next;
+    SpeakerData speaker_data[SPEAKER_NB_MAX];
+    int speaker_nb;
 
 } SpeakerDataList;
 
@@ -167,6 +171,9 @@ typedef struct MFCCModule {
     FFTmodule fft;//aligned to 8 byte since there a double size member, will force "w" twiddle to align to double. will in turn also force x_complex to be align to double
     DCTmodule dct;
 
+    //metrics temp vector
+    MetVecTab *metVecTab;//will be stored in the RAM
+
     int mfcc_nb;
 
 } MFCCModule;
@@ -177,19 +184,30 @@ typedef struct MFCCModule {
 //--------------------------------------
 
 
+typedef enum PICstate {
+
+    PIC_INIT = 0,
+    PIC_IDLE,
+    PIC_COMMUNICATION_DSK,
+    PIC_STATE_ERROR,
+    PIC_ERROR,
+    //use to store the number of state
+    PIC_STATE_COUNT
+} PICstate;
+
+
 typedef enum DSKstate {
 
     DSK_INIT = 0,
+    DSK_IDLE,
     DSK_TEST_INIT,
     DSK_TEST_ACQUISITION,
     DSK_TRAIN_INIT,
     DSK_TRAIN_ACQUISITION,
     DSK_TRAIN_CODEBOOK_CONSTRUCTION,
-    DSK_WAITING,
     DSK_ERROR,
     //use to store the number of state
-    DSK_STATE_COUNT,
-
+    DSK_STATE_COUNT
 } DSKstate;
 
 

@@ -13,7 +13,7 @@
 
 void dsk_main(void);
 void dsk_init(void);
-void mfcc_init(MFCCModule *mfcc);
+void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab);
 void mfcc_get_metrics(float *met, MFCCModule *mfcc);
 
 

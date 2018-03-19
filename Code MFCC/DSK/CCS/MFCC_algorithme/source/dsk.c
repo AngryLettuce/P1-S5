@@ -18,19 +18,15 @@
 #include "utils.h"
 #include "fft_utility.h"
 
-static MFCCModule mfcc;
 
 
-
-/*------------------------------------------------------*/
-/*
+/*------------------------------------------------------
  *   dsk_main :
  *
  *   contain the FSM ("MEF") of the DSK and the MFCC algorithm routine
  *
  *
- */
-/*------------------------------------------------------*/
+ ----------------------------------------------------*/
 
 void dsk_main(void) {
 
@@ -57,12 +53,15 @@ void dsk_init(void) {
 
 }
 
-void mfcc_init(MFCCModule *mfcc) {
+void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
 
     mfcc->x_size = SIGNAL_BLOCK_SIZE;
     mfcc->mfcc_nb = MFCC_COEFFICIENT_NB;
+    mfcc->metVecTab = metVecTab;
 
+    //construct the hamming window table
     mfcc_hamming_window_init(mfcc->hwin.h, mfcc->x_size);
+
     //construct the melfilter bank
     mfcc_melFilterBank_create(&mfcc->mfb, MEL_FILTER_FREQ_LOW, MEL_FILTER_FREQ_HIGH, MEL_FILTER_NB, (mfcc->x_size) >> 1, SAMPLE_RATE);
 
@@ -87,7 +86,12 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
 }
 
 
+void mfcc_construct_codebook() {
 
+
+
+
+}
 
 
 

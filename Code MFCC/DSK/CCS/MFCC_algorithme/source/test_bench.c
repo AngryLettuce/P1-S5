@@ -45,6 +45,10 @@ float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
 static MFCCModule mfcc;
 static DSKstate DSK_state;
 
+static MetVecTab metVecTab;
+#pragma DATA_SECTION(metVecTab, ".EXT_RAM")
+
+
 /*------------------------------------------------------
  *
  *  SIMULATION OF REAL TIME SIGNAL TEST
@@ -68,7 +72,7 @@ void simulation_routine(unsigned char* data) {
 
     /*------------------------------------------------------/
      *  main loop of the simulation
-    /*-----------------------------------------------------*/
+     *-----------------------------------------------------*/
     while(step < data_size) {
 
         //emulate ADC by loading sample from converted wav file data array
@@ -100,7 +104,7 @@ void simulation_routine(unsigned char* data) {
 int global_testBench(float g_threshold) {
 
     //generate the proper mfcc structure for test bench
-    mfcc_init(&mfcc);
+    mfcc_init(&mfcc, &metVecTab);
 
     //get current date and time
     time_t t = time(NULL);
@@ -147,7 +151,6 @@ int global_testBench(float g_threshold) {
     success *= tb_mfcc_getMelCoeff("mfcc_getMelCoeff_x1.csv", "mfcc_getMelCoeff_y1.csv", dir, threshold);//need to be after the proper melfilterbank create test
     */
     success *= tb_mfcc_dct("mfcc_dct_x1.csv", "mfcc_dct_y1.csv", dir, threshold);
-
     success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
 
     return success;

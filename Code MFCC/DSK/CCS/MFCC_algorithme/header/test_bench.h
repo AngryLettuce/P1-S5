@@ -5,6 +5,7 @@
  *      Author: Guillaume
  */
 
+
 #ifndef HEADER_TEST_BENCH_H_
 #define HEADER_TEST_BENCH_H_
 
@@ -22,7 +23,6 @@ void write_test_subresult_float     (FILE *fp, float y0, float yr, float rErr, f
 void write_test_subresult_complex   (FILE *fp, float Ry0, float Iy0, float Ryr, float Iyr, float rErr, float threshold, int i, int *success);
 
 
-int tb_mfcc_                    (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_mfcc_preAmpFIR           (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_mfcc_hamming_window_256  (char *filename_x, char *filename_y, char* logfile, float threshold);
 int tb_mfcc_freq2mel            (char *filename_x, char *filename_y, char* logfile, float threshold);

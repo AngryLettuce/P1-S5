@@ -103,7 +103,7 @@ void mfcc_melFilterBank_create(MelFilterBank* melFilterBank, float freqL, float 
     -------------------------------------------*/
     int N = filter_number + 2;
 
-    float mel[MEL_FILTER_NB_MAX] =  {0};
+    float mel[MEL_FILTER_NB_MAX] = {0};
     float f[MEL_FILTER_NB_MAX] = {0};
 
     mel[N-1] = mfcc_freq2mel(freqH);
@@ -205,6 +205,9 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size) {
 
 }
 
+//--------------------------------------------
+//  Moving Average
+//--------------------------------------------
 
 
 float moving_average(float *beta_acc, int size, int acc_size){
@@ -229,6 +232,9 @@ void acc_interval(float *curr_data, float *beta_acc){
 
 
 
+//--------------------------------------------
+//  Discret Cosine Transform
+//--------------------------------------------
 
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb) {
 
@@ -250,24 +256,158 @@ void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb,
 }
 
 
+
+
+//------------------------------------
+//  MFCC CODEBOOK FUNCTIONS
+//------------------------------------
+
+void cb_get_nearestCodeword(float *dist_min, int *ind_min, float *met, Codebook *codebook, int met_size, int curr_codebook_size) {
+
+    int i;
+    float dist_min_last;
+
+    *dist_min = 1000;
+    for(i = 0; i < curr_codebook_size; i++) {
+
+        dist_min_last = euclideanDistPow2(codebook->codeword[i].met, met, met_size);
+
+        if (dist_min_last < *dist_min) {
+            *dist_min = dist_min_last;
+            *ind_min = i;
+        }
+    }
+}
+
 /*
-void mfcc_dct
+void cb_get_newCodewordCentroid(MetVecTab *metVecTab, Codebook *codebook, int curr_codebook_size) {
 
-function [ C ] = discreteCosineTransform( y )
+    int i, j, ind_min;
+    float dist_min, dist_min_last;
+    int metVec_size = metVecTab->metVec_size;
+    int metVecTab_size = metVecTab->metVecTab_size;
 
-% return the discrete cosine transform of y;
-K = size(y,2);
-C = zeros(1,K);#
+    for(i = 0; i < metVecTab_size; i++) {
 
+        //find the closest codeword to the metrics
+        cb_get_nearestCodeword(&dist_min, &ind_min, metVecTab->metVec[i].met, codebook, metVec_size, curr_codebook_size);
 
-k = 1:K;
+        //add current codebook's codeword with metric vector associated with it
+        farray_sum(codebook->codeword[ind_min].met, metVecTab->metVec[i].met,
+                   codebook->codeword[ind_min].met, metVec_size);
 
-for n = 0:K-1
-    C(n + 1) = sum(y.*cos(n.*(k - 0.5)*pi/K));
-end
+        //keep track of number of metrics associated with each codewords
+        codebook->N[ind_min] += 1;
+    }
 
-end
+    for(i = 0; i < curr_codebook_size; i++) {
+        // C = C_acc ./ N;
+        farray_dotProduct_value(codebook->codeword[i].met, 1./(float)codebook->N[i],
+                                codebook->codeword[i].met, metVec_size);
+    }
+}
 */
+
+void cb_construct_codebook(MetVecTab *metVecTab,
+                           Codebook *codebook,
+                           int codebook_size,
+                           int speaker_ind,
+                           float epsilon,
+                           float distortion_Err) {
+
+    float distortion;
+
+    int m = 1;
+    int i, j, ind_min;
+    int iter, iter_limit = 200;
+
+    float dist_min, dist_min_last, dist_acc, dist_acc_last;
+    int metVec_size = metVecTab->metVec_size;
+    int metVecTab_size = metVecTab->metVecTab_size;
+
+    //find first centroid from mean of all metrics
+    for(i = 0; i < metVecTab_size; i++) {
+
+        //add current codebook's codeword with metric vector associated with it
+        farray_sum(codebook->codeword[0].met, metVecTab->metVec[i].met,
+                   codebook->codeword[0].met, metVec_size);
+    }
+    // C = C_acc ./ N
+    farray_dotProduct_value(codebook->codeword[0].met, 1./(float)metVec_size,
+                            codebook->codeword[0].met, metVec_size);
+
+    //main loop
+    while(m < codebook_size) {
+
+        distortion = 1000;
+        dist_acc_last = 0;
+
+        //split sequence
+        for(i = m-1; i >= 0; i--) {
+            //split each codebook into 2 new codebook
+            farray_dotProduct_value(codebook->codeword[i].met,      1 - epsilon,
+                                    codebook->codeword[2*i+1].met,    metVec_size);
+            farray_dotProduct_value(codebook->codeword[i].met,      1 + epsilon,
+                                    codebook->codeword[2*i].met,    metVec_size);
+        }
+        //update codewords nb
+        m *= 2;
+        iter = 0;
+
+
+        while(distortion > distortion_Err && iter < iter_limit) {
+
+            //-------------------------------------------------
+            // get new centroid from new splitted codewords
+
+            for(i = 0; i < metVecTab_size; i++) {
+
+                //find the closest codeword to the metrics
+                cb_get_nearestCodeword(&dist_min, &ind_min, metVecTab->metVec[i].met, codebook, metVec_size, m);
+
+                //add current codebook's codeword with metric vector associated with it
+                farray_sum(codebook->codeword[ind_min].met, metVecTab->metVec[i].met,
+                           codebook->codeword[ind_min].met, metVec_size);
+
+                //keep track of number of metrics associated with each codewords
+                codebook->N[ind_min] += 1;
+            }
+
+            for(i = 0; i < m; i++) {
+                // C = C_acc ./ N;
+                farray_dotProduct_value(codebook->codeword[i].met, 1./(float)codebook->N[i],
+                                        codebook->codeword[i].met, metVec_size);
+            }
+
+
+            //-------------------------------------------------
+            // get distortion
+
+            dist_acc = 0;
+            for(i = 0; i < metVecTab_size; i++) {
+
+                cb_get_nearestCodeword(&dist_min, &ind_min, metVecTab->metVec[i].met, codebook, metVec_size, m);
+                dist_acc += dist_min;
+            }
+
+            distortion = (dist_acc_last - dist_acc) / dist_acc;
+
+            //set rpevious dist_acc to last
+            dist_acc_last = dist_acc;
+
+            iter += 1;
+        }
+
+    }
+}
+
+
+
+
+void cb_clear_metVecTab(MetVecTab *metVecTab);
+
+
+
 
 
 

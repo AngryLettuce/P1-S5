@@ -37,6 +37,15 @@ float euclideanDistPow2(float *a, float *b, int size);
 float moving_average(float *beta_acc, int size, int acc_size);
 void acc_interval(float *curr_data, float *beta_acc);
 
+//manipulation of array
+void farray_dotProduct      (float *a1, float *a2, float *dest, int size);
+void farray_dotProduct_value(float *a1, float value, float *dest, int size);
+void farray_sum         (float *a1, float *a2, float *dest, int size);
+void farray_sum_value   (float *a1, float value, float *dest, int size);
+
+void farray_reset(float *a, float value, int size);
+
+
 
 
 #endif /* INCLUDE_UTILS_H_ */

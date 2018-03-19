@@ -75,3 +75,49 @@ float euclideanDistPow2(float *a, float *b, int size) {
     return acc;
 }
 
+
+
+//manipulation of array
+void farray_dotProduct(float *a1, float *a2, float *dest, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        dest[i] = a1[i] * a2[i];
+}
+
+void farray_dotProduct_value(float *a1, float value, float *dest, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        dest[i] = a1[i] * value;
+}
+
+void farray_sum(float *a1, float *a2, float *dest, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        dest[i] = a1[i] + a2[i];
+}
+
+
+void farray_sum_value(float *a1, float value, float *dest, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        dest[i] = a1[i] + value;
+}
+
+void farray_reset(float *a, float value, int size) {
+    int i;
+    for(i = 0; i < size; i++)
+        a[i] = value;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
