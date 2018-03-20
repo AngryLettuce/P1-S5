@@ -13,18 +13,21 @@ from threading import Timer
 
 def ImageDictionnary(Orateur):
     #Picture size : 381 * 285 px
-    Dict = {'0'  : (r"noImage.jpg",   'Inconnu'),
-            '1'  : (r"Antoine.jpg",   'Antoine'),
-            '2'  : (r"Pascal.PNG",    'Pascal L.'),
-            '3'  : (r"Pascal_B.jpg",  'Pascal B.'),
-            '4'  : (r"Guillaume.jpg", 'Guillaume'),
-            '5'  : (r"Raphael.jpg",   'Raphael'),
-            '6'  : (r"Thomas.jpg",    'Thomas'),
-            '7'  : (r"P_Y.jpg",       'Pierre-Yves'), 
-            '8'  : (r"Jeff.jpg",      'Jeffrey F.'), 
-            '9'  : (r"Vit Hess.jpg",  'Jeffrey R.'), 
-            '10' : (r"Chuck.jpg",     'Charles'), 
-            '11' : (r"Gonzo.jpg",     'Cristhian'), 
+    Dict = {'0'  : (r"noImage.jpg",       'Inconnu'),
+            '1'  : (r"Antoine.jpg",       'Antoine'),
+            '2'  : (r"Pascal.PNG",        'Pascal L.'),
+            '3'  : (r"Pascal_B.jpg",      'Pascal B.'),
+            '4'  : (r"Guillaume.jpg",     'Guillaume'),
+            '5'  : (r"Raphael.jpg",       'Raphael'),
+            '6'  : (r"Thomas.jpg",        'Thomas'),
+            '7'  : (r"P_Y.jpg",           'Pierre-Yves'), 
+            '8'  : (r"Jeff.jpg",          'Jeffrey F.'), 
+            '9'  : (r"Vit Hess.jpg",      'Jeffrey R.'), 
+            '10' : (r"Chuck.jpg",         'Charles'), 
+            '11' : (r"Gonzo.jpg",         'Cristhian'), 
+            '12' : (r"L_P.jpg",           'Tatlock'), 
+            '13' : (r"feu_serviette.jpg", 'RIP serviette'), 
+            '14' : (r"butrice.jpg",       'Butrice'), 
             } 
 
     if Orateur not in Dict :
@@ -51,7 +54,7 @@ class RepeatedTimer(object):
     def start(self):
         if not self.is_running:
             self._timer = Timer(self.interval, self._run)
-            self._timer.start()
+            self._timer.start() 
             self.is_running = True
 
     def stop(self):
@@ -78,13 +81,19 @@ class ApplicationProjetS5(tk.Frame):
         
         self.createWidgets()
 
-        self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
-        self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
+        #self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
+        #self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
 
-        self.readingThread = RepeatedTimer(readingUARTinterval, self.readSerial)
+        self.orateurIndex = 0
+        self.numberOfOrateur = 14
 
-        #self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+
+        self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial)
+        self.imageCycleThread = RepeatedTimer(2, self.cycleImage)
+
+        self.imageCycleThread.start()
 
     def createWidgets(self):
 
@@ -115,6 +124,9 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.pack(side='left')
         self.stopReading_B.config(height = 3, width = 10 )
 
+        #self.scalingOrateur = tk.Scale(self.bottomFrame, from_=0, to_=14, orient='horizontal', tickinterval=2, length=200, command=self.scalingOrateurFunction)
+        #self.scalingOrateur.pack()
+
         self.writingBox = tk.Entry(self.bottomFrame)
         self.writingBox.pack()
 
@@ -127,12 +139,34 @@ class ApplicationProjetS5(tk.Frame):
         return ser
 
 
-    def changeImage(self, label, path):
+    def changeImage(self, label, index):
+
+        pathAndName = ImageDictionnary(index)
+        path = pathAndName[0]
 
         photo = Image.open(path)
         photo = ImageTk.PhotoImage(photo)
         label.configure(image=photo)
         label.photo = photo
+
+
+    def cycleImage(self):
+        index = int(self.orateurIndex)
+        
+        index += 1
+        if index > self.numberOfOrateur :
+            index = 0
+        self.orateurIndex = str(index)
+
+        self.changeImage(self.orateurPicLabel, self.orateurIndex)
+
+        pathAndName = ImageDictionnary(self.orateurIndex)
+        self.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])        
+
+
+    def scalingOrateurFunction(self, yo ):
+        index = self.scalingOrateur.get()
+        self.changeImage(self.orateurPicLabel, str(index))
 
 
     def changeLabelText(self, label, data) : 
@@ -164,11 +198,14 @@ class ApplicationProjetS5(tk.Frame):
         data = self.writingBox.get()
         self.ser1.write(data.encode())
 
+
     def writingSerialButton(self):
         self.writingSerial()
 
+
     def stopThread(self, thread):
         thread.stop()
+
 
     def startThread(self, thread):
         thread.start()
@@ -191,7 +228,7 @@ app.master.title('Projet S5 P01')
 
 w = MyRoot.winfo_screenwidth()
 h = MyRoot.winfo_screenheight()
-MyRoot.geometry("%dx%d+0+0" % (w/2.8, h/1.7)) 
+MyRoot.geometry("%dx%d+0+0" % (w/2.8, h/1.2)) 
 
 app.mainloop()
    
