@@ -1,5 +1,5 @@
 #Created by Guillaume Roux, 
-#this project aim to make a sserial communication with a PIC
+#this project aim to make a serial communication with a PIC
 # and to make a graphical interface showing the picture of someone
 
 
@@ -13,15 +13,18 @@ from threading import Timer
 
 def ImageDictionnary(Orateur):
     #Picture size : 381 * 285 px
-    Dict = {'0' : (r"noImage.jpg",       'Inconnu'),
-            '1' : (r"Pablo_Escobar.jpg", 'Pablo Escobar'),
-            '2' : (r"Pascal.PNG",        'Pascal L.'),
-            '3' : (r"Pascal.jpg",        'Pascal L.'),
-            '4' : (r"Guillaume.jpg",     'Guillaume'),
-            '5' : (r"Pascal_B.jpg",      'Pascal B.'),
-            '6' : (r"Guillaume2.jpg",    'Guillaume'),
-            '7' : (r"P_Y.jpg",           'Pierre-Yves'), 
-
+    Dict = {'0'  : (r"noImage.jpg",   'Inconnu'),
+            '1'  : (r"Antoine.jpg",   'Antoine'),
+            '2'  : (r"Pascal.PNG",    'Pascal L.'),
+            '3'  : (r"Pascal_B.jpg",  'Pascal B.'),
+            '4'  : (r"Guillaume.jpg", 'Guillaume'),
+            '5'  : (r"Raphael.jpg",   'Raphael'),
+            '6'  : (r"Thomas.jpg",    'Thomas'),
+            '7'  : (r"P_Y.jpg",       'Pierre-Yves'), 
+            '8'  : (r"Jeff.jpg",      'Jeffrey F.'), 
+            '9'  : (r"Vit Hess.jpg",  'Jeffrey R.'), 
+            '10' : (r"Chuck.jpg",     'Charles'), 
+            '11' : (r"Gonzo.jpg",     'Cristhian'), 
             } 
 
     if Orateur not in Dict :
@@ -75,16 +78,15 @@ class ApplicationProjetS5(tk.Frame):
         
         self.createWidgets()
 
-        #self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
-        #self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
+        self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
+        self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
 
         self.readingThread = RepeatedTimer(readingUARTinterval, self.readSerial)
 
-        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        #self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
     def createWidgets(self):
-
 
         self.orateurPicLabel = tk.Label(self)
         self.orateurPicLabel.pack()
@@ -115,41 +117,42 @@ class ApplicationProjetS5(tk.Frame):
 
         self.writingBox = tk.Entry(self.bottomFrame)
         self.writingBox.pack()
-        #self.writingBox.grid(columnspan=1, row=1, column=6)
-
 
         #self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
         #self.trainButton_B.grid(columnspan=1, row=3, column=1)
-
 
 
     def setupSerialPort(self, port, baudrate, timeout):
         ser = serial.Serial(port, baudrate, timeout=timeout)
         return ser
 
-    def cycleImage(self, index):
 
-        self.orateurIndex = index
-        pathAndName = ImageDictionnary(index)
-        photo = Image.open(pathAndName[0])
+    def changeImage(self, label, path):
+
+        photo = Image.open(path)
         photo = ImageTk.PhotoImage(photo)
-        self.orateurPicLabel.configure(image=photo)
-        self.orateurPicLabel.photo = photo
+        label.configure(image=photo)
+        label.photo = photo
 
-        return pathAndName
+
+    def changeLabelText(self, label, data) : 
+        'change the text of a label to data'
+        label.configure(text=data)
+        label.text = data
+
 
     def readSerial(self):
         data = self.ser2.read(9999)
         data = data.decode('ascii')
 
         if 'ind' in data :
-            pathAndName = self.cycleImage(data[3:])
-            self.orateurLabel.configure(text= 'Orateur : ' + pathAndName[1])
-            self.orateurLabel.text = 'Orateur : ' + pathAndName[1]
+            index = data[3:]
+            pathAndName = ImageDictionnary(index)
+            self.changeImage(self.orateurPicLabel, pathAndName[0])
+            self.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])
 
         elif 'status' in  data : 
-            self.readingLabel.configure(text= 'Statut du DSK : ' + data[6:])
-            self.readingLabel.text = 'Statut du DSK : ' + data[6:]
+            self.changeLabelText(self.readingLabel, 'Statut du DSK : ' + data[6:])
 
         #Write what ever is sent
         #elif data != '':
@@ -161,10 +164,8 @@ class ApplicationProjetS5(tk.Frame):
         data = self.writingBox.get()
         self.ser1.write(data.encode())
 
-
     def writingSerialButton(self):
         self.writingSerial()
-
 
     def stopThread(self, thread):
         thread.stop()
