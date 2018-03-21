@@ -14,7 +14,7 @@ from threading import Timer
 def ImageDictionnary(Orateur):
     #Picture size : 381 * 285 px
     Dict = {'0'  : (r"noImage.jpg",       'Inconnu'),
-            '1'  : (r"Antoine.jpg",       'Antoine'),
+            '1'  : (r"Antoine2.jpg",       'Antoine'),
             '2'  : (r"Pascal.PNG",        'Pascal L.'),
             '3'  : (r"Pascal_B.jpg",      'Pascal B.'),
             '4'  : (r"Guillaume.jpg",     'Guillaume'),
@@ -66,9 +66,12 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def __init__(self, master=None):
-        baurate             = 38400
+        baurate             = 19200
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
+
+        self.orateurIndex = 0
+        self.numberOfOrateur = 14
 
         tk.Frame.__init__(self, master)  
 
@@ -81,19 +84,21 @@ class ApplicationProjetS5(tk.Frame):
         
         self.createWidgets()
 
+        #Virtual Serial Port for testing (desktop)
         #self.ser1 = self.setupSerialPort("COM2", baurate, readingTimeout)
-        #self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)      
+        #self.ser2 = self.setupSerialPort("COM3", baurate, readingTimeout)  
+        
+        #Virtual Serial Port (laptop)
+        #self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
-        self.orateurIndex = 0
-        self.numberOfOrateur = 14
 
-        self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.realSerial = self.setupSerialPort("COM5", baurate, readingTimeout)  
 
-        self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial)
+        self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
         self.imageCycleThread = RepeatedTimer(2, self.cycleImage)
 
-        self.imageCycleThread.start()
+        #self.imageCycleThread.start()
 
     def createWidgets(self):
 
@@ -112,7 +117,7 @@ class ApplicationProjetS5(tk.Frame):
         self.readingLabel = tk.Label(self, text='Statut du DSK : ')
         self.readingLabel.pack()
 
-        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton())
+        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.realSerial))
         self.writingSerial_B.pack(side='left')
         self.writingSerial_B.config(height = 3, width = 10)
 
@@ -175,32 +180,33 @@ class ApplicationProjetS5(tk.Frame):
         label.text = data
 
 
-    def readSerial(self):
-        data = self.ser2.read(9999)
+    def readSerial(self, serialPort):
+        data = serialPort.read(9999)
         data = data.decode('ascii')
 
-        if 'ind' in data :
-            index = data[3:]
+        if 'i' in data :
+            index = data[1:]
             pathAndName = ImageDictionnary(index)
-            self.changeImage(self.orateurPicLabel, pathAndName[0])
+            self.changeImage(self.orateurPicLabel, index)
             self.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])
 
         elif 'status' in  data : 
             self.changeLabelText(self.readingLabel, 'Statut du DSK : ' + data[6:])
 
         #Write what ever is sent
-        #elif data != '':
-        #    self.readingLabel.configure(text=data)
-        #    self.readingLabel.text = data
+        if data != '':
+            self.readingLabel.configure(text=data)
+            self.readingLabel.text = data
+            self.changeImage(self.orateurPicLabel, data)
 
 
-    def writingSerial(self):
+    def writingSerial(self, serialPort):
         data = self.writingBox.get()
-        self.ser1.write(data.encode())
+        serialPort.write(data.encode())
 
 
-    def writingSerialButton(self):
-        self.writingSerial()
+    def writingSerialButton(self, serialPort):
+        self.writingSerial(serialPort)
 
 
     def stopThread(self, thread):
@@ -232,5 +238,5 @@ MyRoot.geometry("%dx%d+0+0" % (w/2.8, h/1.2))
 
 app.mainloop()
    
-app.ser1.close()
-app.ser2.close()
+#app.ser1.close()
+#app.ser2.close()
