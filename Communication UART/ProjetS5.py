@@ -112,19 +112,19 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = self.setupSerialPort("COM5", baurate, readingTimeout)  
+        #self.realSerial = self.setupSerialPort("COM5", baurate, readingTimeout)  
 
-        self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
-        self.imageCycleThread = RepeatedTimer(2, self.cycleImage)
+        #self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
+        #self.imageCycleThread = RepeatedTimer(2, self.cycleImage)
 
-        self.imageCycleThread.start()
+        #self.imageCycleThread.start()
 
     def createWidgets(self):
 
         self.orateurPicLabel = tk.Label(self)
         self.orateurPicLabel.pack()
 
-        pathAndName = ImageDictionnary('0')
+        pathAndName = ImageDictionnary('a')
         photo = Image.open(pathAndName[0])
         photo = ImageTk.PhotoImage(photo)
         self.orateurPicLabel.configure(image=photo)
@@ -252,7 +252,7 @@ app.master.title('Projet S5 P01')
 
 w = MyRoot.winfo_screenwidth()
 h = MyRoot.winfo_screenheight()
-MyRoot.geometry("%dx%d+0+0" % (w/2.8, h/1.2)) 
+MyRoot.geometry("%dx%d+0+0" % (w, h)) 
 
 app.mainloop()
    

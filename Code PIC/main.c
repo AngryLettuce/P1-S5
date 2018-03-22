@@ -11,7 +11,7 @@
 #include "config_bits.h"
 #include <stdio.h>
 #include "ProjetS5P1.h"
-#define _XTAL_FREQ 8000000
+#define _XTAL_FREQ 8e6
 void interrupt low_priority myIsr(void);
 
 char data[4]= {105,110,100,48};;
@@ -32,7 +32,8 @@ void main(void){
 
             for (i = 48; i <= 57; i++){
                 TXREG1 = i;
-                __delay_ms(1500);        
+                __delay_ms(1500);  
+               
             }
 
 
