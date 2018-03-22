@@ -32,8 +32,8 @@ short* asm_storeCircularTab256(short*tabData, short data);
 #define TEST_BENCH_LOG_SUBPRINT 0
 
 //CHUCK
-//#define TEST_BENCH_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
-//#define TEST_BENCH_LOG_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+//#define TEST_BENCH_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+//#define TEST_BENCH_LOG_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 //Raphael
 //#define TEST_BENCH_FOLDER "C:/Users/raphb/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
