@@ -13,21 +13,40 @@ from threading import Timer
 
 def ImageDictionnary(Orateur):
     #Picture size : 381 * 285 px
-    Dict = {'0'  : (r"noImage.jpg",       'Inconnu'),
-            '1'  : (r"Antoine2.jpg",       'Antoine'),
-            '2'  : (r"Pascal.PNG",        'Pascal L.'),
-            '3'  : (r"Pascal_B.jpg",      'Pascal B.'),
-            '4'  : (r"Guillaume.jpg",     'Guillaume'),
-            '5'  : (r"Raphael.jpg",       'Raphael'),
-            '6'  : (r"Thomas.jpg",        'Thomas'),
-            '7'  : (r"P_Y.jpg",           'Pierre-Yves'), 
-            '8'  : (r"Jeff.jpg",          'Jeffrey F.'), 
-            '9'  : (r"Vit Hess.jpg",      'Jeffrey R.'), 
-            '10' : (r"Chuck.jpg",         'Charles'), 
-            '11' : (r"Gonzo.jpg",         'Cristhian'), 
-            '12' : (r"L_P.jpg",           'Tatlock'), 
-            '13' : (r"feu_serviette.jpg", 'RIP serviette'), 
-            '14' : (r"butrice.jpg",       'Butrice'), 
+
+    DictB = { 0    : (r"noImage.jpg",       'Inconnu'),
+              1    : (r"Antoine2.jpg",      'Antoine'),
+              2    : (r"Pascal.PNG",        'Pascal L.'),
+              4    : (r"Pascal_B.jpg",      'Pascal B.'),
+              8    : (r"Guillaume.jpg",     'Guillaume'),
+              16   : (r"Raphael.jpg",       'Raphael'),
+              32   : (r"Thomas.jpg",        'Thomas'),
+              64   : (r"P_Y.jpg",           'Pierre-Yves! :D'), 
+              128  : (r"Jeff.jpg",          'Jeffrey F.'), 
+              256  : (r"Vit Hess.jpg",      'Jeffrey R.'), 
+              512  : (r"Chuck.jpg",         'Charles'), 
+              1024 : (r"Gonzo.jpg",         'Cristhian'), 
+              2048 : (r"L_P.jpg",           'Tatlock'), 
+              4096 : (r"feu_serviette.jpg", 'RIP serviette'), 
+              8192 : (r"butrice.jpg",       'Butrice'), 
+             } 
+
+
+    Dict = {'a'  : (r"noImage.jpg",      'Inconnu'),
+            'b'  : (r"Antoine2.jpg",     'Antoine'),
+            'c'  : (r"Pascal.PNG",       'Pascal L.'),
+            'd'  : (r"Pascal_B.jpg",     'Pascal B.'),
+            'e'  : (r"Guillaume.jpg",    'Guillaume'),
+            'f'  : (r"Raphael.jpg",      'Raphael'),
+            'g'  : (r"Thomas.jpg",       'Thomas'),
+            'i'  : (r"P_Y.jpg",          'Pierre-Yves'), 
+            'j'  : (r"Jeff.jpg",         'Jeffrey F.'), 
+            'k'  : (r"Vit Hess.jpg",     'Jeffrey R.'), 
+            'l' : (r"Chuck.jpg",         'Charles'), 
+            'm' : (r"Gonzo.jpg",         'Cristhian'), 
+            'n' : (r"L_P.jpg",           'Tatlock'), 
+            'o' : (r"feu_serviette.jpg", 'RIP serviette'), 
+            'p' : (r"butrice.jpg",       'Butrice'), 
             } 
 
     if Orateur not in Dict :
@@ -92,13 +111,13 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser1 = self.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
         #self.ser2 = self.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
-
+        #real serial port with the pic
         self.realSerial = self.setupSerialPort("COM5", baurate, readingTimeout)  
 
         self.readingThread    = RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
         self.imageCycleThread = RepeatedTimer(2, self.cycleImage)
 
-        #self.imageCycleThread.start()
+        self.imageCycleThread.start()
 
     def createWidgets(self):
 
@@ -145,7 +164,6 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def changeImage(self, label, index):
-
         pathAndName = ImageDictionnary(index)
         path = pathAndName[0]
 
