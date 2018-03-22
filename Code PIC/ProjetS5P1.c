@@ -7,6 +7,7 @@
 
 #include "ProjetS5P1.h"
 
+
 void putch(char byte)
 {
     while(!TX1IF) continue;
@@ -38,3 +39,22 @@ void interruptConfig(){
     INTCONbits.GIEL = 1;    //Enables all low priority peripherical interrupts
     PIE1bits.RC1IE = 1;      //Enables the EUSART receive interrupt bit
 }
+
+void sendIndex(APP_DATA *data){
+    static char data2send = (1 << 7);
+    data2send |= data->speaker;
+    data2send |= (data->currentState << 6);
+    TXREG1 = data2send;
+    return;
+}
+
+void sendState(APP_DATA *data){
+    static char data2send = (1 << 7);
+    data2send |= data->state;
+    data2send |= (data->currentState << 6);
+    TXREG1 = data2send;
+    return;
+    
+}
+       
+    
