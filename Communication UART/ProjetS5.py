@@ -10,7 +10,7 @@ import serial
 from time import sleep
 from threading import Timer
 
-TEST 
+
 def ImageDictionnary(Orateur):
     #Picture size : 381 * 285 px
 
