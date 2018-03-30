@@ -9,11 +9,11 @@
 
 void main(void) {
 
-    //DSK6713_init();
+    DSK6713_init();
     SPI_init();
 
     while(1){
-        SPI_write(0xFF);
+        SPI_write(0x41);
     }
 }
 

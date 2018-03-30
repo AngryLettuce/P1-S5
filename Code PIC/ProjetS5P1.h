@@ -28,6 +28,7 @@ void uartConfig();
 void interruptConfig();
 void sendIndex(APP_DATA *data);
 void sendState(APP_DATA *data);
+void spiConfig();
 
 
 

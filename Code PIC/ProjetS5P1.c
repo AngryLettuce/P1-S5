@@ -5,6 +5,8 @@
  * Created on 20 mars 2018, 20:22
  */
 
+#include <pic18f67j94.h>
+
 #include "ProjetS5P1.h"
 
 
@@ -38,6 +40,9 @@ void interruptConfig(){
     INTCONbits.GIEH = 1;    //Enables all High priority peripherical interrupts
     INTCONbits.GIEL = 1;    //Enables all low priority peripherical interrupts
     PIE1bits.RC1IE = 1;      //Enables the EUSART receive interrupt bit
+    PIE2bits.SSP2IE = 1;
+    
+    
 }
 
 void sendIndex(APP_DATA *data){
@@ -57,4 +62,21 @@ void sendState(APP_DATA *data){
     
 }
        
+void spiConfig(){
+     RPINR8_9 = 0x31; //SCK1 -> RP7 , SDI1 -> RP12
+     RPINR10_11 = 0x03; //not_SS1 -> RP14
+     RPOR12_13 = 0x40; //SDO1 ->RP13
+     
+     TRISBbits.TRISB5 = 0;
+     TRISBbits.TRISB3 = 1;
+     TRISBbits.TRISB2 = 1;
+     
+     SSP1STATbits.SMP = 0;
+     SSP1STATbits.CKE = 1;
+     
+     SSP1CON1bits.CKP = 0;
+     SSP1CON1bits.SSPEN = 1;
+     SSP1CON1bits.SSPM = 0b0100;
+     
     
+}

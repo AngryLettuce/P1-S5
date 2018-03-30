@@ -1,7 +1,10 @@
 
-
+#define SPI_DRIVER_MODULE_IMPORT
 #include "SPI_driver.h"
 
+
+
+extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
 
 MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(SPCR, FREE, NO)              | // Arrete la comm quand le cpu est n'emule pas
@@ -26,7 +29,7 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(RCR, RFIG, NO)               |
    MCBSP_FMKS(RCR, RDATDLY, 1BIT)          |
    MCBSP_FMKS(RCR, RFRLEN1, OF(0))         | // This changes to 1 FRAME
-   MCBSP_FMKS(RCR, RWDLEN1, 16BIT)         | // This changes to 16 bits per frame
+   MCBSP_FMKS(RCR, RWDLEN1, 8BIT)         | // This changes to 16 bits per frame
    MCBSP_FMKS(RCR, RWDREVRS, DISABLE),
 
    MCBSP_FMKS(XCR, XPHASE, SINGLE)         | // RPHASE = 0
@@ -36,7 +39,7 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(XCR, XFIG, NO)               |
    MCBSP_FMKS(XCR, XDATDLY, 1BIT)          |
    MCBSP_FMKS(XCR, XFRLEN1, OF(0))         | // This changes to 1 FRAME
-   MCBSP_FMKS(XCR, XWDLEN1, 16BIT)         | // This changes to 32 bits per frame
+   MCBSP_FMKS(XCR, XWDLEN1, 8BIT)         | // This changes to 32 bits per frame
    MCBSP_FMKS(XCR, XWDREVRS, DISABLE),
 
    MCBSP_FMKS(SRGR, GSYNC, DEFAULT)        |
@@ -71,10 +74,10 @@ void SPI_init(void)
 {
 
     Uint16 registre = DSK6713_rget(DSK6713_MISC);
-    registre |= 0x01;
+    registre |= 0x02;
     DSK6713_rset(DSK6713_MISC,registre);
     MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
-    DSK6713_AIC23_CONTROLHANDLE = MCBSP_open(MCBSP_DEV0,MCBSP_OPEN_RESET);
+    DSK6713_AIC23_CONTROLHANDLE = MCBSP_open(MCBSP_DEV1,MCBSP_OPEN_RESET);
     MCBSP_config(DSK6713_AIC23_CONTROLHANDLE, &MCBSP0_SPI_Cfg);
     MCBSP_start(DSK6713_AIC23_CONTROLHANDLE, MCBSP_XMIT_START | MCBSP_RCV_START | MCBSP_SRGR_START | MCBSP_SRGR_FRAMESYNC, 0x00003000);
 
