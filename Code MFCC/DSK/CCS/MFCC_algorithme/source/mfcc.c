@@ -397,7 +397,6 @@ void cb_construct_codebook(MetVecTab *metVecTab,
 
             iter += 1;
         }
-
     }
 }
 
