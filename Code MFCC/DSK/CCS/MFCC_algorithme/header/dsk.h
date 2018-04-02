@@ -10,11 +10,11 @@
 
 #include "data_structures.h"
 
+volatile char dsk_fsm_command;
 
 void dsk_main(void);
 void dsk_init(void);
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab);
 void mfcc_get_metrics(float *met, MFCCModule *mfcc);
-
 
 #endif /* HEADER_DSK_H_ */
