@@ -3,6 +3,7 @@ close all
 clc
 
 %% PARAMETERS INIT
+c = strsplit(num2str(fix(clock)));%get time and date information
 
 %file and codebook parameters
 param.codeBook_name = ['codeBook_' c{1} '-' c{2} '-' c{3} '_' c{4} 'h' c{5} 'm' c{6} 's.mat'];%generate a name with time and date for archive
@@ -137,7 +138,6 @@ write_testBench_data('moving_average',x,moving_average',1);
 
 %% MFCC PIPELINE
 
-
 x{1} = load('audio_ex1.mat','y'); x{1} = x{1}.y';
 x{2} = load('audio_ex2.mat','y'); x{2} = x{2}.y';
 x{3} = load('audio_ex3.mat','y'); x{3} = x{3}.y';
@@ -148,7 +148,17 @@ write_testBench_data('mfcc_pipeline',x,y,3)
 
 
 
+%% MFCC CONSTRUCT CODEBOOK
 
+load('metrics_8persv2.mat');
+
+x = metrics;
+
+for i = 1:-1:1
+    y = construct_speakerCodeBook(x, param);
+end
+
+write_testBench_data('codebook_construct',x,y,1)
 
 
 

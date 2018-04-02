@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 
+#define DSK_H_INIT
 #include "dsk.h"
 #include "data_structures.h"
 #include "mfcc.h"
@@ -30,27 +31,65 @@
 
 void dsk_main(void) {
 
+    // Initialize DSK
+    dsk_init();
 
+    // Main FSM loop
+    while(1) {
 
+        scanf("%c ", &dsk_fsm_command);
 
+        if (dsk_fsm_command == 1) {         // DSK_Delete_User
+            dsk_fsm_command = 0;
 
+            if (mfcc_speaker_list.speaker_nb > 0)
+            {
+                printf("DSK currently deleting user\n");
+                mfcc_speaker_list.speaker_nb--;
+            }
+            else {
+                printf("Can't delete users from an empty list\n")
+            }
+        }
+        else if (dsk_fsm_command == 2) {    // DSK_Analyze_User
+            dsk_fsm_command = 0;
 
+            printf("DSK currently analyzing user\n");
+            if (mfcc_speaker_list.speaker_nb > 1) {
+                printf("You could find a user if the code was here ;)\n");
+            }
+            else {
+                printf("Not enough users to make an analysis\n");
+            }
+        }
+        else if (dsk_fsm_command == 3) {    // DSK_Add_User
+            dsk_fsm_command = 0;
 
+            if (mfcc_speaker_list.speaker_nb < SPEAKER_MB_MAX) {
+                printf("*insert ''Init add user'' code here*\n");
+                mfcc_speaker_list.speaker_nb++;
 
+                int TEST_codebookcreation_var;
+                while (TEST_codebookcreation_var < 1000);
 
-
-
-
-
+                printf("Metric Table is full\n");
+                printf("User added"\n);
+            }
+            else {
+                printf("User maximum limit reached\n")
+            }
+        }
+        else {
+            dsk_fsm_command = 0;
+        }
+    }
 }
-
-
 
 
 
 void dsk_init(void) {
 
-
+    printf("DSK Init = 100%%\n");
 }
 
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
@@ -68,6 +107,8 @@ void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
     //generate the twiddle table, reverse index table, and cosine table for FFT and DCT
     mfcc_fft_init(mfcc->fft.w, mfcc->fft.index, mfcc->x_size);
     mfcc_dct_init(mfcc->dct.cosTab, mfcc->mfb.melFilter_nb, mfcc->mfb.melFilter_nb);
+
+    SpeakerDataList mfcc_speaker_list;
 
 }
 

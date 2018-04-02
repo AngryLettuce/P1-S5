@@ -56,8 +56,8 @@ short* asm_storeCircularTab256(short*tabData, short data);
 //#define TEST_BENCH_FOLDER "C:/Users/Pascal/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 
 //PASCAL L.
-//#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
-//#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
+#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 //GUILLAUME
 //#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
@@ -706,6 +706,72 @@ int tb_mfcc_get_metrics(char *filename_x, char *filename_y, char* logfile, float
     return success;
 }
 
+
+
+/*----------------------------------------------------------*/
+/*                 CODEBOOK CONSTUCTION                     */
+/*----------------------------------------------------------*/
+/*
+int tb_cb_construct_codebook(char *filename_x, char *filename_y, char *logfile, float threshold) {
+
+    FILE* fp;
+
+    int i, j, linesx, columnsx, linesy, columnsy;
+    int success = 1;
+    float RMS = 0;
+    float rErrAvg = 0;
+    float y0,yr,rErr;
+
+
+    if (read_csv_float(filename_x, test_bench_x, &linesx, &columnsx) < 0)
+        return 0;
+
+    if (read_csv_float(filename_y, test_bench_y, &linesy, &columnsy) < 0)
+        return 0;
+
+    //open log file to write test result to it
+    fp = fopen(logfile, "a");
+    //write the header of the test in the log file
+    write_test_header(fp, "CodeBook Construction", filename_x, filename_y, linesy, columnsy);
+
+    //for(i = 0; i < )
+
+    cb_construct_codebook(MetVecTab *metVecTab,
+                          Codebook *codebook,
+                          int codebook_size,
+                          int speaker_ind,
+                          float epsilon,
+                          float distortion_Err);
+
+    for(i = 0; i < lines; i++) {
+        for(j = 0; j < columns; j++) {
+            y0 = mfcc.mfb.melFilter[i][j];
+            yr = test_bench_y[i][j];
+
+            //relative error calculation
+            if (y0 != 0.)
+                rErr = fabs((y0 - yr)/y0);
+            else
+                rErr = 0;
+            rErrAvg += rErr;
+
+            //write subresult to log file
+            if (TEST_BENCH_LOG_SUBPRINT == 1)
+                write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+            RMS += pow(y0 - yr, 2);
+        }
+    }
+    RMS /= lines*columns;
+    rErrAvg /= lines;
+
+    //write result to file and command windows
+    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+
+    fclose(fp);
+    return success;
+}
+*/
 
 
 
