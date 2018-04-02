@@ -12,32 +12,79 @@
 #include <stdio.h>
 #include "ProjetS5P1.h"
 #define _XTAL_FREQ 8000000
-void interrupt low_priority myIsr(void);
+void interrupt low_priority comPC(void);
+void interrupt high_priority DSK(void);
 
-char data[4]= {105,110,100,48};;
-void interrupt low_priority myIsr(void)
+APP_DATA data;
+//char data[4]= {105,110,100,48};
+//void interrupt low_priority comPC(void)
+//{
+//    if(PIE1bits.RC1IE && PIR1bits.RC1IF){
+//        TXREG1 = RCREG1;
+//    }
+//}
+
+
+
+void interrupt high_priority DSK(void)
 {
-    if(PIE1bits.RC1IE && PIR1bits.RC1IF){
-        TXREG1 = RCREG1;
+    
+
+    if(SSP1STATbits.BF && PIR2bits.SSP2IF){
+        TXREG1 = SSP1BUF;
     }
-//BONJOUR
+    
 }
 
-void main(void){
+int main(void){
     uartConfig();
     interruptConfig();
-    char i = 0;     
+    spiConfig();
+    data.currentState = STATE_DSK;
+    data.state = 3;
+    data.speaker = 4;
+    //char i = 0;     
     while(1){
+      /*  switch(data.currentState) {
+            case STATE_DSK :
+                __delay_ms(1000);
+                sendState(&data);
+                data.currentState = INDEX;
+                break;
+            
+            case INDEX :
+                __delay_ms(1000);
+                sendIndex(&data);
+                data.currentState = STATE_DSK;
+                break;            
+        }*/
+    }
+    return (EXIT_SUCCESS);
+}
+    
+        
+        
+        
+        
+                
+                        
+                            
+                    
+        
+        
+        
+        
         
 
-            for (i = 48; i <= 57; i++){
-                TXREG1 = i;
-                __delay_ms(1500);        
-            }
+//            for (i = 97; i <= 112; i++){
+//               TXREG1 = i;
+//               
+//            }
 
 
         
         
        // printf("Hello\n");
-    }
-}
+    
+    
+
