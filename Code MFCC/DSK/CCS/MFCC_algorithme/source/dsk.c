@@ -94,4 +94,3 @@ void mfcc_construct_codebook() {
 }
 
 
-
