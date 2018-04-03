@@ -106,7 +106,7 @@ void mfcc_construct_codebook() {
 void fsm_delete_user(void) {
     if (mfcc_speaker_list.speaker_nb > 0)
     {
-        printf("Delete user at which position")
+        printf("Delete user at which position");
         scanf("%d", &dsk_fsm_command);
         printf("DSK currently deleting user at position %d\n", dsk_fsm_command);
         mfcc_speaker_list.speaker_data[dsk_fsm_command].codebook.codeword_nb = 0;
@@ -125,7 +125,6 @@ void fsm_add_user(void) {
         mfcc_speaker_list.speaker_nb++;
         printf("New user added at position %d\n", first_free_user);
     }
-
     else {
         printf("Maximum user limit reached\n");
     }
