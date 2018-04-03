@@ -436,11 +436,6 @@ short spkrec_get_speakerInd(float *met,SpeakerDataList *speakerList)   {
     return speakerInd;
 }
 
-
-
-
-
-
 short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_size, int bank_size)  {
 
     short modeSpeakerInd;

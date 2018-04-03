@@ -1,6 +1,6 @@
 
 from PIL import Image, ImageTk
-import serial
+from serial import Serial
 from threading import Timer
 
 
@@ -12,6 +12,7 @@ def changeImage(label, path):
     photo = ImageTk.PhotoImage(photo)
     label.configure(image=photo)
     label.photo = photo
+
 
 def changeLabelText(label, data) : 
     'change the text of a label to data'
@@ -70,16 +71,18 @@ def imageDictionnary(Orateur):
     return Dict[Orateur]
 
 
+
 ########################## -- Serial Port -- ##########################
 def setupSerialPort(port, baudrate, timeout):
     'setut a serial port connection with a baudrate and a timeout' 
-    ser = serial.Serial(port, baudrate, timeout=timeout)
+    ser = Serial(port, baudrate, timeout=timeout)
     return ser
 
+
 def writingSerial(serialPort, data):
+    'write data to the serialPort'
     serialPort.write(data)
     #serialPort.write(data.encode())
-
 
 
 
@@ -110,22 +113,27 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
+
 def stopThread(thread):
+    'stop the thread of a RepeatedTimer type'
     thread.stop()
 
 
 def startThread(thread):
+    'start the thread of a RepeatedTimer type'
     thread.start()
 
 
 ########################## -- Utility functions -- ##########################
 
 def resizePicture(path, width):
+    'resize the picture to the width given, the width/height ratio will be kept'
     img = Image.open(path)
     wpercent = (width/float(img.size[0]))
     hsize = int((float(img.size[1])*float(wpercent)))
     img = img.resize((width,hsize), Image.ANTIALIAS)
     img.save('new' + path)
+
 
 def parity(int_type):
     'Used to calculate the parity of a byte'
