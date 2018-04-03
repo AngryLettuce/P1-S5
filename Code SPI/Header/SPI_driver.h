@@ -23,10 +23,12 @@
 #include <csl_irq.h>
 #include <csl_gpio.h>
 #include <dsk6713_aic23.h>
+#include <dsk6713_led.h>
 
 
 void SPI_init(void);
-void SPI_write(char SPIdata);
+void SPI_write(Uint8 SPIdata);
+Uint8 SPI_read();
 
 #endif // end of #ifndef _SPI_MODULE_
 

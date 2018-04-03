@@ -48,7 +48,7 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(SRGR, FSGM, DXR2XSR)         | // = 0
    MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
    MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
-   MCBSP_FMKS(SRGR, CLKGDV, OF(113)),
+   MCBSP_FMKS(SRGR, CLKGDV, OF(0x55D4)),
 
    MCBSP_MCR_DEFAULT,
    MCBSP_RCER_DEFAULT,
@@ -84,7 +84,7 @@ void SPI_init(void)
     return;
 }
 
-void SPI_write(char SPIdata)
+void SPI_write(Uint8 SPIdata)
 {
 
     while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE))
@@ -94,4 +94,10 @@ void SPI_write(char SPIdata)
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPIdata);
 
 
+}
+
+Uint8 SPI_read(){
+
+    while(!MCBSP_rrdy(DSK6713_AIC23_CONTROLHANDLE)){};
+       return MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
 }
