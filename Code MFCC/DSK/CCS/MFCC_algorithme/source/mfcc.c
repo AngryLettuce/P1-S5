@@ -528,9 +528,3 @@ short spkrec_get_currentSpeaker(float *met,SpeakerDataList *speakerList,short cu
 
     return new_speakerInd;
 }
-
-
-
-
-
-
