@@ -31,14 +31,16 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
-        self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        #self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readSerial, self.ser2)
-        #self.imageCycleThread = fn.RepeatedTimer(2, self.cycleImage)
+        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
 
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
+        self.readingThread.start()
+
+        #self.imageCycleThread = fn.RepeatedTimer(2, self.cycleImage)
         #self.imageCycleThread.start()
 
     def createWidgets(self):
@@ -55,7 +57,7 @@ class ApplicationProjetS5(tk.Frame):
         self.dskStatusLabel = tk.Label(self, text='Statut du DSK : Inconnu')
         self.dskStatusLabel.pack()
 
-        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.ser1))
+        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.realSerial))
         self.writingSerial_B.pack(side='left')
         self.writingSerial_B.config(height = 3, width = 10)
 
@@ -71,7 +73,7 @@ class ApplicationProjetS5(tk.Frame):
         #self.scalingOrateur.pack()
 
         self.writingBox = tk.Entry(self.midFrame)
-        self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser1))
+        self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.realSerial))
         self.writingBox.pack()
 
         #self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
@@ -101,6 +103,7 @@ class ApplicationProjetS5(tk.Frame):
         #data = data.decode('ascii')
 
         if data != b'' : 
+            print(data)
             data = int.from_bytes(data, 'big')
 
             #Set the orateur picture and the name bellow 
