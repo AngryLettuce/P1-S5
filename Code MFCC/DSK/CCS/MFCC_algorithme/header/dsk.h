@@ -22,5 +22,7 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc);
 void fsm_delete_user(void);
 void fsm_add_user(void);
 void fsm_analyze_user(void);
+char btn_dbnc(void);
+void interrupt itr4_fsm_btn_pressed(void);
 
 #endif /* HEADER_DSK_H_ */

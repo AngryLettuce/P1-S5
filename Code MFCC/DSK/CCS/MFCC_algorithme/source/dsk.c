@@ -9,18 +9,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 #include <string.h>
 #include <time.h>
 
-#define DSK_H_INIT
+#include <csl_gpio.h>
+#include <csl_irq.h>
+
 #include "dsk.h"
 #include "data_structures.h"
 #include "mfcc.h"
 #include "utils.h"
 #include "fft_utility.h"
 
-volatile char dsk_fsm_command;
+volatile char dsk_fsm_command = 0;
+volatile bool btn_pressed_flag = false;
 SpeakerDataList mfcc_speaker_list;
 
 /*------------------------------------------------------
@@ -38,7 +42,7 @@ void dsk_main(void) {
     // Main FSM loop
     while(1) {
 
-        printf("Enter key plz");
+        printf("--Active commands--\n\t1. Delete user\n\t2. Analyze user\n\t3. Add user\nEnter command : ");
         scanf("%d", &dsk_fsm_command);
 
         switch(dsk_fsm_command) {
@@ -62,6 +66,29 @@ void dsk_main(void) {
 void dsk_init(void) {
 
     printf("DSK Init = 100%%\n");
+
+    // GPIO configuration
+    GPIO_Handle GPIO_handle = GPIO_open(GPIO_DEV0, GPIO_OPEN_RESET);
+    // Pin 7 (Button Pressed interrupt)
+    GPIO_pinEnable(GPIO_handle, GPIO_PIN7);
+    GPIO_pinDirection(GPIO_handle, GPIO_PIN7, GPIO_INPUT);
+    GPIO_intPolarity(GPIO_handle, GPIO_GPINT7, GPIO_RISING);
+    // Pin 8 (Delete Command/Up)
+    GPIO_pinEnable(GPIO_handle, GPIO_PIN8);
+    GPIO_pinDirection(GPIO_handle, GPIO_PIN8, GPIO_INPUT);
+    // Pin 9 (Analyze/Down)
+    GPIO_pinEnable(GPIO_handle, GPIO_PIN9);
+    GPIO_pinDirection(GPIO_handle, GPIO_PIN9, GPIO_INPUT);
+    // Pin 10 (Add/OK)
+    GPIO_pinEnable(GPIO_handle, GPIO_PIN10);
+    GPIO_pinDirection(GPIO_handle, GPIO_PIN10, GPIO_INPUT);
+
+    // IRQ configuration
+    IRQ_globalDisable();
+    IRQ_map(IRQ_EVT_EXTINT7, 7);
+    IRQ_enable(IRQ_EVT_EXTINT7);
+    IRQ_nmiEnable();
+    IRQ_globalEnable();
 }
 
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
@@ -106,7 +133,7 @@ void mfcc_construct_codebook() {
 void fsm_delete_user(void) {
     if (mfcc_speaker_list.speaker_nb > 0)
     {
-        printf("Delete user at which position");
+        printf("Delete user from position? : ");
         scanf("%d", &dsk_fsm_command);
         printf("DSK currently deleting user at position %d\n", dsk_fsm_command);
         mfcc_speaker_list.speaker_data[dsk_fsm_command].codebook.codeword_nb = 0;
@@ -138,4 +165,12 @@ void fsm_analyze_user(void) {
     else {
         printf("Not enough users to make an analysis\n");
     }
+}
+
+char btn_dbnc(void) {
+    return 0;
+}
+
+void interrupt itr4_fsm_btn_pressed(void) {
+    btn_pressed_flag = true;
 }
