@@ -2,7 +2,8 @@
  * DSK_main.c
  *
  *  Created on: 9 mars 2018
- *      Author: pascal
+ *  Last edited on: 2 avril 2018
+ *      Authors: Pascal L, Charles C
  */
 
 
@@ -19,7 +20,8 @@
 #include "utils.h"
 #include "fft_utility.h"
 
-
+volatile char dsk_fsm_command;
+SpeakerDataList mfcc_speaker_list;
 
 /*------------------------------------------------------
  *   dsk_main :
@@ -33,55 +35,25 @@ void dsk_main(void) {
 
     // Initialize DSK
     dsk_init();
-
     // Main FSM loop
     while(1) {
 
-        scanf("%c ", &dsk_fsm_command);
+        printf("Enter key plz");
+        scanf("%d", &dsk_fsm_command);
 
-        if (dsk_fsm_command == 1) {         // DSK_Delete_User
-            dsk_fsm_command = 0;
-
-            if (mfcc_speaker_list.speaker_nb > 0)
-            {
-                printf("DSK currently deleting user\n");
-                mfcc_speaker_list.speaker_nb--;
-            }
-            else {
-                printf("Can't delete users from an empty list\n")
-            }
+        switch(dsk_fsm_command) {
+        case DELETE_CMD :
+            fsm_delete_user();
+            break;
+        case ANALYZE_CMD :
+            fsm_analyze_user();
+            break;
+        case ADD_CMD :
+            fsm_add_user();
+            break;
         }
-        else if (dsk_fsm_command == 2) {    // DSK_Analyze_User
-            dsk_fsm_command = 0;
 
-            printf("DSK currently analyzing user\n");
-            if (mfcc_speaker_list.speaker_nb > 1) {
-                printf("You could find a user if the code was here ;)\n");
-            }
-            else {
-                printf("Not enough users to make an analysis\n");
-            }
-        }
-        else if (dsk_fsm_command == 3) {    // DSK_Add_User
-            dsk_fsm_command = 0;
-
-            if (mfcc_speaker_list.speaker_nb < SPEAKER_MB_MAX) {
-                printf("*insert ''Init add user'' code here*\n");
-                mfcc_speaker_list.speaker_nb++;
-
-                int TEST_codebookcreation_var;
-                while (TEST_codebookcreation_var < 1000);
-
-                printf("Metric Table is full\n");
-                printf("User added"\n);
-            }
-            else {
-                printf("User maximum limit reached\n")
-            }
-        }
-        else {
-            dsk_fsm_command = 0;
-        }
+        dsk_fsm_command = 0;
     }
 }
 
@@ -107,9 +79,6 @@ void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
     //generate the twiddle table, reverse index table, and cosine table for FFT and DCT
     mfcc_fft_init(mfcc->fft.w, mfcc->fft.index, mfcc->x_size);
     mfcc_dct_init(mfcc->dct.cosTab, mfcc->mfb.melFilter_nb, mfcc->mfb.melFilter_nb);
-
-    SpeakerDataList mfcc_speaker_list;
-
 }
 
 
@@ -134,5 +103,40 @@ void mfcc_construct_codebook() {
 
 }
 
+void fsm_delete_user(void) {
+    if (mfcc_speaker_list.speaker_nb > 0)
+    {
+        printf("Delete user at which position")
+        scanf("%d", &dsk_fsm_command);
+        printf("DSK currently deleting user at position %d\n", dsk_fsm_command);
+        mfcc_speaker_list.speaker_data[dsk_fsm_command].codebook.codeword_nb = 0;
+        mfcc_speaker_list.speaker_nb--;
+    }
+    else {
+        printf("Can't delete users from an empty list\n");
+    }
+}
 
+void fsm_add_user(void) {
+    if (mfcc_speaker_list.speaker_nb < SPEAKER_NB_MAX) {
+        char first_free_user = 0;
+        while(mfcc_speaker_list.speaker_data[first_free_user].codebook.codeword_nb != 0) first_free_user++;
+        mfcc_speaker_list.speaker_data[first_free_user].codebook.codeword_nb = 1;
+        mfcc_speaker_list.speaker_nb++;
+        printf("New user added at position %d\n", first_free_user);
+    }
 
+    else {
+        printf("Maximum user limit reached\n");
+    }
+}
+
+void fsm_analyze_user(void) {
+    printf("DSK currently analyzing user\n");
+    if (mfcc_speaker_list.speaker_nb > 1) {
+        printf("Analysis complete\n");
+    }
+    else {
+        printf("Not enough users to make an analysis\n");
+    }
+}

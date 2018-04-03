@@ -45,7 +45,7 @@
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
-#define SPEAKER_NB_MAX 64
+#define SPEAKER_NB_MAX 16
 
 //mel filter bank
 #define MEL_FILTER_NB     20

@@ -56,8 +56,8 @@ short* asm_storeCircularTab256(short*tabData, short data);
 //#define TEST_BENCH_FOLDER "C:/Users/Pascal/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 
 //PASCAL L.
-#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
-#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+//#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
+//#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 //GUILLAUME
 //#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
