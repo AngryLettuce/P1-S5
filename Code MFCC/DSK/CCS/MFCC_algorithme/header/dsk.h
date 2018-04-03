@@ -12,6 +12,7 @@
 #define DELETE_CMD 1
 #define ANALYZE_CMD 2
 #define ADD_CMD 3
+#define record_length 256
 
 #include "data_structures.h"
 
@@ -22,5 +23,6 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc);
 void fsm_delete_user(void);
 void fsm_add_user(void);
 void fsm_analyze_user(void);
+void c_int11(void);
 
 #endif /* HEADER_DSK_H_ */

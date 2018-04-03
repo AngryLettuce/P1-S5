@@ -19,9 +19,15 @@
 #include "mfcc.h"
 #include "utils.h"
 #include "fft_utility.h"
+#include "C6713Helper_UdeS.h"
 
 volatile char dsk_fsm_command;
 SpeakerDataList mfcc_speaker_list;
+
+//Tableau donnees brute AIC
+short record[record_length];
+#pragma DATA_SECTION(record,".EXT_RAM")
+
 
 /*------------------------------------------------------
  *   dsk_main :
@@ -35,6 +41,10 @@ void dsk_main(void) {
 
     // Initialize DSK
     dsk_init();
+
+    // Initialize AIC
+    comm_intr();
+
     // Main FSM loop
     while(1) {
 
@@ -57,6 +67,18 @@ void dsk_main(void) {
     }
 }
 
+interrupt void c_int11(void){
+
+    static int j = 0;
+
+    if(j==record_length)                //Index tableau
+                j=0;
+
+    record[j] = input_left_sample();    //Tableau de données brutes
+    j++;
+
+    output_left_sample(0);              //Obligatoire pour permettre de réactiver l'Interupt
+}
 
 
 void dsk_init(void) {
