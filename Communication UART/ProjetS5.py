@@ -35,7 +35,7 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
         self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
         self.readingThread.start()
@@ -101,11 +101,9 @@ class ApplicationProjetS5(tk.Frame):
     def readSerial(self, serialPort):
         data = serialPort.read(9999)
         #data = data.decode('ascii')
-
         if data != b'' : 
-            print(data)
             data = int.from_bytes(data, 'big')
-
+            print(data)
             #Set the orateur picture and the name bellow 
             if data >= 192:
                 data -= 192 
