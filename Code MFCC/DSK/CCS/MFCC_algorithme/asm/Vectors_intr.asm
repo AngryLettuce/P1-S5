@@ -7,7 +7,7 @@
    .global _vector4
    .global _vector5
    .global _vector6
-   .global _vector7
+   .global _itr7_fsm_btn_pressed
    .global _vector8
    .global _vector9	  
    .global _vector10
@@ -44,7 +44,7 @@ _vector3:   VEC_ENTRY _vec_dummy
 _vector4:   VEC_ENTRY _vec_dummy
 _vector5:   VEC_ENTRY _vec_dummy
 _vector6:   VEC_ENTRY _vec_dummy
-_vector7:   VEC_ENTRY _vec_dummy
+_vector7:   VEC_ENTRY _itr7_fsm_btn_pressed
 _vector8:   VEC_ENTRY _vec_dummy
 _vector9:   VEC_ENTRY _vec_dummy
 _vector10:  VEC_ENTRY _vec_dummy

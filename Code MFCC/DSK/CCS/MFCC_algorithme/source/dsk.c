@@ -89,6 +89,14 @@ void dsk_init(void) {
     IRQ_enable(IRQ_EVT_EXTINT7);
     IRQ_nmiEnable();
     IRQ_globalEnable();
+
+    // Table emptying
+    mfcc_speaker_list.speaker_nb = 0;
+    int i = 0;
+    for (i = 0; i < 16; i++)
+    {
+        mfcc_speaker_list.speaker_data[i].codebook.codeword_nb = 0;
+    }
 }
 
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
@@ -171,6 +179,6 @@ char btn_dbnc(void) {
     return 0;
 }
 
-void interrupt itr4_fsm_btn_pressed(void) {
+void interrupt itr7_fsm_btn_pressed(void) {
     btn_pressed_flag = true;
 }
