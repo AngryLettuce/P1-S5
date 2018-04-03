@@ -397,7 +397,6 @@ void cb_construct_codebook(MetVecTab *metVecTab,
 
             iter += 1;
         }
-
     }
 }
 
@@ -408,6 +407,124 @@ void cb_clear_metVecTab(MetVecTab *metVecTab);
 
 
 
+//------------------------------------
+//  SPEAKER RECOGNITION CODEBOOK FUNCTIONS
+//------------------------------------
+
+short spkrec_get_speakerInd(float *met,SpeakerDataList *speakerList)   {
+    short speakerInd;
+    short i, j;
+    float temp = 0;
+    float minTemp = 10000;
+
+    for(i=0;i<speakerList->speaker_nb;i++)
+    {
+        if(speakerList->speaker_data[i].isActive)
+        {
+            for(j=0;j<speakerList->speaker_data[i].codebook.codeword_nb;j++)
+            {
+                temp = euclideanDistPow2(met,speakerList->speaker_data[i].codebook.codeword[j].met,speakerList->speaker_data[i].codebook.metVec_size);
+                if(temp < minTemp)
+                {
+                    minTemp = temp;
+                    speakerInd = speakerList->speaker_data[i].speaker_ind;
+                }
+            }
+        }
+    }
+
+    return speakerInd;
+}
 
 
 
+
+
+
+short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_size, int bank_size)  {
+
+    short modeSpeakerInd;
+    short i,j,k;
+    static short AccSpeaker[SPEAKER_NB_MAX];
+    short temp = 0;
+    short maxInd = 0;
+
+    for(i=0; i<SPEAKER_NB_MAX; i++)
+    {
+        AccSpeaker[i] = 0;
+    }
+
+    for(j=0; j<mode_size; j++)
+    {
+        AccSpeaker[*curr_ind--]++;
+
+        if(curr_ind < speakerBank )
+           {
+               curr_ind = speakerBank + bank_size - 1;
+           }
+    }
+
+    for(k=0; k<SPEAKER_NB_MAX; k++)
+    {
+        temp = AccSpeaker[k];
+
+        if(temp>maxInd)
+        {
+            maxInd = temp;
+            modeSpeakerInd = k;
+        }
+    }
+
+    return modeSpeakerInd;
+}
+
+short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd, short threshold)    {
+
+    static short last_speakerInd = -1;
+    static short compt = 0;
+
+    if(last_speakerInd == new_speakerInd)
+    {
+       compt+=1;
+    }
+    else
+    {
+       compt = 0;
+    }
+
+    last_speakerInd = new_speakerInd;
+
+    if(compt>=threshold)
+    {
+
+        return last_speakerInd;
+    }
+    else
+    {
+        return curr_speakerInd;
+    }
+}
+
+
+short spkrec_get_currentSpeaker(float *met,SpeakerDataList *speakerList,short curr_speakerInd,short threshold, int mode_size, int bank_size){
+    short speakerInd;
+    short modeSpeakerInd;
+    short new_speakerInd;
+    static short speakerBank[SIGNAL_BLOCK_SIZE] = {-1};
+    static short *curr_ind = speakerBank;
+
+    speakerInd = spkrec_get_speakerInd(met, speakerList);
+
+    *curr_ind++ = speakerInd;
+
+    if(curr_ind >= speakerBank + SIGNAL_BLOCK_SIZE)
+    {
+        curr_ind = speakerBank;
+    }
+
+    modeSpeakerInd = spkrec_get_modeSpeakerInd(speakerBank, curr_ind, mode_size, bank_size);
+
+    new_speakerInd = spkrec_get_thresholdSpeakerInd(modeSpeakerInd, curr_speakerInd, threshold);
+
+    return new_speakerInd;
+}
