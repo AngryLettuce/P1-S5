@@ -84,6 +84,10 @@ def writingSerial(serialPort, data):
     serialPort.write(data)
     #serialPort.write(data.encode())
 
+def readSerial(serialPort):
+    data = serialPort.read(9999)
+    #data = data.decode('ascii')
+    return data
 
 
 ########################## -- Threading -- ##########################
@@ -149,3 +153,34 @@ def check_int(data):
     if data[0] in ('-', '+'):
         return data[1:].isdigit()
     return data.isdigit()
+
+
+def _2x8bitsRead(data, app):
+    if data >= 192:
+        #data is an index of a speaker
+        index = (data & 0x3F) 
+        changeOrateurRoutine(data, app)
+
+    elif data < 192 and data >= 128 : 
+        #data is the status of the dsk
+        status = (data & 0x7F)
+        changeDSKStatusRoutine(status, app)
+
+
+def _8bitsRead(data, app):
+    index  = data >> 4
+    changeOrateurRoutine(index, app)
+
+    status = (data & 0x0F) 
+    changeDSKStatusRoutine(status, app)
+
+
+def changeOrateurRoutine(index, app):
+    pathAndName = imageDictionnary(index)
+    changeImage(app.orateurPicLabel, pathAndName[0])
+    changeLabelText(app.orateurLabel, 'Orateur : ' + pathAndName[1])
+
+
+def changeDSKStatusRoutine(status, app):
+    status = dskStatusDictionnary(status)
+    changeLabelText(app.dskStatusLabel, 'Statut du DSK : ' + status)

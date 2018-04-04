@@ -31,13 +31,13 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
-        #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
+        #self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readSerial, self.realSerial)
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.ser1)
         self.readingThread.start()
 
         #self.imageCycleThread = fn.RepeatedTimer(2, self.cycleImage)
@@ -57,7 +57,7 @@ class ApplicationProjetS5(tk.Frame):
         self.dskStatusLabel = tk.Label(self, text='Statut du DSK : Inconnu')
         self.dskStatusLabel.pack()
 
-        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.realSerial))
+        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.ser2))
         self.writingSerial_B.pack(side='left')
         self.writingSerial_B.config(height = 3, width = 10)
 
@@ -73,7 +73,7 @@ class ApplicationProjetS5(tk.Frame):
         #self.scalingOrateur.pack()
 
         self.writingBox = tk.Entry(self.midFrame)
-        self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.realSerial))
+        self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser2))
         self.writingBox.pack()
 
         #self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
@@ -98,26 +98,6 @@ class ApplicationProjetS5(tk.Frame):
         fn.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])        
 
 
-    def readSerial(self, serialPort):
-        data = serialPort.read(9999)
-        #data = data.decode('ascii')
-        if data != b'' : 
-            data = int.from_bytes(data, 'big')
-            print(data)
-            #Set the orateur picture and the name bellow 
-            if data >= 192:
-                data -= 192 
-                pathAndName = fn.imageDictionnary(data)
-                fn.changeImage(self.orateurPicLabel, pathAndName[0])
-                fn.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])
-
-            #Set the dsk status label 
-            elif data < 192 and data >= 128 : 
-                data -= 128
-                status = fn.dskStatusDictionnary(data)
-                fn.changeLabelText(self.dskStatusLabel, 'Statut du DSK : ' + status)
-
-
     def writingSerialButton(self, serialPort):
         data = self.writingBox.get()
         if data != '':
@@ -132,6 +112,14 @@ class ApplicationProjetS5(tk.Frame):
             else : 
                 self.errorMessageBox('Please enter an integer')
 
+
+    def readingThread(self, serialPort):
+       data =  fn.readSerial(serialPort)
+       if data != b'' : 
+            data = int.from_bytes(data, 'big')
+   
+            #fn._2x8bitsRead(data, self)
+            fn._8bitsRead(data, self)
 
 
     def errorMessageBox(self, message):
