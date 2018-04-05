@@ -1,6 +1,6 @@
 #Created by Guillaume Roux, 
-#this project aim to make a serial communication with a PIC
-# and to make a graphical interface showing the picture of someone
+'''This project aim to make a serial communication with a PIC
+   and to make a graphical interface showing the picture of someone'''
 
 
 import tkinter as tk   
@@ -15,14 +15,31 @@ class ApplicationProjetS5(tk.Frame):
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
 
+        self.visible = False
+
         tk.Frame.__init__(self, master)  
 
+        self.topFrame    = tk.Frame(self)
         self.buttonFrame = tk.Frame(self)
-        self.midFrame = tk.Frame(self)
+        self.midFrame    = tk.Frame(self)
+
+
+        self.OrateurFrame1 = tk.Frame(self)
+        self.OrateurFrame2 = tk.Frame(self)
+        self.OrateurFrame3 = tk.Frame(self)
+        self.OrateurFrame4 = tk.Frame(self)
+
+        self.OrateurFrame = [self.OrateurFrame1, self.OrateurFrame2, self.OrateurFrame3, self.OrateurFrame4]
 
         self.pack()
-        self.buttonFrame.pack(side='bottom')
-        self.midFrame.pack(side='bottom')         
+        self.topFrame.pack(side='top')
+        self.midFrame.pack(side='top')      
+        self.buttonFrame.pack(side='top')
+
+        for frame in self.OrateurFrame :
+            frame.pack(side='top')
+            fn.setInvisible(frame)
+
         
         self.createWidgets()
 
@@ -41,25 +58,29 @@ class ApplicationProjetS5(tk.Frame):
         self.readingThread.start()
 
         #self.imageCycleThread = fn.RepeatedTimer(2, self.cycleImage)
-        #self.imageCycleThread.start()
+        #self.imageCycleThread.start() 
 
     def createWidgets(self):
 
-        self.orateurPicLabel = tk.Label(self)
+        self.orateurPicLabel = tk.Label(self.topFrame)
         self.orateurPicLabel.pack()
 
         pathAndName = fn.imageDictionnary(63)
         fn.changeImage(self.orateurPicLabel, pathAndName[0])
 
-        self.orateurLabel = tk.Label(self, text='Orateur : Inconnu ')
+        self.orateurLabel = tk.Label(self.topFrame, text='Orateur : Inconnu ')
         self.orateurLabel.pack()
 
-        self.dskStatusLabel = tk.Label(self, text='Statut du DSK : Inconnu')
+        self.dskStatusLabel = tk.Label(self.topFrame, text='Statut du DSK : Inconnu')
         self.dskStatusLabel.pack()
 
-        self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.ser2))
-        self.writingSerial_B.pack(side='left')
-        self.writingSerial_B.config(height = 3, width = 10)
+        #self.writingSerial_B = tk.Button(self.buttonFrame, text='Write', command=lambda: self.writingSerialButton(self.ser2))
+        #self.writingSerial_B.pack(side='left')
+        #self.writingSerial_B.config(height = 3, width = 10)
+
+        self.trainButton_B = tk.Button(self.buttonFrame, text='Train', command=lambda: self.trainRoutine())            
+        self.trainButton_B.pack(side='left')
+        self.trainButton_B.config(height = 3, width = 10 )
 
         self.readSerial_B = tk.Button(self.buttonFrame,  text='Start',   command=lambda: fn.startThread(self.readingThread))
         self.readSerial_B.pack(side='left')
@@ -69,19 +90,123 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.pack(side='left')
         self.stopReading_B.config(height = 3, width = 10 )
 
-        #self.scalingOrateur = tk.Scale(self.midFrame, from_=0, to_=14, orient='horizontal', tickinterval=2, length=200, command= lambda x:self.scalingOrateurFunction)
-        #self.scalingOrateur.pack()
-
         self.writingBox = tk.Entry(self.midFrame)
         self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser2))
         self.writingBox.pack()
 
-        #self.trainButton_B = tk.Button(self, text='Training', command=lambda: self.cycleImage())            
-        #self.trainButton_B.grid(columnspan=1, row=3, column=1)
+        self.orateurButtons()
 
 
-    def scalingOrateurFunction(self):
-        return
+    def orateurButtons(self):
+
+        index = 0
+        frame = 0
+
+        ## ------------------ First line ------------------ ##
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons1 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(0, self))
+        self.orateurButtons1.pack(side='left')
+        self.orateurButtons1.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons2 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(1, self))
+        self.orateurButtons2.pack(side='left')
+        self.orateurButtons2.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons3 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(2, self))
+        self.orateurButtons3.pack(side='left')
+        self.orateurButtons3.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons4 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(3, self))
+        self.orateurButtons4.pack(side='left')
+        self.orateurButtons4.config(height = 1, width = 10 )
+        index += 1
+        
+        frame += 1
+
+        ## ------------------ Second line ------------------ ##
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons5 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(4, self))
+        self.orateurButtons5.pack(side='left')
+        self.orateurButtons5.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons6 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(5, self))
+        self.orateurButtons6.pack(side='left')
+        self.orateurButtons6.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons7 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(6, self))
+        self.orateurButtons7.pack(side='left')
+        self.orateurButtons7.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons8 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(7, self))
+        self.orateurButtons8.pack(side='left')
+        self.orateurButtons8.config(height = 1, width = 10 )
+        index += 1
+
+        frame += 1
+
+        ## ------------------ Third line ------------------ ##
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons9 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(8, self))
+        self.orateurButtons9.pack(side='left')
+        self.orateurButtons9.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons10 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(9, self))
+        self.orateurButtons10.pack(side='left')
+        self.orateurButtons10.config(height = 1, width = 10 )
+        index += 1
+
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons11 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(10, self))
+        self.orateurButtons11.pack(side='left')
+        self.orateurButtons11.config(height = 1, width = 10 )
+        index += 1
+
+        #pathAndName = fn.imageDictionnary(index)
+        #self.orateurButtons12 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(11, self))
+        #self.orateurButtons12.pack(side='left')
+        #self.orateurButtons12.config(height = 1, width = 10 )
+        #index += 1
+
+        frame += 1
+
+        ## ------------------ Fourth line ------------------ ##
+        #pathAndName = fn.imageDictionnary(index)
+        #self.orateurButtons13 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(12, self))
+        #self.orateurButtons13.pack(side='left')
+        #self.orateurButtons13.config(height = 1, width = 10 )
+        #index += 1
+
+        #pathAndName = fn.imageDictionnary(index)
+        #self.orateurButtons14 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(13, self))
+        #self.orateurButtons14.pack(side='left')
+        #self.orateurButtons14.config(height = 1, width = 10 )
+        #index += 1
+
+        #pathAndName = fn.imageDictionnary(index)
+        #self.orateurButtons15 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(14, self))
+        #self.orateurButtons15.pack(side='left')
+        #self.orateurButtons15.config(height = 1, width = 10 )
+        #index += 1
+
+        #pathAndName = fn.imageDictionnary(index)
+        #self.orateurButtons16 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: fn.changeOrateurRoutine(15, self))
+        #self.orateurButtons16.pack(side='left')
+        #self.orateurButtons16.config(height = 1, width = 10 )
+        #index += 1
 
 
     def cycleImage(self):
@@ -120,6 +245,22 @@ class ApplicationProjetS5(tk.Frame):
    
             #fn._2x8bitsRead(data, self)
             fn._8bitsRead(data, self)
+
+
+    def trainRoutine(self):
+
+        if self.visible : 
+            for frame in self.OrateurFrame : 
+                 fn.setInvisible(frame)
+            self.visible = False
+
+                
+        else :
+            for frame in self.OrateurFrame : 
+                fn.setVisible(frame)
+            self.visible = True
+
+                
 
 
     def errorMessageBox(self, message):

@@ -20,6 +20,13 @@ def changeLabelText(label, data) :
     label.text = data
 
 
+def setInvisible(widjet) :
+    widjet.pack_forget()
+
+def setVisible(widjet) : 
+    widjet.pack()
+
+
 ########################## -- Dictionnaries -- ##########################
 
 def dskStatusDictionnary(status) :
@@ -33,7 +40,7 @@ def dskStatusDictionnary(status) :
               6  : 'Train Codebook Construction',
               7  : 'Error',
 
-
+               
              63 : 'Inconnu',             
            }
 
@@ -47,22 +54,22 @@ def imageDictionnary(Orateur):
     'holds the possible speakers'
     #Picture size : 381 * 285 px
 
-    Dict = {  0  : (r"newAntoine.jpg",       'Antoine'),
-              1  : (r"newPascal.jpg",        'Pascal L.'),
-              2  : (r"newPascal_B.jpg",      'Pascal B.'),
-              3  : (r"newGuillaume.jpg",     'Guillaume'),
-              4  : (r"newRaphael.jpg",       'Raphael'),
-              5  : (r"newThomas.jpg",        'Thomas'),
-              6  : (r"newP_Y.jpg",           'Pierre-Yves! :D'), 
-              7  : (r"newJeff.jpg",          'Jeffrey F.'), 
-              8  : (r"newVit Hess.jpg",      'Jeffrey R.'), 
-              9  : (r"newChuck.jpg",         'Charles'), 
-              10 : (r"newGonzo.jpg",         'Cristhian'), 
-              11 : (r"newL_P.jpg",           'Tatlock'), 
-              12 : (r"newfeu_serviette.jpg", 'RIP serviette'), 
-              13 : (r"newbutrice.jpg",       'Butrice'),
+    Dict = {  0  : (r"newAntoine.jpg",       'Antoine'  ,     ),
+              1  : (r"newPascal.jpg",        'Pascal L.',     ),
+              2  : (r"newPascal_B.jpg",      'Pascal B.',     ),
+              3  : (r"newGuillaume.jpg",     'Guillaume',     ),
+              4  : (r"newRaphael.jpg",       'Raphael',       ),
+              5  : (r"newThomas.jpg",        'Thomas',        ),
+              6  : (r"newP_Y.jpg",           'Pierre-Yves',   ), 
+              7  : (r"newJeff.jpg",          'Jeffrey F.',    ), 
+              8  : (r"newVit Hess.jpg",      'Jeffrey R.',    ), 
+              9  : (r"newChuck.jpg",         'Charles',       ), 
+              10 : (r"newGonzo.jpg",         'Cristhian',     ), 
+              #11 : (r"newL_P.jpg",           'Tatlock',       ), 
+              #12 : (r"newfeu_serviette.jpg", 'RIP serviette', ), 
+              #13 : (r"newbutrice.jpg",       'Butrice',       ),
                       
-              63 : (r"newnoImage.jpg",       'Inconnu'),
+              63 : (r"newnoImage.jpg",       'Inconnu',     ),
              } 
 
     if Orateur not in Dict :
