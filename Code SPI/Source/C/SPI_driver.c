@@ -6,6 +6,7 @@
 extern Uint8 data;
 extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
 extern short flag;
+extern short index;
 //extern void vectors();
 
 MCBSP_Config MCBSP0_SPI_Cfg = {
@@ -50,7 +51,7 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(SRGR, FSGM, DXR2XSR)         | // = 0
    MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
    MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
-   MCBSP_FMKS(SRGR, CLKGDV, OF(0x55D4)),
+   MCBSP_FMKS(SRGR, CLKGDV, OF(225)),
 
    MCBSP_MCR_DEFAULT,
    MCBSP_RCER_DEFAULT,
@@ -91,7 +92,6 @@ void SPI_write(Uint8 SPIdata)
 
     while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE))
     {
-        //do nothing
     }
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPIdata);
 
@@ -106,15 +106,18 @@ Uint8 SPI_read(){
 }
 
 interrupt void c_int04(void){
-    SPI_write(192<<4);
+    SPI_write(index<<4);
     data = SPI_read();
-    flag = 1;
+    index++;
+    if(index == 14){
+        index = 0;
+    }
 }
 
 void configAndStartTimer0(unsigned int prd){
     CTL_USER_REG_0 &= ~0x80; //HLD = 0
     PRD_USER_REG_0 = prd;
-    CTL_USER_REG_0 |= 0x00000301;
+    CTL_USER_REG_0 |= 0x00000201;
     CTL_USER_REG_0 |= 0xC0;
 }
 

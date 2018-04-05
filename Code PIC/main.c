@@ -30,22 +30,19 @@ char dataSPI = 0;
 void interrupt high_priority DSK(void)
 {
     
-
+    if(PIE1bits.RC1IE && PIR1bits.RC1IF){
+       while(SSP1STATbits.BF && !TXSTA1bits.TRMT){};
+           SSP1BUF = RCREG1;
+        
+        
+    }
     if(SSP1STATbits.BF && PIR1bits.SSP1IF){
  //       while(!TX1IF) continue;
- //       while(!TXSTA1bits.TRMT){};
-        if(TX1IF){
+        while(!TXSTA1bits.TRMT){};
             TXREG1 = SSP1BUF;
-        }
-        
 
     }
-    if(PIE1bits.RC1IE && PIR1bits.RC1IF){
-       if(!SSP1STATbits.BF){
-           SSP1BUF = RCREG1;
-        }
-        
-    }
+
     
 }
 
