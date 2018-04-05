@@ -4,16 +4,16 @@
    .global _vector1
    .global _vector2
    .global _vector3
-   .global _c_int4
+   .global _c_int04
    .global _vector5
    .global _vector6
    .global _vector7
    .global _vector8
-   .global _vector9	  
-   .global _vector10 
-   .global _c_int11  		; AIC
-   .global _vector12  
-   .global _vector13   
+   .global _vector9
+   .global _vector10
+   .global _vector11
+   .global _vector12
+   .global _vector13
    .global _vector14
    .global _vector15
 
@@ -26,8 +26,8 @@ VEC_ENTRY .macro addr			;macro for ISR
     B     B0
     LDW   *B15++,B0
     NOP   2
-    NOP   
-    NOP   
+    NOP
+    NOP
    .endm
 
 _vec_dummy:
@@ -41,14 +41,14 @@ _vector0:   VEC_ENTRY _c_int00   	;RESET
 _vector1:   VEC_ENTRY _vec_dummy  	;NMI
 _vector2:   VEC_ENTRY _vec_dummy  	;RSVD
 _vector3:   VEC_ENTRY _vec_dummy
-_vector4:   VEC_ENTRY _c_int4
+_vector4:   VEC_ENTRY _c_int04
 _vector5:   VEC_ENTRY _vec_dummy
 _vector6:   VEC_ENTRY _vec_dummy
 _vector7:   VEC_ENTRY _vec_dummy
 _vector8:   VEC_ENTRY _vec_dummy
 _vector9:   VEC_ENTRY _vec_dummy
 _vector10:  VEC_ENTRY _vec_dummy
-_vector11:  VEC_ENTRY _c_int11    	; AIC    	
+_vector11:  VEC_ENTRY _vec_dummy
 _vector12:  VEC_ENTRY _vec_dummy
 _vector13:  VEC_ENTRY _vec_dummy
 _vector14:  VEC_ENTRY _vec_dummy
