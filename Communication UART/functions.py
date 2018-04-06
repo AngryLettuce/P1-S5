@@ -2,6 +2,7 @@
 from PIL import Image, ImageTk
 from serial import Serial
 from threading import Timer
+import tkinter as tk
 
 
 ########################## -- Widgets related -- ##########################
@@ -18,6 +19,10 @@ def changeLabelText(label, data) :
     'change the text of a label to data'
     label.configure(text=data)
     label.text = data
+
+def changeWitingBoxText(box, data) : 
+    'change the text of a writing box to data'
+    box.insert(tk.INSERT, data)
 
 
 def setInvisible(widjet) :
@@ -166,28 +171,28 @@ def _2x8bitsRead(data, app):
     if data >= 192:
         #data is an index of a speaker
         index = (data & 0x3F) 
-        changeOrateurRoutine(data, app)
+        changeOrateur(data, app)
 
     elif data < 192 and data >= 128 : 
         #data is the status of the dsk
         status = (data & 0x7F)
-        changeDSKStatusRoutine(status, app)
+        changeDSKStatus(status, app)
 
 
 def _8bitsRead(data, app):
     index  = data >> 4
-    changeOrateurRoutine(index, app)
+    changeOrateur(index, app)
 
     status = (data & 0x0F) 
-    changeDSKStatusRoutine(status, app)
+    changeDSKStatus(status, app)
 
 
-def changeOrateurRoutine(index, app):
+def changeOrateur(index, app):
     pathAndName = imageDictionnary(index)
     changeImage(app.orateurPicLabel, pathAndName[0])
     changeLabelText(app.orateurLabel, 'Orateur : ' + pathAndName[1])
 
 
-def changeDSKStatusRoutine(status, app):
+def changeDSKStatus(status, app):
     status = dskStatusDictionnary(status)
     changeLabelText(app.dskStatusLabel, 'Statut du DSK : ' + status)
