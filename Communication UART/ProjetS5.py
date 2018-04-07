@@ -21,6 +21,7 @@ class ApplicationProjetS5(tk.Frame):
         self.start = False
         self.buttonList = []
         self.lastCommand = None
+        self.MaxOrateur = fn.imageDictionnary(0, True)
 
         tk.Frame.__init__(self, master)  
 
@@ -53,12 +54,12 @@ class ApplicationProjetS5(tk.Frame):
         self.createWidgets()
 
         #Virtual Serial Port for testing (desktop)
-        self.ser1 = fn.setupSerialPort("COM2", baurate, readingTimeout)
-        self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
+        #self.ser1 = fn.setupSerialPort("COM2", baurate, readingTimeout)
+        #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
-        #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
         #self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
@@ -162,7 +163,7 @@ class ApplicationProjetS5(tk.Frame):
             self.orateurInDiscussion = self.writingBox.get()
             if self.orateurInDiscussion != '' and  fn.check_int(self.orateurInDiscussion) : 
                 self.orateurInDiscussion = int(self.orateurInDiscussion)
-                if int(self.orateurInDiscussion) <= 16 and int(self.orateurInDiscussion) > 0 : 
+                if int(self.orateurInDiscussion) <= (self.MaxOrateur -1) and int(self.orateurInDiscussion) > 0 : 
                     self.start = True
                     self.start_B.config(relief=tk.SUNKEN)
                     fn.changeLabelText(self.appMessageLabel, "Sélectionner les orateurs dans la discussion")
@@ -173,7 +174,7 @@ class ApplicationProjetS5(tk.Frame):
                     #fn.writingSerial(self.orateurInDiscussion)
                 
                 else : 
-                    self.errorMessageBox('Please enter a number between 1 and 16')
+                    self.errorMessageBox('Please enter a number between 1 and ' + str(self.MaxOrateur -1) )
 
             else : 
                 self.errorMessageBox('Please enter an integer in the writing box') 
@@ -222,6 +223,8 @@ class ApplicationProjetS5(tk.Frame):
 
         self.writingBox.delete(0, tk.END)
 
+        fn.changeOrateur(63, self)
+        fn.changeDSKStatus(63, self)
 
     def orateurButtons(self):
         index = 0

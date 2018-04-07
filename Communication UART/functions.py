@@ -34,7 +34,7 @@ def setVisible(widjet) :
 
 ########################## -- Dictionnaries -- ##########################
 
-def dskStatusDictionnary(status) :
+def dskStatusDictionnary(status, getlength=False) :
     'holds the status of the dsk'
     Dict = {  0  : 'INIT', 
               1  : 'IDLE',
@@ -49,13 +49,16 @@ def dskStatusDictionnary(status) :
              63 : 'Inconnu',             
            }
 
+    if getlength : 
+        return len(Dict)
+
     if status not in Dict :
         status = 63
 
     return Dict[status]
 
 
-def imageDictionnary(Orateur):
+def imageDictionnary(Orateur, getlength=False):
     'holds the possible speakers'
     #Picture size : 381 * 285 px
 
@@ -76,6 +79,9 @@ def imageDictionnary(Orateur):
                       
               63 : (r"newnoImage.jpg",       'Inconnu',     ),
              } 
+
+    if getlength : 
+        return len(Dict)
 
     if Orateur not in Dict :
         Orateur = 63
