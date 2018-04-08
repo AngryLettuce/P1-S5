@@ -1,0 +1,93 @@
+
+   TB_2018-03-09_14h22m44s.txt
+
+------------------------------------------------
+         Frequency to Mel         
+------------------------------------------------
+
+    Source file : freq2Mel_x1.csv ,  freq2Mel_y1.csv
+    data : 200 x 1
+
+
+S - Test "freq2Mel_x1.csv" succeed, RMS = 0.000008, rErrAvg = 0.000580 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Mel to Frequency         
+------------------------------------------------
+
+    Source file : mel2Freq_x1.csv ,  mel2Freq_y1.csv
+    data : 200 x 1
+
+
+S - Test "mel2Freq_x1.csv" succeed, RMS = 0.000007, rErrAvg = 0.000725 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Moving Average         
+------------------------------------------------
+
+    Source file : moving_average_x1.csv ,  moving_average_y1.csv
+    data : 25 x 1
+
+
+S - Test "moving_average_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.000354 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Hamming Window 256         
+------------------------------------------------
+
+    Source file : mfcc_hammingWindow_x1.csv ,  mfcc_hammingWindow_y1.csv
+    data : 256 x 1
+
+
+S - Test "mfcc_hammingWindow_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.000680 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Fast Fourier Transform (FFT)         
+------------------------------------------------
+
+    Source file : mfcc_fft_x1.csv ,  mfcc_fft_y1.csv
+    data : 256 x 2
+
+
+S - Test "mfcc_fft_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.005185 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Mel Filter Bank         
+------------------------------------------------
+
+    Source file : mfcc_melFilterBank_x1.csv ,  mfcc_melFilterBank_y1.csv
+    data : 20 x 128
+
+
+S - Test "mfcc_melFilterBank_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.003978 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Get Mel Coeffiecient         
+------------------------------------------------
+
+    Source file : mfcc_getMelCoeff_x1.csv ,  mfcc_getMelCoeff_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_getMelCoeff_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.001083 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Discret Cosinus Transform         
+------------------------------------------------
+
+    Source file : mfcc_dct_x1.csv ,  mfcc_dct_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_dct_x1.csv" succeed, RMS = 0.110956, rErrAvg = +inf % (0.500000 %)Threshold 
+
+------------------------------------------------
+         MFCC Pipeline         
+------------------------------------------------
+
+    Source file : mfcc_pipeline_x1.csv ,  mfcc_pipeline_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_pipeline_x1.csv" succeed, RMS = nan, rErrAvg = nan % (0.500000 %)Threshold 
+
