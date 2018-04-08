@@ -18,18 +18,22 @@ class ApplicationProjetS5(tk.Frame):
         self.train = False
         self.trainButtonPressed   = False
         self.orateurButtonPressed = 0
+        self.orateurInDiscussion  = 0
         self.start = False
+        self.startInit = False
         self.buttonList = []
         self.lastCommand = None
+        self.confirmOrateur = False
         self.MaxOrateur = fn.imageDictionnary(0, True)
 
         tk.Frame.__init__(self, master)  
 
-        self.topFrame    = tk.Frame(self)
-        self.buttonFrame = tk.Frame(self)
-        self.midFrame    = tk.Frame(self)
-        self.labelFrame  = tk.Frame(self)
-
+        self.topFrame     = tk.Frame(self)
+        self.buttonFrame  = tk.Frame(self)
+        self.midFrame     = tk.Frame(self)
+        self.labelFrame   = tk.Frame(self)
+        self.scalingFrame = tk.Frame(self)
+    
 
         self.OrateurFrame1 = tk.Frame(self)
         self.OrateurFrame2 = tk.Frame(self)
@@ -43,8 +47,10 @@ class ApplicationProjetS5(tk.Frame):
         self.midFrame.pack(side='top')      
         self.buttonFrame.pack(side='top')
         self.labelFrame.pack(side='top')
+        self.scalingFrame.pack(side='top')
 
         fn.setInvisible(self.labelFrame)
+        fn.setInvisible(self.scalingFrame)
 
         for frame in self.OrateurFrame :
             frame.pack(side='top')
@@ -73,7 +79,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurPicLabel = tk.Label(self.topFrame)
         self.orateurPicLabel.pack()
 
-        pathAndName = fn.imageDictionnary(63)
+        pathAndName = fn.imageDictionnary(self.MaxOrateur)
         fn.changeImage(self.orateurPicLabel, pathAndName[0])
 
         self.orateurLabel = tk.Label(self.topFrame, text='Orateur : Inconnu ')
@@ -81,6 +87,13 @@ class ApplicationProjetS5(tk.Frame):
 
         self.dskStatusLabel = tk.Label(self.topFrame, text='Statut du DSK : Inconnu')
         self.dskStatusLabel.pack()
+
+        self.scalingOrateur = tk.Scale(self.scalingFrame, from_=2, to_=self.MaxOrateur, orient='horizontal', 
+                                       tickinterval=1, length=300)
+        self.scalingOrateur.pack(side='left')
+
+        self.confirmOrateur_B = tk.Button(self.scalingFrame, text='confirm', command= lambda: self.confirmOrateurFunction())
+        self.confirmOrateur_B.pack(side='left')
 
         self.appMessageLabel = tk.Label(self.labelFrame)
         self.appMessageLabel.pack()
@@ -98,10 +111,10 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.pack(side='left')
         self.stopReading_B.config(height = 3, width = 10 )
 
-        self.writingBox = tk.Entry(self.midFrame)
-        self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser2))
-        self.writingBox.pack()
-        self.writingBox.config(width=30, justify='center')
+        #self.writingBox = tk.Entry(self.midFrame)
+        #self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser2))
+        #self.writingBox.pack()
+        #self.writingBox.config(width=30, justify='center')
 
         self.orateurButtons()
 
@@ -146,7 +159,7 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def trainRoutine(self):
-        if not self.start : 
+        if not self.start and not self.startInit: 
             self.trainButton_B.config(relief=tk.SUNKEN)
 
             fn.changeLabelText(self.appMessageLabel, "Selectionnez l'orateur à entrainer")
@@ -159,25 +172,23 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def startRoutine(self):
-        if not self.train : 
-            self.orateurInDiscussion = self.writingBox.get()
-            if self.orateurInDiscussion != '' and  fn.check_int(self.orateurInDiscussion) : 
-                self.orateurInDiscussion = int(self.orateurInDiscussion)
-                if int(self.orateurInDiscussion) <= (self.MaxOrateur -1) and int(self.orateurInDiscussion) > 0 : 
-                    self.start = True
-                    self.start_B.config(relief=tk.SUNKEN)
-                    fn.changeLabelText(self.appMessageLabel, "Sélectionner les orateurs dans la discussion")
-                    fn.setVisible(self.labelFrame)
+        if not self.train :
+            fn.setVisible(self.labelFrame)
+            fn.setVisible(self.scalingFrame)
+            fn.changeLabelText(self.appMessageLabel, "Sélectionnez le nombre d'orateur dans la discussion")
+            self.startInit =  True
+        self.orateurInDiscussion = self.scalingOrateur.get()
+        if self.orateurInDiscussion != 0 and self.confirmOrateur:
+            self.start = True
+            self.start_B.config(relief=tk.SUNKEN)
+            fn.changeLabelText(self.appMessageLabel, "Sélectionner les orateurs dans la discussion")
+            fn.setInvisible(self.scalingFrame)
 
-                    for frame in self.OrateurFrame : 
-                        fn.setVisible(frame)
-                    #fn.writingSerial(self.orateurInDiscussion)
+            for frame in self.OrateurFrame : 
+                fn.setVisible(frame)
+            #fn.writingSerial(self.orateurInDiscussion)
                 
-                else : 
-                    self.errorMessageBox('Please enter a number between 1 and ' + str(self.MaxOrateur -1) )
 
-            else : 
-                self.errorMessageBox('Please enter an integer in the writing box') 
 
 
     def orateurButton(self, index):
@@ -203,28 +214,40 @@ class ApplicationProjetS5(tk.Frame):
 
 
 
+    def confirmOrateurFunction(self):
+        self.confirmOrateur = True
+        self.startRoutine()
+ 
+
+
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         self.train = False
         self.trainButtonPressed = False
         self.start = False
+        self.startInit = False
+        self.confirmOrateur = False
         self.orateurButtonPressed = 0
 
         self.trainButton_B.config(relief=tk.RAISED)
         self.start_B.config(relief=tk.RAISED)
 
+        self.scalingOrateur.set(0)
+
         for button in self.buttonList :
             button.config(relief=tk.RAISED)
 
         fn.setInvisible(self.labelFrame)
+        fn.setInvisible(self.scalingFrame)
 
         for frame in self.OrateurFrame : 
             fn.setInvisible(frame)
 
-        self.writingBox.delete(0, tk.END)
+        #self.writingBox.delete(0, tk.END)
 
         fn.changeOrateur(63, self)
         fn.changeDSKStatus(63, self)
+
 
     def orateurButtons(self):
         index = 0
