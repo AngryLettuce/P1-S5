@@ -197,7 +197,7 @@ load('metrics_8persv2.mat');
 
 x = metrics;
 
-x{1} = x{1}(1:2000,:);
+x{1} = x{1}(1:200,:);
 
 for i = 1:-1:1
     y = construct_speakerCodeBook(x, param);

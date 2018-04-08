@@ -5,9 +5,10 @@
  *      Author: pascal
  */
 
+
 #ifndef INCLUDE_DATA_STRUCTURES_H_
 #define INCLUDE_DATA_STRUCTURES_H_
-
+#include <stdbool.h>
 //--------------------------------------
 //  important nomanclature
 //--------------------------------------
@@ -44,8 +45,8 @@
 #define METRIC_VECTOR_TAB_LENGTH    5000
 
 //codebook
-#define CODEBOOK_CODEWORDS_NB 32
-#define SPEAKER_NB_MAX 64
+#define CODEBOOK_CODEWORDS_NB 16
+#define SPEAKER_NB_MAX 16
 
 //mel filter bank
 #define MEL_FILTER_NB     20
@@ -131,18 +132,21 @@ typedef struct Codebook {
     MetVec codeword[CODEBOOK_CODEWORDS_NB];
     int N[CODEBOOK_CODEWORDS_NB]; //use when creating the codewords
     int codeword_nb;
+    int metVec_size;
 
 } Codebook;
 
 
 //--------------------------------------
-//  speaker information data structrure
+//  speaker information data structure
 //--------------------------------------
 
 typedef struct SpeakerData {
 
     Codebook codebook;
     int speaker_ind;
+    bool isActive;
+
 
 } SpeakerData;
 

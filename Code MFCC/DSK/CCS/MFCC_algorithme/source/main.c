@@ -52,8 +52,8 @@ void main(void) {
 
 
 int main(void) {
-    //global_testBench(0.005);
-    dsk_main();
+    global_testBench(0.005);
+    //dsk_main();
 
     return 1;
 }

@@ -16,8 +16,8 @@
 
 
 //set circular buffer and converted wav signal
-#include "Thomas_CB_1.dat"
-#pragma DATA_SECTION(Thomas_CB_1, ".EXT_RAM")
+//#include "Thomas_CB_1.dat"
+//#pragma DATA_SECTION(Thomas_CB_1, ".EXT_RAM")
 
 #define LENGHT 256
 short circTab[LENGHT];
