@@ -29,7 +29,7 @@ void dsk_main(void);
 void dsk_init(void);
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab);
 void mfcc_get_metrics(float *met, MFCCModule *mfcc);
-void mfcc_main(short state, float silence_threshold);
+void mfcc_main(char *state, float silence_threshold);
 void fsm_delete_user(void);
 void fsm_add_user(void);
 void fsm_analyze_user(void);

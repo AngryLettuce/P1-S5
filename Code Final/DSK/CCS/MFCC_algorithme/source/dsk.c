@@ -30,8 +30,8 @@
 #include <csl.h>
 #include "SPI_driver.h"
 
-volatile char dsk_state = 0;
-volatile char dsk_fsm_command = 0;
+char dsk_state = 0;
+char dsk_fsm_command = 0;
 
 
 volatile bool btn_pressed_flag = false;
@@ -63,9 +63,13 @@ float beta_acc = 0;
 int adcSample_acc = 0;
 bool silenceDetection_rdy = 0;
 
-MFCCModule dsk_mfcc;
 
-MetVecTab dsk_metVecTab;
+
+
+//STRUCTURE
+SpeakerDataList dsk_speakerDataList;
+MFCCModule      dsk_mfcc;
+MetVecTab       dsk_metVecTab;
 #pragma DATA_SECTION(dsk_metVecTab,".EXT_RAM");
 
 /*------------------------------------------------------
@@ -78,12 +82,24 @@ MetVecTab dsk_metVecTab;
 
 void dsk_main(void) {
 
+
     dsk_state = DSK_INIT;
+
 
     // Main FSM loop
     while(1) {
 
         switch(dsk_state) {
+
+
+
+
+            case DSK_IDLE:
+                DSK6713_LED_on(3);
+                break;
+
+
+
 
             case DSK_INIT:
                 // Initialize DSK
@@ -91,16 +107,32 @@ void dsk_main(void) {
                 // Initialize MFCC structure/algo.
                 mfcc_init(&dsk_mfcc, &dsk_metVecTab);
 
-                dsk_state = DSK_TEST_ACQUISITION;
+                dsk_state = DSK_TRAIN_ACQUISITION;
 
                 break;
 
+
+
+
             case DSK_TEST_ACQUISITION:
+            case DSK_TRAIN_ACQUISITION:
                 // Initialize DSK
                 if (adcSample_rdy == 1) {
-                    mfcc_main(dsk_state, 100);
+                    mfcc_main(&dsk_state, 100);
                     adcSample_rdy = 0;
                 }
+                break;
+
+
+
+
+            case DSK_TRAIN_CODEBOOK_CONSTRUCTION:
+
+                DSK6713_LED_on(1);
+                cb_construct_codebook(&dsk_metVecTab, &dsk_speakerDataList.speaker_data[0].codebook, CODEBOOK_CODEWORDS_NB, 0, 0.001, 0.005);
+                DSK6713_LED_off(1);
+                dsk_state = DSK_IDLE;
+
                 break;
         }
         /*
@@ -118,6 +150,27 @@ void dsk_main(void) {
         */
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interrupt void c_int11(void){
 
@@ -155,6 +208,8 @@ void dsk_init(void) {
     configAndStartTimer0(2812500*3);
     init_ext_intr();
 
+    DSK6713_waitusec(1000000);
+
 
     // Table emptying
     mfcc_speaker_list.speaker_nb = 0;
@@ -170,7 +225,7 @@ void dsk_init(void) {
 //  MFCC FUNCTIONS
 //------------------------------------
 
-void mfcc_main(short state, float silence_threshold) {
+void mfcc_main(char *state, float silence_threshold) {
 
     bool mfcc_rdy = 0; // vaut 1 lorsque "SIGNAL_BLOCK_OVERLAP" nouvelles données sont ajouté au buffer adcRecord
     float sound_amplitude = 0;
@@ -214,20 +269,64 @@ void mfcc_main(short state, float silence_threshold) {
         //get metric vectors
         mfcc_get_metrics(met_curr.met, &dsk_mfcc);
 
+    }
 
+
+    //------------------------------------
+    //  Extraction MFCC
+    //------------------------------------
+
+    //routine pitch, duplication de buffer circulaire (filtre FIR d'ordre 20)
+
+
+    if (mfcc_rdy == 1) {
+
+        //extraction du pitch avec autocorr
+
+        met_curr.met[0] = 0; // à changer
+
+    }
+    else {
+        return;
+    }
+
+    switch(*state) {
+
+    case DSK_TRAIN_ACQUISITION:
+    //------------------------------------
+    //  TRAIN
+    //------------------------------------
         if (!mfcc_add_metVec(met_curr.met, &dsk_mfcc)) {
+
+            *state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
 
             //DEBUG SEULEMENT
             DSK6713_LED_on(0);
             mfcc_write_metVecTab(&dsk_mfcc);
             DSK6713_LED_off(0);
+            //while(1);
+
+            return;
         }
+
+        break;
+
+
+    case DSK_TEST_ACQUISITION:
+    //------------------------------------
+    //  TEST
+    //------------------------------------
+
+        //détection d'index à faire
+
+        break;
     }
 }
 
 
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
 
+    //mfcc module
     mfcc->x_size = SIGNAL_BLOCK_SIZE;
     mfcc->mfcc_nb = MFCC_COEFFICIENT_NB;
     mfcc->metVecTab = metVecTab;
