@@ -21,6 +21,11 @@
 //  MFCC FUNCTIONS
 //------------------------------------
 
+
+void mfcc_set_x(MFCCModule *mfcc, float *mfccCircBuffer, float *mfccCurrPtr);
+int mfcc_add_metVec(float *met, MFCCModule *mfcc);
+void mfcc_write_metVecTab(MFCCModule *mfcc);
+
 //pre-amplification 1st order FIR filter
 float mfcc_preAmpFIR(float x, float x_last);
 
@@ -53,6 +58,13 @@ void mfcc_powerSpectrum(float *x, float *x_complex,  int size);
 void mfcc_dct_init(float *cosTab, int in_coeff_nb, int out_coeff_nb);
 void mfcc_dct(float *in_coeff, float *out_coeff, float *cosTab, int in_coeff_nb, int out_coeff_nb);
 
+
+//------------------------------------
+// Moving average for silent recognition
+//------------------------------------
+
+float moving_average(float *beta_acc, int size, int acc_size);
+void acc_interval(float curr_data, float *beta_acc);
 
 
 //------------------------------------

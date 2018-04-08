@@ -8,6 +8,9 @@
 #include "mfcc.h"
 #include "utils.h"
 #include "fft_utility.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "math.h"
 
@@ -16,6 +19,45 @@
 
 #define M_PI 3.1415926535897932384
 
+
+
+void mfcc_set_x(MFCCModule *mfcc, float *mfccCircBuffer, float *mfccCurrPtr) {
+
+    cpy_circTab_f32_forward(mfcc->x, mfccCircBuffer, mfccCurrPtr, mfcc->x_size, mfcc->x_size);
+}
+
+int mfcc_add_metVec(float *met, MFCCModule *mfcc) {
+
+    if (mfcc->metVecTab->metVecTab_size < METRIC_VECTOR_TAB_LENGTH) {
+
+        memcpy((void*) mfcc->metVecTab->metVec[mfcc->metVecTab->metVecTab_size].met, (void*) met, sizeof(float)*mfcc->metVecTab->metVec_size);
+
+        mfcc->metVecTab->metVecTab_size += 1;
+        return 1;
+    }
+    return 0;
+}
+
+void mfcc_write_metVecTab(MFCCModule *mfcc) {
+
+    FILE *fptr;
+    int i, j;
+    int metVecTab_size = mfcc->metVecTab->metVecTab_size;
+    int metVec_size = mfcc->metVecTab->metVec_size;
+
+    fptr = fopen("metVecTab.csv", "w");
+    if(fptr != NULL)
+    {
+       for(i = 0; i < metVecTab_size; i++) {
+           for(j = 0; j < metVec_size; j++) {
+
+               fprintf(fptr, "%f, ", mfcc->metVecTab->metVec[i].met[j]);
+           }
+           fprintf(fptr, "\n");
+       }
+    }
+    fclose(fptr);
+}
 
 
 //--------------------------------------------
@@ -215,7 +257,8 @@ float moving_average(float *beta_acc, int size, int acc_size){
     static float alpha = 0;
     float average;
 
-    average = (alpha_p * (size - 2 * acc_size)/acc_size + alpha + *beta_acc)/size;
+    float factor = (float)acc_size/(float)size;
+    average = (alpha_p * (size - 2*acc_size)/size + (alpha + *beta_acc)*factor)/size;
     // Reasign the old values for the next iteration
     alpha_p = alpha;
     alpha   = *beta_acc;
@@ -225,9 +268,9 @@ float moving_average(float *beta_acc, int size, int acc_size){
 
 }
 
-void acc_interval(float *curr_data, float *beta_acc){
+void acc_interval(float curr_data, float *beta_acc){
 
-    *beta_acc += *curr_data;
+    *beta_acc += curr_data;
 }
 
 
@@ -319,10 +362,10 @@ void cb_construct_codebook(MetVecTab *metVecTab,
     float distortion;
 
     int m = 1;
-    int i, j, ind_min;
+    int i, ind_min;
     int iter, iter_limit = 100;
 
-    float dist_min, dist_min_last, dist_acc, dist_acc_last;
+    float dist_min, dist_acc, dist_acc_last;
     int metVec_size = metVecTab->metVec_size;
     int metVecTab_size = metVecTab->metVecTab_size;
 

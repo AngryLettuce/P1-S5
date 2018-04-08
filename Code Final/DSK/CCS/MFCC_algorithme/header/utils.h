@@ -20,7 +20,12 @@
 //------------------------------------
 //  UTILS FUNCTION
 //------------------------------------
-void cpy_circTab_int16(short *newTab, short *circTab, short *ind, int size);
+void cpy_circTab_int16_backward(short *newTab, short *circTab, short *ind, int size, int data_nb);
+void cpy_circTab_f32_backward(float *newTab, float *circTab, float *ind, int size, int data_nb);
+
+void cpy_circTab_int16_forward(short *newTab, short *circTab, short *ind, int size, int data_nb);
+void cpy_circTab_f32_forward(float *newTab, float *circTab, float *ind, int size, int data_nb);
+
 
 float float_abs(float x);
 //float element wise vector multiplication
@@ -32,10 +37,6 @@ void float2complex(float *a, float *b, int size);
 //calculate euclidean distance without taking the square root of the result
 float euclideanDistPow2(float *a, float *b, int size);
 
-//Moving average for silent recognition
-
-float moving_average(float *beta_acc, int size, int acc_size);
-void acc_interval(float *curr_data, float *beta_acc);
 
 //manipulation of array
 void farray_dotProduct      (float *a1, float *a2, float *dest, int size);

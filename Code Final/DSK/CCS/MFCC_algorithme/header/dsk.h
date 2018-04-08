@@ -9,10 +9,19 @@
 #ifndef HEADER_DSK_H_
 #define HEADER_DSK_H_
 
-#define DELETE_CMD 1
-#define ANALYZE_CMD 2
-#define ADD_CMD 3
-#define record_length 256
+typedef enum DSKstate {
+
+    DSK_INIT,
+    DSK_IDLE,
+    DSK_TEST_INIT,
+    DSK_TEST_ACQUISITION,
+    DSK_TRAIN_INIT,
+    DSK_TRAIN_ACQUISITION,
+    DSK_TRAIN_CODEBOOK_CONSTRUCTION,
+    DSK_ERROR,
+    //use to store the number of state
+    DSK_STATE_COUNT
+} DSKstate;
 
 #include "data_structures.h"
 
@@ -20,6 +29,7 @@ void dsk_main(void);
 void dsk_init(void);
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab);
 void mfcc_get_metrics(float *met, MFCCModule *mfcc);
+void mfcc_main(short state, float silence_threshold);
 void fsm_delete_user(void);
 void fsm_add_user(void);
 void fsm_analyze_user(void);

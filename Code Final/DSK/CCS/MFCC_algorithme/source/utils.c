@@ -18,19 +18,49 @@
 //  UTILS FUNCTIONS
 //--------------------------------------------
 
-//get the whole circTab and cpy it content to new table
-void cpy_circTab_int16(short *newTab, short *circTab, short *ind, int size) {
+void cpy_circTab_int16_backward(short *newTab, short *circTab, short *ind, int size, int data_nb) {
 
     int i;
-    short *tabEnd = circTab + size;
-    for(i = 0; i < size; i++) {
+    for(i = 0; i < data_nb; i++) {
         newTab[i] = *ind;
-        ind++;
-        if (ind >= tabEnd)
-            ind = circTab;
+        ind--;
+        if (ind < circTab)
+            ind = circTab + size - 1;
     }
 }
 
+void cpy_circTab_f32_backward(float *newTab, float *circTab, float *ind, int size, int data_nb) {
+
+    int i;
+    for(i = 0; i < data_nb; i++) {
+        newTab[i] = *ind;
+        ind--;
+        if (ind < circTab)
+            ind = circTab + size - 1;
+    }
+}
+
+void cpy_circTab_int16_forward(short *newTab, short *circTab, short *ind, int size, int data_nb) {
+
+    int i;
+    for(i = data_nb-1; i >= 0; i--) {
+        newTab[i] = *ind;
+        ind--;
+        if (ind < circTab)
+            ind = circTab + size - 1;
+    }
+}
+
+void cpy_circTab_f32_forward(float *newTab, float *circTab, float *ind, int size, int data_nb) {
+
+    int i;
+    for(i = data_nb-1; i >= 0; i--) {
+        newTab[i] = *ind;
+        ind--;
+        if (ind < circTab)
+            ind = circTab + size - 1;
+    }
+}
 
 
 

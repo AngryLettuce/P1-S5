@@ -23,15 +23,50 @@
 #include "utils.h"
 #include "fft_utility.h"
 #include "C6713Helper_UdeS.h"
+#include <dsk6713.h>
+#include <dsk6713_led.h>
+#include <dsk6713_dip.h>
+#include <csl_mcbsp.h>
+#include <csl.h>
+#include "SPI_driver.h"
 
+volatile char dsk_state = 0;
 volatile char dsk_fsm_command = 0;
+
+
 volatile bool btn_pressed_flag = false;
 SpeakerDataList mfcc_speaker_list;
 
 //Tableau donnees brute AIC
-short record[record_length];
-#pragma DATA_SECTION(record,".EXT_RAM")
+short adcRecord[SIGNAL_BLOCK_SIZE] = {0};
+short adcCurrSample = 0;
+short *adcCurrPtr = adcRecord;
+bool adcSample_rdy = 0;
 
+//#pragma DATA_SECTION(record,".EXT_RAM")
+
+short index = 0;
+Uint8 data;
+int adcCurrentInd = 0;
+bool adcInitDone = 0;
+
+//Tableau donnees coefficient mfcc
+float mfccCircBuffer[SIGNAL_BLOCK_SIZE] = {0};
+float mfccCurrSample = 0;
+float *mfccCurrPtr = mfccCircBuffer;
+//#pragma DATA_SECTION(record,".EXT_RAM")
+
+
+//Param détection silence
+short sample_acc = 0;
+float beta_acc = 0;
+int adcSample_acc = 0;
+bool silenceDetection_rdy = 0;
+
+MFCCModule dsk_mfcc;
+
+MetVecTab dsk_metVecTab;
+#pragma DATA_SECTION(dsk_metVecTab,".EXT_RAM");
 
 /*------------------------------------------------------
  *   dsk_main :
@@ -43,16 +78,32 @@ short record[record_length];
 
 void dsk_main(void) {
 
-    // Initialize DSK
-    dsk_init();
-
-    // Initialize AIC
-    comm_intr();
+    dsk_state = DSK_INIT;
 
     // Main FSM loop
     while(1) {
 
+        switch(dsk_state) {
 
+            case DSK_INIT:
+                // Initialize DSK
+                dsk_init();
+                // Initialize MFCC structure/algo.
+                mfcc_init(&dsk_mfcc, &dsk_metVecTab);
+
+                dsk_state = DSK_TEST_ACQUISITION;
+
+                break;
+
+            case DSK_TEST_ACQUISITION:
+                // Initialize DSK
+                if (adcSample_rdy == 1) {
+                    mfcc_main(dsk_state, 100);
+                    adcSample_rdy = 0;
+                }
+                break;
+        }
+        /*
         switch(dsk_fsm_command) {
         case DELETE_CMD :
             fsm_delete_user();
@@ -64,51 +115,46 @@ void dsk_main(void) {
             fsm_add_user();
             break;
         }
-
-        dsk_fsm_command = 0;
+        */
     }
 }
 
 interrupt void c_int11(void){
 
-    static int j = 0;
+    adcSample_rdy = 1;
 
-    if(j==record_length)                //Index tableau
-                j=0;
+    if(adcCurrentInd == SIGNAL_BLOCK_SIZE) {               //Index tableau
+        adcCurrentInd = 0;
+        adcInitDone = 1;
+    }
+    adcRecord[adcCurrentInd] = input_left_sample();    //Tableau de données brutes
+    adcCurrSample = adcRecord[adcCurrentInd];
+    adcCurrPtr = adcRecord + adcCurrentInd;
+    //utilisé pour la détection de silence
+    adcSample_acc++;
+    if (adcSample_acc >= SIGNAL_BLOCK_OVERLAP) {
+        silenceDetection_rdy = 1;
+        adcSample_acc = 0;
+    }
 
-    record[j] = input_left_sample();    //Tableau de données brutes
-    j++;
-
-    output_left_sample(0);              //Obligatoire pour permettre de réactiver l'Interupt
+    output_left_sample(adcRecord[adcCurrentInd]);              //Obligatoire pour permettre de réactiver l'Interupt
+    adcCurrentInd++;
 }
 
 
 void dsk_init(void) {
 
-    printf("DSK Init = 100%%\n");
+    DSK6713_init();
+    DSK6713_LED_init();
+    DSK6713_DIP_init();
+    // Initialize AIC
+    comm_intr();
+    DSK6713_waitusec(50);
 
-    // GPIO configuration
-    GPIO_Handle GPIO_handle = GPIO_open(GPIO_DEV0, GPIO_OPEN_RESET);
-    // Pin 7 (Button Pressed interrupt)
-    GPIO_pinEnable(GPIO_handle, GPIO_PIN7);
-    GPIO_pinDirection(GPIO_handle, GPIO_PIN7, GPIO_INPUT);
-    GPIO_intPolarity(GPIO_handle, GPIO_GPINT7, GPIO_RISING);
-    // Pin 8 (Delete Command/Up)
-    GPIO_pinEnable(GPIO_handle, GPIO_PIN8);
-    GPIO_pinDirection(GPIO_handle, GPIO_PIN8, GPIO_INPUT);
-    // Pin 9 (Analyze/Down)
-    GPIO_pinEnable(GPIO_handle, GPIO_PIN9);
-    GPIO_pinDirection(GPIO_handle, GPIO_PIN9, GPIO_INPUT);
-    // Pin 10 (Add/OK)
-    GPIO_pinEnable(GPIO_handle, GPIO_PIN10);
-    GPIO_pinDirection(GPIO_handle, GPIO_PIN10, GPIO_INPUT);
+    SPI_init();
+    configAndStartTimer0(2812500*3);
+    init_ext_intr();
 
-    // IRQ configuration
-    IRQ_globalDisable();
-    IRQ_map(IRQ_EVT_EXTINT7, 7);
-    IRQ_enable(IRQ_EVT_EXTINT7);
-    IRQ_nmiEnable();
-    IRQ_globalEnable();
 
     // Table emptying
     mfcc_speaker_list.speaker_nb = 0;
@@ -116,14 +162,77 @@ void dsk_init(void) {
     for (i = 0; i < 16; i++)
     {
         mfcc_speaker_list.speaker_data[i].codebook.codeword_nb = 0;
+        mfcc_speaker_list.speaker_data[i].isActive = 0;
     }
 }
+
+//------------------------------------
+//  MFCC FUNCTIONS
+//------------------------------------
+
+void mfcc_main(short state, float silence_threshold) {
+
+    bool mfcc_rdy = 0; // vaut 1 lorsque "SIGNAL_BLOCK_OVERLAP" nouvelles données sont ajouté au buffer adcRecord
+    float sound_amplitude = 0;
+
+    //------------------------------------
+    //  Détection de silence
+    //------------------------------------
+
+    acc_interval(abs((float)adcCurrSample), &beta_acc);
+
+    //printf("ADC: %d\n", adcCurrSample);
+
+    if (silenceDetection_rdy == 1) {
+
+        sound_amplitude = moving_average(&beta_acc, SIGNAL_BLOCK_SIZE, SIGNAL_BLOCK_OVERLAP);
+        silenceDetection_rdy = 0;
+        if (sound_amplitude > silence_threshold && adcInitDone == 1)
+            mfcc_rdy = 1;
+    }
+
+    //------------------------------------
+    //  Extraction MFCC
+    //------------------------------------
+
+    static MetVec met_curr;
+    static short bufferFirOrd1[2] = {0};
+    cpy_circTab_int16_backward(bufferFirOrd1, adcRecord, adcCurrPtr, SIGNAL_BLOCK_SIZE, 2);
+
+
+    //filtre fir d'ordre 1
+    *mfccCurrPtr = mfcc_preAmpFIR((float)bufferFirOrd1[0], 0.95*((float)bufferFirOrd1[1]));
+    mfccCurrPtr++;
+    if (mfccCurrPtr >= mfccCircBuffer + SIGNAL_BLOCK_SIZE)
+        mfccCurrPtr = mfccCircBuffer;
+
+
+    if (mfcc_rdy == 1) {
+
+        //set the proper x to mfcc struct
+        mfcc_set_x(&dsk_mfcc, mfccCircBuffer, mfccCurrPtr);
+        //get metric vectors
+        mfcc_get_metrics(met_curr.met, &dsk_mfcc);
+
+
+        if (!mfcc_add_metVec(met_curr.met, &dsk_mfcc)) {
+
+            //DEBUG SEULEMENT
+            DSK6713_LED_on(0);
+            mfcc_write_metVecTab(&dsk_mfcc);
+            DSK6713_LED_off(0);
+        }
+    }
+}
+
 
 void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
 
     mfcc->x_size = SIGNAL_BLOCK_SIZE;
     mfcc->mfcc_nb = MFCC_COEFFICIENT_NB;
     mfcc->metVecTab = metVecTab;
+    mfcc->metVecTab->metVecTab_size = 0;
+    mfcc->metVecTab->metVec_size = METRIC_VECTOR_LENGTH;
 
     //construct the hamming window table
     mfcc_hamming_window_init(mfcc->hwin.h, mfcc->x_size);
@@ -150,13 +259,6 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
     //pitch pipeline (value store at the location of the first mfcc coefficient, which do not have any speaker dependant information)
 }
 
-
-void mfcc_construct_codebook() {
-
-
-
-
-}
 
 void fsm_delete_user(void) {
     if (mfcc_speaker_list.speaker_nb > 0)

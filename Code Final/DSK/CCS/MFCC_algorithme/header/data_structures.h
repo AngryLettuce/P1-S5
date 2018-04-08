@@ -42,7 +42,7 @@
 
 //metrics
 #define METRIC_VECTOR_LENGTH        13
-#define METRIC_VECTOR_TAB_LENGTH    5000
+#define METRIC_VECTOR_TAB_LENGTH    2000
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
@@ -190,7 +190,7 @@ typedef struct MFCCModule {
 
 typedef enum PICstate {
 
-    PIC_INIT = 0,
+    PIC_INIT,
     PIC_IDLE,
     PIC_COMMUNICATION_DSK,
     PIC_STATE_ERROR,
@@ -200,19 +200,6 @@ typedef enum PICstate {
 } PICstate;
 
 
-typedef enum DSKstate {
-
-    DSK_INIT = 0,
-    DSK_IDLE,
-    DSK_TEST_INIT,
-    DSK_TEST_ACQUISITION,
-    DSK_TRAIN_INIT,
-    DSK_TRAIN_ACQUISITION,
-    DSK_TRAIN_CODEBOOK_CONSTRUCTION,
-    DSK_ERROR,
-    //use to store the number of state
-    DSK_STATE_COUNT
-} DSKstate;
 
 
 
