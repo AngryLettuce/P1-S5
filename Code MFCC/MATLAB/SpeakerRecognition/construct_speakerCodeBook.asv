@@ -40,7 +40,7 @@ for i = 1:speaker_nb
     
     vector_nb = size(metrics{i},1);%get the number of metric vectors for a specific speaker
 
-    C = mean(single(metrics{i}),1);%get the first codeword, which is the centroid of all training vectors the specific speaker
+    C = singlemean(single(metrics{i}),1);%get the first codeword, which is the centroid of all training vectors the specific speaker
     m = 1; %number of codebook's codeword
     
     
@@ -72,7 +72,7 @@ for i = 1:speaker_nb
                 C_min = inf;
                 for k = 1:m
                     
-                    C_min_temp = euclideanDistance(single(metrics{i}(j,:)), C(k,:));%find the power2 euclidien distance between training vector and codeword
+                    C_min_temp = euclideanDistance(metrics{i}(j,:), C(k,:));%find the power2 euclidien distance between training vector and codeword
                     
                     if C_min_temp < C_min
                         C_min = C_min_temp;%store the new minimum distance
@@ -89,7 +89,7 @@ for i = 1:speaker_nb
             C = C_acc(1:m,:) ./ (C_vector_nb(1:m)*ones(1,param.metrics_nb));
 
             %get the distortion between traning vectors (metrics) and codebook
-            D = distortion(single(metrics{i}), C);
+            D = distortion(metrics{i}, C);
             
             dist_conv = (D_last - D)/D;
             

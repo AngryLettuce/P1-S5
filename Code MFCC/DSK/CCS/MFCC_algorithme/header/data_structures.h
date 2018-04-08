@@ -44,7 +44,7 @@
 #define METRIC_VECTOR_TAB_LENGTH    5000
 
 //codebook
-#define CODEBOOK_CODEWORDS_NB 16
+#define CODEBOOK_CODEWORDS_NB 32
 #define SPEAKER_NB_MAX 64
 
 //mel filter bank

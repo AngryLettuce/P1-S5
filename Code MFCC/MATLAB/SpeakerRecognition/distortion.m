@@ -21,7 +21,5 @@ for j = 1:vector_nb
 
 end
 
-D = 1/vector_nb * D;%get the mean of minimal distance between training vector and codeword
-
 end
 
