@@ -3,8 +3,11 @@
 #include "SPI_driver.h"
 
 
-
+extern Uint8 data;
 extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
+extern short flag;
+extern short index;
+//extern void vectors();
 
 MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(SPCR, FREE, NO)              | // Arrete la comm quand le cpu est n'emule pas
@@ -48,7 +51,7 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
    MCBSP_FMKS(SRGR, FSGM, DXR2XSR)         | // = 0
    MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
    MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
-   MCBSP_FMKS(SRGR, CLKGDV, OF(113)),
+   MCBSP_FMKS(SRGR, CLKGDV, OF(225)),
 
    MCBSP_MCR_DEFAULT,
    MCBSP_RCER_DEFAULT,
@@ -84,14 +87,45 @@ void SPI_init(void)
     return;
 }
 
-void SPI_write(char SPIdata)
+void SPI_write(Uint8 SPIdata)
 {
 
     while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE))
     {
-        //do nothing
     }
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPIdata);
 
 
+}
+
+Uint8 SPI_read(){
+
+
+    while(!MCBSP_rrdy(DSK6713_AIC23_CONTROLHANDLE)){};
+       return MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
+}
+
+interrupt void c_int04(void){
+    SPI_write(index<<4);
+    data = SPI_read();
+    index++;
+    if(index == 14){
+        index = 0;
+    }
+}
+
+void configAndStartTimer0(unsigned int prd){
+    CTL_USER_REG_0 &= ~0x80; //HLD = 0
+    PRD_USER_REG_0 = prd;
+    CTL_USER_REG_0 |= 0x00000201;
+    CTL_USER_REG_0 |= 0xC0;
+}
+
+void init_ext_intr(void)
+{
+    IRQ_map(IRQ_EVT_TINT0,4);
+    IRQ_reset(IRQ_EVT_TINT0);
+    IRQ_nmiEnable();
+    IRQ_globalEnable();
+    IRQ_enable(IRQ_EVT_TINT0);
 }

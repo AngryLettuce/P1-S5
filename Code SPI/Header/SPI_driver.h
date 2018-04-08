@@ -23,10 +23,17 @@
 #include <csl_irq.h>
 #include <csl_gpio.h>
 #include <dsk6713_aic23.h>
+#include <dsk6713_led.h>
 
+#define CTL_USER_REG_0 *(unsigned int*)0x01940000
+#define PRD_USER_REG_0 *(unsigned int*)0x01940004
 
 void SPI_init(void);
-void SPI_write(char SPIdata);
+void SPI_write(Uint8 SPIdata);
+Uint8 SPI_read();
+void configAndStartTimer0(unsigned int prd);
+void init_ext_intr(void);
+interrupt void c_int04(void);
 
 #endif // end of #ifndef _SPI_MODULE_
 
