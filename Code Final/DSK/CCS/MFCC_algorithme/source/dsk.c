@@ -30,7 +30,18 @@
 #include <csl.h>
 #include "SPI_driver.h"
 
+
+//COMMUNICATION
+
+Uint8 dsk_dataIn = 0;
+Uint8 dsk_indexCurr = 0; //Uint8 à remettre à short si problème
+Uint8 dsk_stateCurr = 0; //Uint8 à remettre à short si problème
+
+short dsk_indIn = 0;
+short dsk_cmdIn = 0;
+
 char dsk_state = 0;
+
 char dsk_fsm_command = 0;
 
 
@@ -45,8 +56,6 @@ bool adcSample_rdy = 0;
 
 //#pragma DATA_SECTION(record,".EXT_RAM")
 
-short index = 0;
-Uint8 data;
 int adcCurrentInd = 0;
 bool adcInitDone = 0;
 
@@ -84,56 +93,82 @@ void dsk_main(void) {
 
 
     dsk_state = DSK_INIT;
+    dsk_indexCurr = 15;
+    dsk_stateCurr = dsk_state;
 
 
     // Main FSM loop
     while(1) {
 
+
+        dsk_indIn = dsk_dataIn & 0x0F;
+        dsk_cmdIn = dsk_dataIn & 0xF0;
+
+
         switch(dsk_state) {
 
 
+        case DSK_INIT:
+            // Initialize DSK
+            dsk_init();
+            // Initialize MFCC structure/algo.
+            mfcc_init(&dsk_mfcc, &dsk_metVecTab);
+
+            dsk_state = DSK_TRAIN_ACQUISITION;
+
+            break;
 
 
-            case DSK_IDLE:
-                DSK6713_LED_on(3);
-                break;
+        case DSK_IDLE:
+            DSK6713_LED_on(3);
 
+            switch(dsk_cmdIn) {
+            case DSK_TEST_INIT:
+            case DSK_TRAIN_INIT:
+                dsk_state = dsk_cmdIn;
+            }
 
-
-
-            case DSK_INIT:
-                // Initialize DSK
-                dsk_init();
-                // Initialize MFCC structure/algo.
-                mfcc_init(&dsk_mfcc, &dsk_metVecTab);
-
-                dsk_state = DSK_TRAIN_ACQUISITION;
-
-                break;
-
-
-
-
-            case DSK_TEST_ACQUISITION:
-            case DSK_TRAIN_ACQUISITION:
-                // Initialize DSK
-                if (adcSample_rdy == 1) {
-                    mfcc_main(&dsk_state, 100);
-                    adcSample_rdy = 0;
-                }
-                break;
+            break;
 
 
 
+        case DSK_TEST_INIT:
 
-            case DSK_TRAIN_CODEBOOK_CONSTRUCTION:
 
-                DSK6713_LED_on(1);
-                cb_construct_codebook(&dsk_metVecTab, &dsk_speakerDataList.speaker_data[0].codebook, CODEBOOK_CODEWORDS_NB, 0, 0.001, 0.005);
-                DSK6713_LED_off(1);
-                dsk_state = DSK_IDLE;
 
-                break;
+            break;
+
+
+        case DSK_TRAIN_INIT:
+
+
+
+            break;
+
+
+        case DSK_TEST_ACQUISITION:
+        case DSK_TRAIN_ACQUISITION:
+            // Initialize DSK
+            if (adcSample_rdy == 1) {
+                mfcc_main(&dsk_state, 100);
+                adcSample_rdy = 0;
+            }
+            break;
+
+
+
+
+        case DSK_TRAIN_CODEBOOK_CONSTRUCTION:
+            DSK6713_LED_on(1);
+            cb_construct_codebook(&dsk_metVecTab, &dsk_speakerDataList.speaker_data[0].codebook, CODEBOOK_CODEWORDS_NB, 0, 0.001, 0.005);
+            DSK6713_LED_off(1);
+            dsk_state = DSK_IDLE;
+            break;
+
+        case DSK_ERROR:
+
+            break;
+
         }
         /*
         switch(dsk_fsm_command) {

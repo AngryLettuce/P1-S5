@@ -3,10 +3,15 @@
 #include "SPI_driver.h"
 
 
-extern Uint8 data;
+extern Uint8 dsk_dataIn;
+extern Uint8 dsk_indexCurr; //Uint8 à remettre à short si problème
+extern Uint8 dsk_stateCurr; //Uint8 à remettre à short si problème
+
+
+
 extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
 extern short flag;
-extern short index;
+
 extern void vectors();
 
 MCBSP_Config MCBSP0_SPI_Cfg = {
@@ -90,9 +95,7 @@ void SPI_init(void)
 void SPI_write(Uint8 SPIdata)
 {
 
-    while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE))
-    {
-    }
+    while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE)){}
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPIdata);
 
 
@@ -107,12 +110,8 @@ Uint8 SPI_read(){
 
 interrupt void c_int04(void){
 
-    SPI_write(index<<4);
-    data = SPI_read();
-    index++;
-    if(index == 14){
-        index = 0;
-    }
+    SPI_write((dsk_indexCurr << 4) | dsk_stateCurr);
+    dsk_dataIn = SPI_read();
 
 }
 
