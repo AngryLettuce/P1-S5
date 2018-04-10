@@ -57,7 +57,7 @@ def dskStatusDictionnary(status, getlength=False) :
         return len(Dict)
 
     if status not in Dict :
-        status = len(Dict) - 1
+        status = 14
 
     return Dict[status]
 
@@ -88,7 +88,7 @@ def imageDictionnary(Orateur, getlength=False):
         return len(Dict)
 
     if Orateur not in Dict :
-        Orateur = len(Dict) - 1
+        Orateur = 14
 
     return Dict[Orateur]
 
