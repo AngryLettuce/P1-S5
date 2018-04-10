@@ -32,8 +32,8 @@ short* asm_storeCircularTab256(short*tabData, short data);
 #define TEST_BENCH_LOG_SUBPRINT 1
 
 //CHUCK
-//#define TEST_BENCH_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
-//#define TEST_BENCH_LOG_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+#define TEST_BENCH_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
+#define TEST_BENCH_LOG_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 //Raphael
 //#define TEST_BENCH_FOLDER "C:/Users/raphb/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
@@ -56,8 +56,8 @@ short* asm_storeCircularTab256(short*tabData, short data);
 //#define TEST_BENCH_FOLDER "C:/Users/Pascal/Documents/GitHub/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
 
 //PASCAL L.
-#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
-#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
+//#define TEST_BENCH_FOLDER "../../../P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"//#define TEST_BENCH_FOLDER "../testBench/"
+//#define TEST_BENCH_LOG_FOLDER "../../../P1-S5/Code MFCC/DSK/CCS/MFCC_algorithme/test_bench_log/"
 
 //GUILLAUME
 //#define TEST_BENCH_FOLDER "C:/Users/Guill/Documents/GitHub/P1-S5/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
@@ -179,6 +179,9 @@ int global_testBench(float g_threshold) {
     success *= tb_mfcc_getMelCoeff("mfcc_getMelCoeff_x1.csv", "mfcc_getMelCoeff_y1.csv", dir, threshold);//need to be after the proper melfilterbank create test
     */
     //success *= tb_mfcc_dct("mfcc_dct_x1.csv", "mfcc_dct_y1.csv", dir, threshold);
+    //success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
+    success *= tb_mfcc_get_metrics("mfcc_pipeline_x2.csv", "mfcc_pipeline_y2.csv", dir, threshold);
+    //success *= tb_mfcc_get_metrics("mfcc_pipeline_x3.csv", "mfcc_pipeline_y3.csv", dir, threshold);
 
     //success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
     //success *= tb_mfcc_get_metrics("mfcc_pipeline_x2.csv", "mfcc_pipeline_y2.csv", dir, threshold);
