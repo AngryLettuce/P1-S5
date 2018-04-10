@@ -31,14 +31,18 @@ void interrupt high_priority DSK(void)
 {
     
     if(PIE1bits.RC1IE && PIR1bits.RC1IF){
-       while(SSP1STATbits.BF){};
-           SSP1BUF = RCREG1;
+       if(!SSP1STATbits.BF){
+          dataUART = RCREG1; //envoi DSK
+       }
+        
         
         
     }
     if(SSP1STATbits.BF && PIR1bits.SSP1IF){
         if(TXSTA1bits.TRMT){
-            TXREG1 = SSP1BUF;
+            TXREG1 = SSP1BUF; //envoi au PC
+            SSP1BUF = dataUART;
+            
         }
     }
 

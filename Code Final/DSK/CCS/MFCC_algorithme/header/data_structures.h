@@ -42,7 +42,7 @@
 
 //metrics
 #define METRIC_VECTOR_LENGTH        13
-#define METRIC_VECTOR_TAB_LENGTH    2000
+#define METRIC_VECTOR_TAB_LENGTH    10000
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16

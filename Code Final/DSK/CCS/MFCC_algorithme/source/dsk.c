@@ -36,7 +36,7 @@
 bool  dsk_dataIn_flag = 0;
 bool  dsk_dataIn_parsed_flag = 0;
 Uint8 dsk_dataIn = 0;
-Uint8 dsk_indexCurr = SPEAKER_NB_MAX - 1; //vaut 15 = orateur inconnue
+Uint8 dsk_indexCurr = SPEAKER_NB_MAX - 2; //vaut 14 = orateur inconnue
 Uint8 dsk_stateCurr = 0; //Uint8 à remettre à short si problème
 
 short dsk_indIn = 0;
@@ -93,7 +93,7 @@ void dsk_main(void) {
 
     int i;
     dsk_state = DSK_INIT;
-    dsk_indexCurr = 15;
+    dsk_indexCurr = SPEAKER_NB_MAX - 2;
     dsk_stateCurr = dsk_state;
 
 
@@ -102,9 +102,10 @@ void dsk_main(void) {
 
         // dataIn parse section
         dsk_dataIn_parsed_flag = 1;//ensure that if there's new data (dsk_dataIn_flag raised) it has been parsed
-        dsk_indIn = dsk_dataIn & 0x0F;
-        dsk_cmdIn = dsk_dataIn & 0xF0;
-
+        if (dsk_dataIn != 0xFF) {
+            dsk_indIn = dsk_dataIn >> 4;
+            dsk_cmdIn = dsk_dataIn & 0x0F;
+        }
         // main dsk MEF
         switch(dsk_state) {
 
@@ -115,74 +116,88 @@ void dsk_main(void) {
             // Initialize MFCC structure/algo.
             mfcc_init(&mfcc, &mfcc_metVecTab, &mfcc_speaker_list);
 
-            dsk_state = DSK_TRAIN_ACQUISITION;
+            dsk_state = DSK_IDLE;
 
             break;
 
 
         case DSK_IDLE:
             DSK6713_LED_on(3);
-            if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT) {
-                dsk_state = dsk_cmdIn;
-                DSK6713_LED_off(3);
-                //the code will continue to check for further state/case (no break)
+            if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
+
+                dsk_dataIn_flag = 0;// in data not new anymore
+                if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT) {
+                    dsk_state = dsk_cmdIn;
+                    DSK6713_LED_off(3);
+                    //the code will continue to check for further state/case (no break)
+                }
             }
-            else
-                break;
+            break;
 
 
 
         case DSK_TEST_INIT:
-            // First phase : get the number of speaker to be tested from PC
-            if(mfcc_speaker_list.tested_speaker_nb == 0) {
-                if (mfcc_speaker_list.speaker_nb >= dsk_indIn) {
+            if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
 
-                    mfcc_speaker_list.tested_speaker_nb = dsk_indIn;
-                    mfcc_speaker_list.trained_speaker_ind = 0;//use as a temporary index
-                }
-                else
-                    dsk_state = DSK_ERROR;
-            }
-            // Second phase : get the index of all speaker to be tested from PC
-            else if (dsk_dataIn_flag && dsk_dataIn_parsed_flag
-                    && mfcc_speaker_list.trained_speaker_ind < mfcc_speaker_list.tested_speaker_nb ) {
+                dsk_dataIn_flag = 0;// in data not new anymore
 
-                if (mfcc_speaker_list.speaker_data[mfcc_speaker_list.trained_speaker_ind].codebook.codeword_nb != 0) {
-                    mfcc_speaker_list.tested_speaker_ind[mfcc_speaker_list.trained_speaker_ind] = dsk_indIn;
-                    mfcc_speaker_list.trained_speaker_ind++;
+                // First phase : get the number of speaker to be tested from PC
+                if(mfcc_speaker_list.tested_speaker_nb == 0) {
+                    if (1)/*mfcc_speaker_list.speaker_nb >= dsk_indIn)*/ {
+
+                        mfcc_speaker_list.tested_speaker_nb = dsk_indIn;
+                        mfcc_speaker_list.trained_speaker_ind = 0;//use as a temporary index
+                    }
+                    else
+                        dsk_state = DSK_ERROR;
                 }
-                else {
-                    mfcc_speaker_list.tested_speaker_nb = 0;
-                    dsk_state = DSK_ERROR;
+                // Second phase : get the index of all speaker to be tested from PC
+                else if (dsk_dataIn_flag && dsk_dataIn_parsed_flag
+                        && mfcc_speaker_list.trained_speaker_ind < mfcc_speaker_list.tested_speaker_nb ) {
+
+                    if (mfcc_speaker_list.speaker_data[mfcc_speaker_list.trained_speaker_ind].codebook.codeword_nb != 0) {
+                        mfcc_speaker_list.tested_speaker_ind[mfcc_speaker_list.trained_speaker_ind] = dsk_indIn;
+                        mfcc_speaker_list.trained_speaker_ind++;
+                    }
+                    else {
+                        mfcc_speaker_list.tested_speaker_nb = 0;
+                        dsk_state = DSK_ERROR;
+                    }
                 }
-            }
             else
                 dsk_state = DSK_TEST_ACQUISITION;
+            }
             break;
 
 
         case DSK_TRAIN_INIT:
-            mfcc_speaker_list.trained_speaker_ind = dsk_indIn;
-            dsk_state = DSK_TRAIN_ACQUISITION;
+            if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
+                DSK6713_waitusec(1000000);
+                dsk_dataIn_flag = 0;// in data not new anymore
+                mfcc_speaker_list.trained_speaker_ind = dsk_indIn;
+                dsk_state = DSK_TRAIN_ACQUISITION;
+            }
             break;
 
+
+        case DSK_TRAIN_ACQUISITION:
+
+            DSK6713_LED_on(0);
+            if (adcSample_rdy == 1) {
+                adcSample_rdy = 0;
+                mfcc_main(&dsk_state, 200);
+            }
+
+            if (dsk_cmdIn == DSK_IDLE)
+                dsk_state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
+
+            break;
 
         case DSK_TEST_ACQUISITION:
 
             if (adcSample_rdy == 1) {
                 adcSample_rdy = 0;
-                mfcc_main(&dsk_state, 100);
-            }
-
-            if (dsk_cmdIn == DSK_IDLE)
-                dsk_state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
-            break;
-
-        case DSK_TRAIN_ACQUISITION:
-
-            if (adcSample_rdy == 1) {
-                adcSample_rdy = 0;
-                mfcc_main(&dsk_state, 100);
+                mfcc_main(&dsk_state, 200);
             }
 
             if (dsk_cmdIn == DSK_IDLE) {
@@ -196,35 +211,39 @@ void dsk_main(void) {
 
 
         case DSK_TRAIN_CODEBOOK_CONSTRUCTION:
+
+            DSK6713_LED_off(0);
             DSK6713_LED_on(1);
             cb_construct_codebook(&mfcc_metVecTab,
                                   &mfcc_speaker_list.speaker_data[mfcc_speaker_list.trained_speaker_ind].codebook,
                                   CODEBOOK_CODEWORDS_NB,
                                   mfcc_speaker_list.trained_speaker_ind , 0.001, 0.005);
             DSK6713_LED_off(1);
+            mfcc_metVecTab.metVecTab_size = 0;//reset metVecTab to 0
             dsk_state = DSK_IDLE;
+            dsk_cmdIn = DSK_IDLE;
+            dsk_dataIn = 0xFF;
             break;
 
         case DSK_ERROR:
             //make sure to transmit the error state to the PC
+            DSK6713_LED_on(0);
             DSK6713_LED_on(1);
             DSK6713_LED_on(2);
             DSK6713_LED_on(3);
-            DSK6713_LED_on(4);
-            if (dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
+            //if (dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
                 DSK6713_waitusec(1000000);
                 dsk_state = DSK_IDLE;
+                DSK6713_LED_off(0);
                 DSK6713_LED_off(1);
                 DSK6713_LED_off(2);
                 DSK6713_LED_off(3);
-                DSK6713_LED_off(4);
-            }
+            //}
             break;
 
         }
 
         dsk_stateCurr = dsk_state;
-        dsk_dataIn_flag = 0;// in data not new anymore
     }
 }
 
@@ -330,9 +349,9 @@ void mfcc_main(char *state, float silence_threshold) {
             *state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
 
             //DEBUG SEULEMENT
-            DSK6713_LED_on(0);
-            mfcc_write_metVecTab(&mfcc);
-            DSK6713_LED_off(0);
+            //DSK6713_LED_on(0);
+            //mfcc_write_metVecTab(&mfcc);
+            //DSK6713_LED_off(0);
             //while(1);
 
             return;
@@ -392,7 +411,7 @@ void dsk_init(void) {
     DSK6713_waitusec(50);
 
     SPI_init();
-    configAndStartTimer0(2812500*3);
+    configAndStartTimer0(2812500);
     init_ext_intr();
 
     DSK6713_waitusec(1000000);

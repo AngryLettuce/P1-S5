@@ -111,8 +111,13 @@ Uint8 SPI_read(){
 
 interrupt void c_int04(void){
 
-    SPI_write((dsk_indexCurr << 4) | dsk_stateCurr);
-    dsk_dataIn = SPI_read();
+    static Uint8 dataIn_temp = 0;
+    SPI_write(((dsk_indexCurr + 1) << 4) | dsk_stateCurr);
+
+    dataIn_temp = SPI_read();
+    if (dataIn_temp != 0)
+        dsk_dataIn = dataIn_temp;
+
     dsk_dataIn_flag = 1; //tell the dsk that the SPI data is new
     dsk_dataIn_parsed_flag = 0; //tell to the dsk main that new data has not been parsed
 }
