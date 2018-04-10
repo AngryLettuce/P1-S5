@@ -10,9 +10,9 @@ param.codeBook_name = ['codeBook_' c{1} '-' c{2} '-' c{3} '_' c{4} 'h' c{5} 'm' 
 param.sample_folder = 'voice_sample_16bit_8kS_v2';%folder containing all audio sample
 
 %codebook parameters
-param.codebook_M = 32;
+param.codebook_M = 16;
 param.codebook_eps = 0.001;
-param.codebook_dist_esp = 0.001;
+param.codebook_dist_esp = 0.005;
 param.codebook_iter_limit = 100;
 
 %mfcc parameters
@@ -141,11 +141,54 @@ write_testBench_data('moving_average',x,moving_average',1);
 x{1} = load('audio_ex1.mat','y'); x{1} = x{1}.y';
 x{2} = load('audio_ex2.mat','y'); x{2} = x{2}.y';
 x{3} = load('audio_ex3.mat','y'); x{3} = x{3}.y';
+
+figure
+plot(x{1})
+xlabel('# échantillon');
+ylabel('Amplitude');
+figure
+plot(x{2})
+xlabel('# échantillon');
+ylabel('Amplitude');
+figure
+plot(x{3})
+xlabel('# échantillon');
+ylabel('Amplitude');
+
+figure
+hold on
+plot(x{1},'-')
+plot(x{2},'-')
+plot(x{3},'-')
+xlabel('# échantillon');
+ylabel('Amplitude');
+
 for i = 3:-1:1
     y{i} = mfcc_extraction(x{i}', param)';
 end
 write_testBench_data('mfcc_pipeline',x,y,3)
 
+figure
+plot(y{1},'o-')
+xlabel('# coefficient MFCC');
+ylabel('Amplitude coefficient (dB)');
+figure
+plot(y{2},'o-')
+xlabel('# coefficient MFCC');
+ylabel('Amplitude coefficient (dB)');
+figure
+plot(y{3},'o-')
+xlabel('# coefficient MFCC');
+ylabel('Amplitude coefficient (dB)');
+
+
+figure
+hold on
+plot(y{1},'o-')
+plot(y{2},'o-')
+plot(y{3},'o-')
+xlabel('# coefficient MFCC');
+ylabel('Amplitude coefficient (dB)');
 
 
 %% MFCC CONSTRUCT CODEBOOK
@@ -153,6 +196,8 @@ write_testBench_data('mfcc_pipeline',x,y,3)
 load('metrics_8persv2.mat');
 
 x = metrics;
+
+x{1} = x{1}(1:200,:);
 
 for i = 1:-1:1
     y = construct_speakerCodeBook(x, param);

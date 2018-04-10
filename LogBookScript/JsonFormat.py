@@ -10,6 +10,7 @@ def readJsonFile(filePath):
     return jsonLines
 
 
+
 def getUser(logbook):
     logbookdict = {"antoine_logbook"   : "Antoine",
                    "charles_logbook"   : "Charles",
@@ -26,15 +27,20 @@ def getUser(logbook):
     return logbookdict[logbook]
 
 
-def formatjsonLine(jsonline) : 
+def formatjsonLine(jsonline) :
     textsplit = jsonline.split("\"")
-    comment   = textsplit[3]
-    splittedcomment = comment.split(r'\n')
+    comment   = textsplit[3:]
+    splittedcomment = '' 
+
+    for comm in comment[:-1] : 
+        #comm = comm.replace(',\n', '\n')
+        splittedcomment += comm 
+    
+    splittedcomment = splittedcomment.split(r'\n')
 
     datetime = splittedcomment[0]
     keyissue = splittedcomment[1]
     comments  = splittedcomment[2:]
-
     splittedKeyIssue = keyissue.split(':')
     key   = splittedKeyIssue[0]
     issue = splittedKeyIssue[1]
@@ -46,7 +52,7 @@ def formatjsonLine(jsonline) :
     time     = datetime[1]
 
     appendComment = ""
-    comments = [comment for comment in comments if comment != ""]
+    comments = [comment for comment in comments if comment != '']
     for comment in comments : 
         appendComment += comment
         appendComment += "\n"
@@ -62,7 +68,7 @@ def formatjsonLine(jsonline) :
 				############## |_|  |_/_/ \_\___|_|\_| ##############
 
 
-slackExportPath = r"C:\Users\Guill\Downloads\P1-S5 Slack export Mar 15 2018"
+slackExportPath = r"C:\Users\Guill\Downloads\P1-S5 Slack export Apr 9 2018"
 directoryFolder = os.listdir(slackExportPath)
 logbooks = [folder for folder in directoryFolder if "logbook" in folder]
 doc = Document(default_filepath = "LogBook" )

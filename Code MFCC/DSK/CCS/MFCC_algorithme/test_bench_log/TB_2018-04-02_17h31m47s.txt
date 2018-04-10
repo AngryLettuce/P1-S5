@@ -1,0 +1,33 @@
+
+   TB_2018-04-02_17h31m47s.txt
+
+------------------------------------------------
+         Discret Cosinus Transform         
+------------------------------------------------
+
+    Source file : mfcc_dct_x1.csv ,  mfcc_dct_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_dct_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.015661 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         MFCC Pipeline         
+------------------------------------------------
+
+    Source file : mfcc_pipeline_x1.csv ,  mfcc_pipeline_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_pipeline_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.007458 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         CodeBook Construction         
+------------------------------------------------
+
+    Source file : codebook_construct_x1.csv ,  codebook_construct_y1.csv
+    data : 32 x 13
+
+
+S - Test "codebook_construct_x1.csv" succeed, RMS = +inf, rErrAvg = nan % (0.500000 %)Threshold 
+

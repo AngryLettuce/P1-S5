@@ -1,0 +1,23 @@
+
+   TB_2018-03-08_14h03m11s.txt
+
+------------------------------------------------
+         Mel Filter Bank         
+------------------------------------------------
+
+    Source file : mfcc_melFilterBank_x1.csv ,  mfcc_melFilterBank_y1.csv
+    data : 20 x 128
+
+
+S - Test "mfcc_melFilterBank_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.003978 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         Hamming Window 256         
+------------------------------------------------
+
+    Source file : mfcc_getMelCoeff_x1.csv ,  mfcc_getMelCoeff_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_getMelCoeff_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.001130 % (0.500000 %)Threshold 
+

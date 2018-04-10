@@ -1,0 +1,9 @@
+
+   TB_2018-03-08_15h24m15s.txt
+
+------------------------------------------------
+         Discret Cosinus Transform         
+------------------------------------------------
+
+    Source file : mfcc_dct_x1.csv ,  mfcc_dct_y1.csv
+    data : 20 x 1

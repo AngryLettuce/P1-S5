@@ -29,7 +29,7 @@ short* asm_storeCircularTab256(short*tabData, short data);
 
 
 //select if print subresult to log file, if 1, take longer to do all test
-#define TEST_BENCH_LOG_SUBPRINT 0
+#define TEST_BENCH_LOG_SUBPRINT 1
 
 //CHUCK
 #define TEST_BENCH_FOLDER "C:/Users/carig/Documents/S5/Projet/Git Projet/P1-S5/Code MFCC/MATLAB/SpeakerRecognition/testBench/"
@@ -68,10 +68,12 @@ float test_bench_y[TEST_BENCH_MATRIX_SIZE][TEST_BENCH_MATRIX_SIZE_J];
 #pragma DATA_SECTION(test_bench_x, ".EXT_RAM")
 #pragma DATA_SECTION(test_bench_y, ".EXT_RAM")
 
-static MFCCModule mfcc;
-static DSKstate DSK_state;
+MFCCModule mfcc;
+DSKstate DSK_state;
 
-static MetVecTab metVecTab;
+MetVecTab metVecTab;
+Codebook codebook;
+
 #pragma DATA_SECTION(metVecTab, ".EXT_RAM")
 
 
@@ -180,6 +182,12 @@ int global_testBench(float g_threshold) {
     //success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
     success *= tb_mfcc_get_metrics("mfcc_pipeline_x2.csv", "mfcc_pipeline_y2.csv", dir, threshold);
     //success *= tb_mfcc_get_metrics("mfcc_pipeline_x3.csv", "mfcc_pipeline_y3.csv", dir, threshold);
+
+    //success *= tb_mfcc_get_metrics("mfcc_pipeline_x1.csv", "mfcc_pipeline_y1.csv", dir, threshold);
+    //success *= tb_mfcc_get_metrics("mfcc_pipeline_x2.csv", "mfcc_pipeline_y2.csv", dir, threshold);
+    //success *= tb_mfcc_get_metrics("mfcc_pipeline_x3.csv", "mfcc_pipeline_y3.csv", dir, threshold);
+
+    success *= tb_cb_construct_codebook("codebook_construct_x1.csv", "codebook_construct_y1.csv", dir, threshold);
 
     return success;
 }
@@ -474,7 +482,6 @@ int tb_mfcc_fft256(char *filename_x, char *filename_y, char *logfile, float thre
     float Ry0, Iy0, Ryr, Iyr, P0, Pr, rErr;
 
     float x[256];
-    short index[256];
 
 
     if (read_csv_float(filename_x, test_bench_x, &lines, &columns) < 0)
@@ -557,7 +564,7 @@ int tb_mfcc_dct(char *filename_x, char *filename_y, char* logfile, float thresho
         y[i] = test_bench_x[i][0];
     }
 
-    float cosTab[400];
+
     float coeff[20];
 
     mfcc_dct(y, coeff, mfcc.dct.cosTab, lines, lines);
@@ -713,7 +720,7 @@ int tb_mfcc_get_metrics(char *filename_x, char *filename_y, char* logfile, float
 /*----------------------------------------------------------*/
 /*                 CODEBOOK CONSTUCTION                     */
 /*----------------------------------------------------------*/
-/*
+
 int tb_cb_construct_codebook(char *filename_x, char *filename_y, char *logfile, float threshold) {
 
     FILE* fp;
@@ -736,44 +743,52 @@ int tb_cb_construct_codebook(char *filename_x, char *filename_y, char *logfile, 
     //write the header of the test in the log file
     write_test_header(fp, "CodeBook Construction", filename_x, filename_y, linesy, columnsy);
 
-    //for(i = 0; i < )
+    for(i = 0; i < linesx; i++)
+    for(j = 0; j < columnsx; j++) {
 
-    cb_construct_codebook(MetVecTab *metVecTab,
-                          Codebook *codebook,
-                          int codebook_size,
-                          int speaker_ind,
-                          float epsilon,
-                          float distortion_Err);
+        metVecTab.metVec[i].met[j] = test_bench_x[i][j];
+    }
+    metVecTab.metVecTab_size = linesx;
+    metVecTab.metVec_size = columnsx;
 
-    for(i = 0; i < lines; i++) {
-        for(j = 0; j < columns; j++) {
-            y0 = mfcc.mfb.melFilter[i][j];
-            yr = test_bench_y[i][j];
 
-            //relative error calculation
-            if (y0 != 0.)
-                rErr = fabs((y0 - yr)/y0);
-            else
-                rErr = 0;
-            rErrAvg += rErr;
+    cb_construct_codebook(&metVecTab,
+                          &codebook,
+                          16,
+                          0,
+                          0.001,
+                          0.005);
 
-            //write subresult to log file
-            if (TEST_BENCH_LOG_SUBPRINT == 1)
-                write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+    y0 = 0;
+    yr = 0;
+    for(i = 0; i < linesy; i++) {
+        for(j = 0; j < columnsy; j++) {
 
-            RMS += pow(y0 - yr, 2);
+            y0 += codebook.codeword[i].met[j];
+            yr += test_bench_y[i][j];
         }
     }
-    RMS /= lines*columns;
-    rErrAvg /= lines;
+
+    //relative error calculation
+    if (y0 != 0.)
+        rErr = fabs((y0 - yr)/y0);
+    else
+        rErr = 0;
+
+    //write subresult to log file
+    if (TEST_BENCH_LOG_SUBPRINT == 1)
+        write_test_subresult_float(fp, y0, yr, rErr, threshold, i, &success);
+
+    RMS += pow(y0 - yr, 2);
+
 
     //write result to file and command windows
-    write_test_result(fp, filename_x, success, RMS, rErrAvg, threshold);
+    write_test_result(fp, filename_x, success, RMS, rErr, threshold);
 
     fclose(fp);
     return success;
 }
-*/
+
 
 
 

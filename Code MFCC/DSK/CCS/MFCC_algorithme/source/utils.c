@@ -70,7 +70,6 @@ float euclideanDistPow2(float *a, float *b, int size) {
     for(i = 0; i < size; i++) {
         acc = acc + (a[i] - b[i])*(a[i] - b[i]);
     }
-    acc = acc / (float) size;
 
     return acc;
 }

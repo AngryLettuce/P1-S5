@@ -1,0 +1,14 @@
+
+   TB_2018-04-07_22h20m37s.txt
+
+------------------------------------------------
+         CodeBook Construction         
+------------------------------------------------
+
+    Source file : codebook_construct_x1.csv ,  codebook_construct_y1.csv
+    data : 16 x 13
+
+ 16 :    -812.830505   -812.828186   rErr: 0.000285 %(0.500000 %)
+
+S - Test "codebook_construct_x1.csv" succeed, RMS = 0.000005, rErrAvg = 0.000285 % (0.500000 %)Threshold 
+
