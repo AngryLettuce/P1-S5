@@ -2,7 +2,8 @@
 #define SPI_DRIVER_MODULE_IMPORT
 #include "SPI_driver.h"
 
-
+extern bool dsk_dataIn_flag;
+extern bool dsk_dataIn_parsed_flag;
 extern Uint8 dsk_dataIn;
 extern Uint8 dsk_indexCurr; //Uint8 à remettre à short si problème
 extern Uint8 dsk_stateCurr; //Uint8 à remettre à short si problème
@@ -112,7 +113,8 @@ interrupt void c_int04(void){
 
     SPI_write((dsk_indexCurr << 4) | dsk_stateCurr);
     dsk_dataIn = SPI_read();
-
+    dsk_dataIn_flag = 1; //tell the dsk that the SPI data is new
+    dsk_dataIn_parsed_flag = 0; //tell to the dsk main that new data has not been parsed
 }
 
 void configAndStartTimer0(unsigned int prd){
