@@ -7,6 +7,7 @@ import tkinter as tk
 import tkinter.messagebox as tkmessageBox
 import functions as fn 
 
+
     
 class ApplicationProjetS5(tk.Frame):         
     'Main object of the GUI'
@@ -21,11 +22,12 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurInDiscussion  = 0
         self.start = False
         self.startInit = False
-        self.buttonList = []
         self.lastCommand = None
         self.confirmOrateur = False
-        self.MaxOrateur = fn.imageDictionnary(0, True)
+        self.MaxOrateur = fn.imageDictionnary(0, True) -1
 
+        self.buttonList = []
+        
         tk.Frame.__init__(self, master)  
 
         self.topFrame     = tk.Frame(self)
@@ -64,18 +66,18 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
-        self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
-        self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
+        #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        #self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.ser1)
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
 
 
     def createWidgets(self):
-
+        '''Create all the widgets for the GUI but the grid of orateur Buttons'''
         self.orateurPicLabel = tk.Label(self.topFrame)
         self.orateurPicLabel.pack()
 
@@ -92,7 +94,7 @@ class ApplicationProjetS5(tk.Frame):
                                        tickinterval=1, length=300)
         self.scalingOrateur.pack(side='left')
 
-        self.confirmOrateur_B = tk.Button(self.scalingFrame, text='confirm', command= lambda: self.confirmOrateurFunction())
+        self.confirmOrateur_B = tk.Button(self.scalingFrame, text='Confirm', command= lambda: self.confirmOrateurFunction())
         self.confirmOrateur_B.pack(side='left')
 
         self.appMessageLabel = tk.Label(self.labelFrame)
@@ -116,46 +118,31 @@ class ApplicationProjetS5(tk.Frame):
         #self.writingBox.pack()
         #self.writingBox.config(width=30, justify='center')
 
-        self.orateurButtons()
+        self.orateurButtons()  
 
 
-    def cycleImage(self):
-        index = int(self.orateurIndex)
-        
-        index += 1
-        if index > self.numberOfOrateur :
-            index = 0
+    #def writingSerialButton(self, serialPort):
+    #    data = self.writingBox.get()
+    #    if data != '':
+    #        if fn.check_int(data) : 
+    #            data = int(data)
+    #            #saturate the byte for the next operation
+    #            if data >= 256 : 
+    #                data = 255
+    #            data = data.to_bytes(1, 'big')
+    #            fn.writingSerial(serialPort, data)
 
-        self.orateurIndex = str(index)
-        fn.changeImage(self.orateurPicLabel, self.orateurIndex)
-
-        pathAndName = ImageDictionnary(self.orateurIndex)
-        fn.changeLabelText(self.orateurLabel, 'Orateur : ' + pathAndName[1])        
-
-
-    def writingSerialButton(self, serialPort):
-        data = self.writingBox.get()
-        if data != '':
-            if fn.check_int(data) : 
-                data = int(data)
-                #saturate the byte for the next operation
-                if data >= 256 : 
-                    data = 255
-                data = data.to_bytes(1, 'big')
-                fn.writingSerial(serialPort, data)
-
-            else : 
-                self.errorMessageBox('Please enter an integer')
+    #        else : 
+    #            self.errorMessageBox('Please enter an integer')
 
 
     def readingThread(self, serialPort):
-       data =  fn.readSerial(serialPort)
-       if data != b'' : 
+        '''read on the serial port and decode the command into an index and a status'''
+        data =  fn.readSerial(serialPort)
+        if data != b'' : 
             self.lastCommand = int.from_bytes(data, 'big')
-   
-            if self.start : 
-                #fn._2x8bitsRead(data, self)
-                fn._8bitsRead(self.lastCommand, self)
+
+            fn._8bitsRead(self.lastCommand, self)
 
 
     def trainRoutine(self):
@@ -177,8 +164,11 @@ class ApplicationProjetS5(tk.Frame):
             fn.setVisible(self.scalingFrame)
             fn.changeLabelText(self.appMessageLabel, "Sélectionnez le nombre d'orateur dans la discussion")
             self.startInit =  True
+
         self.orateurInDiscussion = self.scalingOrateur.get()
-        if self.orateurInDiscussion != 0 and self.confirmOrateur:
+
+        if self.confirmOrateur:
+            fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + 2) #send test init command + number of speaker
             self.start = True
             self.start_B.config(relief=tk.SUNKEN)
             fn.changeLabelText(self.appMessageLabel, "Sélectionner les orateurs dans la discussion")
@@ -186,7 +176,6 @@ class ApplicationProjetS5(tk.Frame):
 
             for frame in self.OrateurFrame : 
                 fn.setVisible(frame)
-            #fn.writingSerial(self.orateurInDiscussion)
                 
 
 
@@ -200,7 +189,7 @@ class ApplicationProjetS5(tk.Frame):
                 fn.changeLabelText(self.appMessageLabel, "Entrainement de " + pathAndName[1])
                 button.config(relief=tk.SUNKEN)
                 self.trainButtonPressed = True
-                #fn.writingSerial(index)
+                fn.writingSerial(self.realSerial, (index << 4) + 4)
 
 
         elif self.start : 
@@ -208,7 +197,7 @@ class ApplicationProjetS5(tk.Frame):
                 fn.changeOrateur(index, self)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
-                #fn.writingSerial(index)
+                fn.writingSerial(self.realSerial, (index << 4) + 2)
 
                 self.orateurButtonPressed += 1 
 
@@ -222,6 +211,8 @@ class ApplicationProjetS5(tk.Frame):
 
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
+        
+        fn.writingSerial(self.realSerial, 255)  #send IDLE command
         self.train = False
         self.trainButtonPressed = False
         self.start = False

@@ -8,7 +8,7 @@ import tkinter as tk
 ########################## -- Widgets related -- ##########################
 
 def changeImage(label, path):
-    'set the image of the label to the image from the path'
+    '''set the image of the label to the image from the path'''
     photo = Image.open(path)
     photo = ImageTk.PhotoImage(photo)
     label.configure(image=photo)
@@ -16,26 +16,30 @@ def changeImage(label, path):
 
 
 def changeLabelText(label, data) : 
-    'change the text of a label to data'
+    '''change the text of a label to data'''
     label.configure(text=data)
     label.text = data
 
+
 def changeWitingBoxText(box, data) : 
-    'change the text of a writing box to data'
+    '''change the text of a writing box to data'''
     box.insert(tk.INSERT, data)
 
 
 def setInvisible(widjet) :
+    '''Set a widjet or a frame invisible'''
     widjet.pack_forget()
 
+
 def setVisible(widjet) : 
+    '''Set a widjet or a frame visible'''
     widjet.pack()
 
 
 ########################## -- Dictionnaries -- ##########################
 
 def dskStatusDictionnary(status, getlength=False) :
-    'holds the status of the dsk'
+    '''holds the status of the dsk'''
     Dict = {  0  : 'INIT', 
               1  : 'IDLE',
               2  : 'Test Init',
@@ -46,20 +50,20 @@ def dskStatusDictionnary(status, getlength=False) :
               7  : 'Error',
 
                
-             63 : 'Inconnu',             
+             15 : 'Inconnu',             
            }
 
     if getlength : 
         return len(Dict)
 
     if status not in Dict :
-        status = 63
+        status = 15
 
     return Dict[status]
 
 
 def imageDictionnary(Orateur, getlength=False):
-    'holds the possible speakers'
+    '''holds the possible speakers'''
     #Picture size : 381 * 285 px
 
     Dict = {  0  : (r"newAntoine.jpg",       'Antoine'  ,     ),
@@ -77,14 +81,14 @@ def imageDictionnary(Orateur, getlength=False):
               #12 : (r"newfeu_serviette.jpg", 'RIP serviette', ), 
               #13 : (r"newbutrice.jpg",       'Butrice',       ),
                       
-              63 : (r"newnoImage.jpg",       'Inconnu',     ),
+              15 : (r"newnoImage.jpg",       'Inconnu',     ),
              } 
 
     if getlength : 
         return len(Dict)
 
     if Orateur not in Dict :
-        Orateur = 63
+        Orateur = 15
 
     return Dict[Orateur]
 
@@ -92,17 +96,19 @@ def imageDictionnary(Orateur, getlength=False):
 
 ########################## -- Serial Port -- ##########################
 def setupSerialPort(port, baudrate, timeout):
-    'setut a serial port connection with a baudrate and a timeout' 
+    '''setut a serial port connection with a baudrate and a timeout''' 
     ser = Serial(port, baudrate, timeout=timeout)
     return ser
 
 
 def writingSerial(serialPort, data):
-    'write data to the serialPort'
-    serialPort.write(data)
+    '''write data to the serialPort'''
+    serialPort.write(data.to_bytes(1, 'big'))
     #serialPort.write(data.encode())
 
+
 def readSerial(serialPort):
+    '''read and return data from the serialPort'''
     data = serialPort.read(9999)
     #data = data.decode('ascii')
     return data
@@ -110,7 +116,7 @@ def readSerial(serialPort):
 
 ########################## -- Threading -- ##########################
 class RepeatedTimer(object):
-    'Create thread object which run a funtion after a delay given'
+    '''Create thread object which run a funtion after a delay given'''
     def __init__(self, interval, function, *args, **kwargs):
         self._timer     = None
         self.interval   = interval
@@ -137,19 +143,19 @@ class RepeatedTimer(object):
 
 
 def stopThread(thread):
-    'stop the thread of a RepeatedTimer type'
+    '''stop the thread of a RepeatedTimer type'''
     thread.stop()
 
 
 def startThread(thread):
-    'start the thread of a RepeatedTimer type'
+    '''start the thread of a RepeatedTimer type'''
     thread.start()
 
 
 ########################## -- Utility functions -- ##########################
 
 def resizePicture(path, width):
-    'resize the picture to the width given, the width/height ratio will be kept'
+    '''resize the picture to the width given, the width/height ratio will be kept'''
     img = Image.open(path)
     wpercent = (width/float(img.size[0]))
     hsize = int((float(img.size[1])*float(wpercent)))
@@ -158,7 +164,7 @@ def resizePicture(path, width):
 
 
 def parity(int_type):
-    'Used to calculate the parity of a byte'
+    '''Used to calculate the parity of a byte'''
     parity = 0
     while (int_type):
         parity = ~parity
@@ -167,7 +173,7 @@ def parity(int_type):
 
 
 def check_int(data):
-    'return true if data is a digit, even if the digit is negative'
+    '''return true if data is a digit, even if the digit is negative'''
     if data[0] in ('-', '+'):
         return data[1:].isdigit()
     return data.isdigit()
@@ -186,6 +192,7 @@ def _2x8bitsRead(data, app):
 
 
 def _8bitsRead(data, app):
+    '''decode a 8bits command from the PIC to an index and a status'''
     index  = data >> 4
     changeOrateur(index, app)
 
@@ -194,11 +201,13 @@ def _8bitsRead(data, app):
 
 
 def changeOrateur(index, app):
+    '''Change the image and the label to the coresponding speaker'''
     pathAndName = imageDictionnary(index)
     changeImage(app.orateurPicLabel, pathAndName[0])
     changeLabelText(app.orateurLabel, 'Orateur : ' + pathAndName[1])
 
 
 def changeDSKStatus(status, app):
+    '''change the status of the DSK label'''
     status = dskStatusDictionnary(status)
     changeLabelText(app.dskStatusLabel, 'Statut du DSK : ' + status)
