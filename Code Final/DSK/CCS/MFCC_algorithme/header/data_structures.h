@@ -154,6 +154,10 @@ typedef struct SpeakerData {
 typedef struct SpeakerDataList {
 
     SpeakerData speaker_data[SPEAKER_NB_MAX];
+    int tested_speaker_ind[SPEAKER_NB_MAX];
+    int tested_speaker_nb;
+    int trained_speaker_ind;
+
     int speaker_nb;
 
 } SpeakerDataList;

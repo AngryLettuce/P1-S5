@@ -6,6 +6,8 @@
  */
 
 #include "mfcc.h"
+
+#include "data_structures.h"
 #include "utils.h"
 #include "fft_utility.h"
 #include <stdio.h>
@@ -18,6 +20,67 @@
 
 
 #define M_PI 3.1415926535897932384
+
+
+
+
+
+
+//--------------------------------------------
+//  HIGH LEVEL FUNCTION
+//--------------------------------------------
+
+
+
+void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab, SpeakerDataList *speakerDataList) {
+
+    int i;
+
+    //speaker_data_list
+    speakerDataList->speaker_nb = 0;
+
+    for(i = 0; i < SPEAKER_NB_MAX; i++) {
+        speakerDataList->speaker_data[i].isActive = 0;
+        speakerDataList->speaker_data[i].codebook.codeword_nb = 0;
+        speakerDataList->speaker_data[i].codebook.metVec_size = METRIC_VECTOR_LENGTH;
+    }
+
+
+    //mfcc module
+    mfcc->x_size = SIGNAL_BLOCK_SIZE;
+    mfcc->mfcc_nb = MFCC_COEFFICIENT_NB;
+    mfcc->metVecTab = metVecTab;
+    mfcc->metVecTab->metVecTab_size = 0;
+    mfcc->metVecTab->metVec_size = METRIC_VECTOR_LENGTH;
+
+    //construct the hamming window table
+    mfcc_hamming_window_init(mfcc->hwin.h, mfcc->x_size);
+
+    //construct the melfilter bank
+    mfcc_melFilterBank_create(&mfcc->mfb, MEL_FILTER_FREQ_LOW, MEL_FILTER_FREQ_HIGH, MEL_FILTER_NB, (mfcc->x_size) >> 1, SAMPLE_RATE);
+
+    //generate the twiddle table, reverse index table, and cosine table for FFT and DCT
+    mfcc_fft_init(mfcc->fft.w, mfcc->fft.index, mfcc->x_size);
+    mfcc_dct_init(mfcc->dct.cosTab, mfcc->mfb.melFilter_nb, mfcc->mfb.melFilter_nb);
+}
+
+
+void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
+
+    //mfcc pipeline
+    mfcc_hamming_window (mfcc->x        , mfcc->hwin.h      );
+    float2complex       (mfcc->x        , mfcc->x_complex   , mfcc->x_size      );
+    mfcc_fft            (mfcc->x_complex, mfcc->fft.w       , mfcc->fft.index   , mfcc->x_size );
+    mfcc_powerSpectrum  (mfcc->x        , mfcc->x_complex   , mfcc->x_size      );//divide size by 2 (equivalent to right shift 1 bit)
+    mfcc_getMelCoeff    (mfcc->x        , mfcc->dct.coeff   ,&mfcc->mfb         );
+    mfcc_dct            (mfcc->dct.coeff, met               , mfcc->dct.cosTab  , mfcc->mfb.melFilter_nb    , mfcc->mfcc_nb );
+
+    //pitch pipeline (value store at the location of the first mfcc coefficient, which do not have any speaker dependant information)
+}
+
+
+
+
 
 
 

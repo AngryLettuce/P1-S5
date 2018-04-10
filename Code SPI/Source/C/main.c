@@ -14,7 +14,7 @@ void main(void) {
     DSK6713_init();
     DSK6713_LED_init();
     SPI_init();
-    configAndStartTimer0(2812500*3);
+    configAndStartTimer0(2812500/5);
     init_ext_intr();
     int i;
 

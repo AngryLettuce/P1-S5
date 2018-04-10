@@ -31,16 +31,15 @@ void interrupt high_priority DSK(void)
 {
     
     if(PIE1bits.RC1IE && PIR1bits.RC1IF){
-       while(SSP1STATbits.BF && !TXSTA1bits.TRMT){};
+       while(SSP1STATbits.BF){};
            SSP1BUF = RCREG1;
         
         
     }
     if(SSP1STATbits.BF && PIR1bits.SSP1IF){
- //       while(!TX1IF) continue;
-        while(!TXSTA1bits.TRMT){};
+        if(TXSTA1bits.TRMT){
             TXREG1 = SSP1BUF;
-
+        }
     }
 
     

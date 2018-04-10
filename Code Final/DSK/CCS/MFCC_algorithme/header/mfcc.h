@@ -21,6 +21,8 @@
 //  MFCC FUNCTIONS
 //------------------------------------
 
+void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab, SpeakerDataList *speakerDataList);
+void mfcc_get_metrics(float *met, MFCCModule *mfcc);
 
 void mfcc_set_x(MFCCModule *mfcc, float *mfccCircBuffer, float *mfccCurrPtr);
 int mfcc_add_metVec(float *met, MFCCModule *mfcc);

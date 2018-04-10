@@ -30,12 +30,23 @@
 #include <csl.h>
 #include "SPI_driver.h"
 
-volatile char dsk_state = 0;
-volatile char dsk_fsm_command = 0;
 
+//COMMUNICATION
+
+bool  dsk_dataIn_flag = 0;
+bool  dsk_dataIn_parsed_flag = 0;
+Uint8 dsk_dataIn = 0;
+Uint8 dsk_indexCurr = SPEAKER_NB_MAX - 1; //vaut 15 = orateur inconnue
+Uint8 dsk_stateCurr = 0; //Uint8 à remettre à short si problème
+
+short dsk_indIn = 0;
+short dsk_cmdIn = 0;
+
+char dsk_state = 0;
+
+char dsk_fsm_command = 0;
 
 volatile bool btn_pressed_flag = false;
-SpeakerDataList mfcc_speaker_list;
 
 //Tableau donnees brute AIC
 short adcRecord[SIGNAL_BLOCK_SIZE] = {0};
@@ -45,8 +56,6 @@ bool adcSample_rdy = 0;
 
 //#pragma DATA_SECTION(record,".EXT_RAM")
 
-short index = 0;
-Uint8 data;
 int adcCurrentInd = 0;
 bool adcInitDone = 0;
 
@@ -63,10 +72,14 @@ float beta_acc = 0;
 int adcSample_acc = 0;
 bool silenceDetection_rdy = 0;
 
-MFCCModule dsk_mfcc;
 
-MetVecTab dsk_metVecTab;
-#pragma DATA_SECTION(dsk_metVecTab,".EXT_RAM");
+
+
+//STRUCTURE
+SpeakerDataList mfcc_speaker_list;
+MFCCModule      mfcc;
+MetVecTab       mfcc_metVecTab;
+#pragma DATA_SECTION(mfcc_metVecTab,".EXT_RAM");
 
 /*------------------------------------------------------
  *   dsk_main :
@@ -78,99 +91,170 @@ MetVecTab dsk_metVecTab;
 
 void dsk_main(void) {
 
+    int i;
     dsk_state = DSK_INIT;
+    dsk_indexCurr = 15;
+    dsk_stateCurr = dsk_state;
+
 
     // Main FSM loop
     while(1) {
 
+        // dataIn parse section
+        dsk_dataIn_parsed_flag = 1;//ensure that if there's new data (dsk_dataIn_flag raised) it has been parsed
+        dsk_indIn = dsk_dataIn & 0x0F;
+        dsk_cmdIn = dsk_dataIn & 0xF0;
+
+        // main dsk MEF
         switch(dsk_state) {
 
-            case DSK_INIT:
-                // Initialize DSK
-                dsk_init();
-                // Initialize MFCC structure/algo.
-                mfcc_init(&dsk_mfcc, &dsk_metVecTab);
 
-                dsk_state = DSK_TEST_ACQUISITION;
+        case DSK_INIT:
+            // Initialize DSK
+            dsk_init();
+            // Initialize MFCC structure/algo.
+            mfcc_init(&mfcc, &mfcc_metVecTab, &mfcc_speaker_list);
 
+            dsk_state = DSK_TRAIN_ACQUISITION;
+
+            break;
+
+
+        case DSK_IDLE:
+            DSK6713_LED_on(3);
+            if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT) {
+                dsk_state = dsk_cmdIn;
+                DSK6713_LED_off(3);
+                //the code will continue to check for further state/case (no break)
+            }
+            else
                 break;
 
-            case DSK_TEST_ACQUISITION:
-                // Initialize DSK
-                if (adcSample_rdy == 1) {
-                    mfcc_main(dsk_state, 100);
-                    adcSample_rdy = 0;
+
+
+        case DSK_TEST_INIT:
+            // First phase : get the number of speaker to be tested from PC
+            if(mfcc_speaker_list.tested_speaker_nb == 0) {
+                if (mfcc_speaker_list.speaker_nb >= dsk_indIn) {
+
+                    mfcc_speaker_list.tested_speaker_nb = dsk_indIn;
+                    mfcc_speaker_list.trained_speaker_ind = 0;//use as a temporary index
                 }
-                break;
+                else
+                    dsk_state = DSK_ERROR;
+            }
+            // Second phase : get the index of all speaker to be tested from PC
+            else if (dsk_dataIn_flag && dsk_dataIn_parsed_flag
+                    && mfcc_speaker_list.trained_speaker_ind < mfcc_speaker_list.tested_speaker_nb ) {
+
+                if (mfcc_speaker_list.speaker_data[mfcc_speaker_list.trained_speaker_ind].codebook.codeword_nb != 0) {
+                    mfcc_speaker_list.tested_speaker_ind[mfcc_speaker_list.trained_speaker_ind] = dsk_indIn;
+                    mfcc_speaker_list.trained_speaker_ind++;
+                }
+                else {
+                    mfcc_speaker_list.tested_speaker_nb = 0;
+                    dsk_state = DSK_ERROR;
+                }
+            }
+            else
+                dsk_state = DSK_TEST_ACQUISITION;
+            break;
+
+
+        case DSK_TRAIN_INIT:
+            mfcc_speaker_list.trained_speaker_ind = dsk_indIn;
+            dsk_state = DSK_TRAIN_ACQUISITION;
+            break;
+
+
+        case DSK_TEST_ACQUISITION:
+
+            if (adcSample_rdy == 1) {
+                adcSample_rdy = 0;
+                mfcc_main(&dsk_state, 100);
+            }
+
+            if (dsk_cmdIn == DSK_IDLE)
+                dsk_state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
+            break;
+
+        case DSK_TRAIN_ACQUISITION:
+
+            if (adcSample_rdy == 1) {
+                adcSample_rdy = 0;
+                mfcc_main(&dsk_state, 100);
+            }
+
+            if (dsk_cmdIn == DSK_IDLE) {
+
+                mfcc_speaker_list.tested_speaker_nb = 0;
+                dsk_state = DSK_IDLE;
+            }
+
+            break;
+
+
+
+        case DSK_TRAIN_CODEBOOK_CONSTRUCTION:
+            DSK6713_LED_on(1);
+            cb_construct_codebook(&mfcc_metVecTab,
+                                  &mfcc_speaker_list.speaker_data[mfcc_speaker_list.trained_speaker_ind].codebook,
+                                  CODEBOOK_CODEWORDS_NB,
+                                  mfcc_speaker_list.trained_speaker_ind , 0.001, 0.005);
+            DSK6713_LED_off(1);
+            dsk_state = DSK_IDLE;
+            break;
+
+        case DSK_ERROR:
+            //make sure to transmit the error state to the PC
+            DSK6713_LED_on(1);
+            DSK6713_LED_on(2);
+            DSK6713_LED_on(3);
+            DSK6713_LED_on(4);
+            if (dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
+                DSK6713_waitusec(1000000);
+                dsk_state = DSK_IDLE;
+                DSK6713_LED_off(1);
+                DSK6713_LED_off(2);
+                DSK6713_LED_off(3);
+                DSK6713_LED_off(4);
+            }
+            break;
+
         }
-        /*
-        switch(dsk_fsm_command) {
-        case DELETE_CMD :
-            fsm_delete_user();
-            break;
-        case ANALYZE_CMD :
-            fsm_analyze_user();
-            break;
-        case ADD_CMD :
-            fsm_add_user();
-            break;
-        }
-        */
+
+        dsk_stateCurr = dsk_state;
+        dsk_dataIn_flag = 0;// in data not new anymore
     }
 }
 
-interrupt void c_int11(void){
 
-    adcSample_rdy = 1;
-
-    if(adcCurrentInd == SIGNAL_BLOCK_SIZE) {               //Index tableau
-        adcCurrentInd = 0;
-        adcInitDone = 1;
-    }
-    adcRecord[adcCurrentInd] = input_left_sample();    //Tableau de données brutes
-    adcCurrSample = adcRecord[adcCurrentInd];
-    adcCurrPtr = adcRecord + adcCurrentInd;
-    //utilisé pour la détection de silence
-    adcSample_acc++;
-    if (adcSample_acc >= SIGNAL_BLOCK_OVERLAP) {
-        silenceDetection_rdy = 1;
-        adcSample_acc = 0;
-    }
-
-    output_left_sample(adcRecord[adcCurrentInd]);              //Obligatoire pour permettre de réactiver l'Interupt
-    adcCurrentInd++;
+/*
+switch(dsk_fsm_command) {
+case DELETE_CMD :
+    fsm_delete_user();
+    break;
+case ANALYZE_CMD :
+    fsm_analyze_user();
+    break;
+case ADD_CMD :
+    fsm_add_user();
+    break;
 }
+*/
 
 
-void dsk_init(void) {
-
-    DSK6713_init();
-    DSK6713_LED_init();
-    DSK6713_DIP_init();
-    // Initialize AIC
-    comm_intr();
-    DSK6713_waitusec(50);
-
-    SPI_init();
-    configAndStartTimer0(2812500*3);
-    init_ext_intr();
 
 
-    // Table emptying
-    mfcc_speaker_list.speaker_nb = 0;
-    int i = 0;
-    for (i = 0; i < 16; i++)
-    {
-        mfcc_speaker_list.speaker_data[i].codebook.codeword_nb = 0;
-        mfcc_speaker_list.speaker_data[i].isActive = 0;
-    }
-}
 
-//------------------------------------
-//  MFCC FUNCTIONS
-//------------------------------------
 
-void mfcc_main(short state, float silence_threshold) {
+
+
+
+
+
+
+void mfcc_main(char *state, float silence_threshold) {
 
     bool mfcc_rdy = 0; // vaut 1 lorsque "SIGNAL_BLOCK_OVERLAP" nouvelles données sont ajouté au buffer adcRecord
     float sound_amplitude = 0;
@@ -210,54 +294,115 @@ void mfcc_main(short state, float silence_threshold) {
     if (mfcc_rdy == 1) {
 
         //set the proper x to mfcc struct
-        mfcc_set_x(&dsk_mfcc, mfccCircBuffer, mfccCurrPtr);
+        mfcc_set_x(&mfcc, mfccCircBuffer, mfccCurrPtr);
         //get metric vectors
-        mfcc_get_metrics(met_curr.met, &dsk_mfcc);
+        mfcc_get_metrics(met_curr.met, &mfcc);
+
+    }
 
 
-        if (!mfcc_add_metVec(met_curr.met, &dsk_mfcc)) {
+    //------------------------------------
+    //  Extraction MFCC
+    //------------------------------------
+
+    //routine pitch, duplication de buffer circulaire (filtre FIR d'ordre 20)
+
+
+    if (mfcc_rdy == 1) {
+
+        //extraction du pitch avec autocorr
+
+        met_curr.met[0] = 0; // à changer
+
+    }
+    else {
+        return;
+    }
+
+    switch(*state) {
+
+    case DSK_TRAIN_ACQUISITION:
+    //------------------------------------
+    //  TRAIN
+    //------------------------------------
+        if (!mfcc_add_metVec(met_curr.met, &mfcc)) {
+
+            *state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
 
             //DEBUG SEULEMENT
             DSK6713_LED_on(0);
-            mfcc_write_metVecTab(&dsk_mfcc);
+            mfcc_write_metVecTab(&mfcc);
             DSK6713_LED_off(0);
+            //while(1);
+
+            return;
         }
+
+        break;
+
+
+    case DSK_TEST_ACQUISITION:
+    //------------------------------------
+    //  TEST
+    //------------------------------------
+
+        //détection d'index à faire
+
+        break;
     }
 }
 
 
-void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab) {
 
-    mfcc->x_size = SIGNAL_BLOCK_SIZE;
-    mfcc->mfcc_nb = MFCC_COEFFICIENT_NB;
-    mfcc->metVecTab = metVecTab;
-    mfcc->metVecTab->metVecTab_size = 0;
-    mfcc->metVecTab->metVec_size = METRIC_VECTOR_LENGTH;
 
-    //construct the hamming window table
-    mfcc_hamming_window_init(mfcc->hwin.h, mfcc->x_size);
 
-    //construct the melfilter bank
-    mfcc_melFilterBank_create(&mfcc->mfb, MEL_FILTER_FREQ_LOW, MEL_FILTER_FREQ_HIGH, MEL_FILTER_NB, (mfcc->x_size) >> 1, SAMPLE_RATE);
 
-    //generate the twiddle table, reverse index table, and cosine table for FFT and DCT
-    mfcc_fft_init(mfcc->fft.w, mfcc->fft.index, mfcc->x_size);
-    mfcc_dct_init(mfcc->dct.cosTab, mfcc->mfb.melFilter_nb, mfcc->mfb.melFilter_nb);
+
+
+interrupt void c_int11(void){
+
+    adcSample_rdy = 1;
+
+    if(adcCurrentInd == SIGNAL_BLOCK_SIZE) {               //Index tableau
+        adcCurrentInd = 0;
+        adcInitDone = 1;
+    }
+    adcRecord[adcCurrentInd] = input_left_sample();    //Tableau de données brutes
+    adcCurrSample = adcRecord[adcCurrentInd];
+    adcCurrPtr = adcRecord + adcCurrentInd;
+    //utilisé pour la détection de silence
+    adcSample_acc++;
+    if (adcSample_acc >= SIGNAL_BLOCK_OVERLAP) {
+        silenceDetection_rdy = 1;
+        adcSample_acc = 0;
+    }
+
+    output_left_sample(adcRecord[adcCurrentInd]);              //Obligatoire pour permettre de réactiver l'Interupt
+    adcCurrentInd++;
 }
 
 
-void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
+void dsk_init(void) {
 
-    //mfcc pipeline
-    mfcc_hamming_window (mfcc->x        , mfcc->hwin.h      );
-    float2complex       (mfcc->x        , mfcc->x_complex   , mfcc->x_size      );
-    mfcc_fft            (mfcc->x_complex, mfcc->fft.w       , mfcc->fft.index   , mfcc->x_size );
-    mfcc_powerSpectrum  (mfcc->x        , mfcc->x_complex   , mfcc->x_size      );//divide size by 2 (equivalent to right shift 1 bit)
-    mfcc_getMelCoeff    (mfcc->x        , mfcc->dct.coeff   ,&mfcc->mfb         );
-    mfcc_dct            (mfcc->dct.coeff, met               , mfcc->dct.cosTab  , mfcc->mfb.melFilter_nb    , mfcc->mfcc_nb );
+    DSK6713_init();
+    DSK6713_LED_init();
+    DSK6713_DIP_init();
+    // Initialize AIC
+    comm_intr();
+    DSK6713_waitusec(50);
 
-    //pitch pipeline (value store at the location of the first mfcc coefficient, which do not have any speaker dependant information)
+    SPI_init();
+    configAndStartTimer0(2812500*3);
+    init_ext_intr();
+
+    DSK6713_waitusec(1000000);
+
 }
+
+//------------------------------------
+//  MFCC FUNCTIONS
+//------------------------------------
+
 
 
 void fsm_delete_user(void) {
@@ -278,6 +423,7 @@ void fsm_add_user(void) {
     if (mfcc_speaker_list.speaker_nb < SPEAKER_NB_MAX) {
         char first_free_user = 0;
         while(mfcc_speaker_list.speaker_data[first_free_user].codebook.codeword_nb != 0) first_free_user++;
+
         mfcc_speaker_list.speaker_data[first_free_user].codebook.codeword_nb = 1;
         mfcc_speaker_list.speaker_nb++;
         printf("New user added at position %d\n", first_free_user);
