@@ -1,0 +1,32 @@
+
+   TB_2018-04-05_09h45m07s.txt
+
+------------------------------------------------
+         MFCC Pipeline         
+------------------------------------------------
+
+    Source file : mfcc_pipeline_x1.csv ,  mfcc_pipeline_y1.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_pipeline_x1.csv" succeed, RMS = 0.000000, rErrAvg = 0.007458 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         MFCC Pipeline         
+------------------------------------------------
+
+    Source file : mfcc_pipeline_x2.csv ,  mfcc_pipeline_y2.csv
+    data : 20 x 1
+
+
+S - Test "mfcc_pipeline_x2.csv" succeed, RMS = 0.000000, rErrAvg = 0.004319 % (0.500000 %)Threshold 
+
+------------------------------------------------
+         MFCC Pipeline         
+------------------------------------------------
+
+    Source file : mfcc_pipeline_x3.csv ,  mfcc_pipeline_y3.csv
+    data : 20 x 1
+
+
+S -
