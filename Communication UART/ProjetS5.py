@@ -75,6 +75,9 @@ class ApplicationProjetS5(tk.Frame):
         self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
 
+        self.writingThread = fn.RepeatedTimer(5, fn.writingSerial, self.realSerial, 5)
+        self.writingThread.start()
+
 
     def createWidgets(self):
         '''Create all the widgets for the GUI but the grid of orateur Buttons'''
@@ -139,9 +142,10 @@ class ApplicationProjetS5(tk.Frame):
     def readingThread(self, serialPort):
         '''read on the serial port and decode the command into an index and a status'''
         data =  fn.readSerial(serialPort)
-        if data != b'' : 
+        if data != b'' and data != b'\x00' : 
+            print(data)
             self.lastCommand = int.from_bytes(data, 'big')
-
+            self.lastCommand -= 16 #patch pour protection contre les données fantomes
             fn._8bitsRead(self.lastCommand, self)
 
 
@@ -185,19 +189,19 @@ class ApplicationProjetS5(tk.Frame):
         pathAndName = fn.imageDictionnary(index)
         if self.train : 
             if not self.trainButtonPressed : 
+                fn.writingSerial(self.realSerial, (index << 4) + 4)
                 fn.changeOrateur(index, self)
                 fn.changeLabelText(self.appMessageLabel, "Entrainement de " + pathAndName[1])
                 button.config(relief=tk.SUNKEN)
                 self.trainButtonPressed = True
-                fn.writingSerial(self.realSerial, (index << 4) + 4)
 
 
         elif self.start : 
             if self.orateurButtonPressed < self.orateurInDiscussion : 
+                fn.writingSerial(self.realSerial, (index << 4) + 2)
                 fn.changeOrateur(index, self)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
-                fn.writingSerial(self.realSerial, (index << 4) + 2)
 
                 self.orateurButtonPressed += 1 
 
@@ -212,7 +216,7 @@ class ApplicationProjetS5(tk.Frame):
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         
-        fn.writingSerial(self.realSerial, 255)  #send IDLE command
+        fn.writingSerial(self.realSerial, 1)  #send IDLE command
         self.train = False
         self.trainButtonPressed = False
         self.start = False

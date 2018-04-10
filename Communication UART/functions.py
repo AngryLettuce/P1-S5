@@ -41,7 +41,7 @@ def setVisible(widjet) :
 def dskStatusDictionnary(status, getlength=False) :
     '''holds the status of the dsk'''
     Dict = {  0  : 'INIT', 
-              1  : 'IDLE',
+              1  : 'IDLE', 
               2  : 'Test Init',
               3  : 'Test Acquisition',
               4  : 'Train Init',
@@ -57,7 +57,7 @@ def dskStatusDictionnary(status, getlength=False) :
         return len(Dict)
 
     if status not in Dict :
-        status = 15
+        status = len(Dict) - 1
 
     return Dict[status]
 
@@ -81,14 +81,14 @@ def imageDictionnary(Orateur, getlength=False):
               #12 : (r"newfeu_serviette.jpg", 'RIP serviette', ), 
               #13 : (r"newbutrice.jpg",       'Butrice',       ),
                       
-              15 : (r"newnoImage.jpg",       'Inconnu',     ),
+              14 : (r"newnoImage.jpg",       'Inconnu',     ),
              } 
 
     if getlength : 
         return len(Dict)
 
     if Orateur not in Dict :
-        Orateur = 15
+        Orateur = len(Dict) - 1
 
     return Dict[Orateur]
 
