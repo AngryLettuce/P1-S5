@@ -39,7 +39,7 @@ Explosion des tâches matériels et de la communication avec Thomas Roy. Plus cr
 \newline%
 \newline%
 %
-J'ai dessouder la section \textbackslash{}\newline%
+J'ai dessouder la section \textbackslash{}protoboard\textbackslash{} du pcb du PIC et dégager les beignes obstrués (fini à 80\%). Il reste seulement une composante à déssouder pour laquelle je vais avoir besoin d'un coup de main et quelques beignes à dégager.\newline%
 \newline%
 %
 \textbf{Date : }%
@@ -104,6 +104,91 @@ J'ai créé le plan unitaire matériel qui comprend aussi les tests de communica
 \newline%
 %
 Analyser les connexions exacte nécessaire et production du schémas électrique.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{16:35:02}%
+\newline%
+%
+\textbf{P1{-}108 }%
+\textbf{ : }%
+\textbf{ 4.3 {-} Adapter le matériel initial pour répondre aux besoins du projet}%
+\newline%
+\newline%
+%
+{-} Finaliser le dessoudage sur le PIC, soit le dessoudage du relais.\newline%
+{-} Souder les connecteurs sur le PIC et sur le DSK et les liens des connecteurs vers les points de raccordement sur les PCBs.\newline%
+{-} Faire les câbles qui vont se raccorder aux connecteurs\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}30}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{13:40:26}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+Configuration du SPI sur le PIC et test de communications pour l'instant on utilise MCBSP1 on pourra changer si nécessaire. \newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}30}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{13:43:34}%
+\newline%
+%
+\textbf{P1{-}37 }%
+\textbf{ : }%
+\textbf{ 2.1 {-} Déterminer les spécifications du SPI}%
+\newline%
+\newline%
+%
+Modification de le configuration SPI de l'app pour le DSP. Prend des flats câbles pour brancher le motherboard du DSK au DSK. \newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}03}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{17:03:15}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+{-} Les connecteurs du PIC au UART to USB ont étés refait.\newline%
+{-} Les fils MOSI et MISO ont étés inversés sur un des connecteurs du câble de communication SPI.\newline%
+{-} Correction de la communication du DSK vers le GUI qui est maintenant fonctionnel. \newline%
+{-} La communication du GUI vers le DSK n'est pas encore complètement fonctionnel. Il faudra probablement activer le FSX en permanence sur le PIC. \newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}05}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{12:06:39}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+Poursuite sur le débogage de la communication SPI du PIC vers le DSK. La situation c'est amélioré par apport à la dernière fois, mais la communication n'est pas encore parfaitement au point. La DEL du DSK ne répond pas parfaitement au commande du PC.\newline%
 \newline%
 %
 \newpage
@@ -394,6 +479,223 @@ Optimisation de la classe de thread et ajout de deux fonctions pour démarrer et
 Diagramme de classe retravaillé en ajoutant une description des fonctions\newline%
 \newline%
 %
+\textbf{Date : }%
+\textbf{2018{-}03{-}15}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{15:41:11}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+exploration de la possibilité de faire des tabs afin d'ajouté des users, mais idée rejetée.~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}15}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{22:28:02}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+ajout d'une image par défaut et avancement du visuel du GUI en utilisant la méthode pack() avec des Frame intermédiaire.~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{15:44:23}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+Ajout du label pour le nom de l'orateur et sizing des photos pour qu'elles soient tous de la même grandeure 381 * 285 px\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{22:15:30}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+Construction du dictionnaire complet pour les orateurs de l'équipe avec les photo de profil facebook...~\newline%
+Aussi, ajout de fonction plus générales pour changer les paramètres des widgets déjà en place\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}20}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{18:36:58}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+Ajout d'un scaler et d'une fonction pour cycler les orateurs\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}21}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{16:35:25}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+La communication entre le pic et le PC fonctionne. En echo, le pic renvoi exactement ce que le GUI envoie.\newline%
+Par contre, lorsque le PIC envoi des info, il y a une perte d'informations. Il faudra investigué la source de cette perte.~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}23}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{23:04:52}%
+\newline%
+%
+\textbf{P1{-}107 }%
+\textbf{ : }%
+\textbf{ 3.4 Concevoir un GUI alléchant}%
+\newline%
+\newline%
+%
+Changement majeurs dans l'application :~\newline%
+ \# Ajout d'une fonction pour resizer les images selon les besoins visuels futurs\newline%
+ \# Changement de la méthode d'encoding pour maintenant utiliser des bytes et ainsi pouvoir lire les informations envoyés par le PIC\newline%
+ \# Déplacement de pratiquement toutes les fonctions vers un deuxième fichiers .py pour ne pas encombrer le programme principal\newline%
+ \# Ajout du binding enter sur le textbox principal\newline%
+ \# Ajout du dictionnaire des états du dsk~\newline%
+ \# Changement de la nomenclature des index des orateurs pour s'accorder avec les infos du pic\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}02}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{18:09:31}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Modification du code pic pour la communication entre PC et PIC, peu de résultats fructueux. Le pic envoie des drôle de choses, la configuration UART de ce dernier serait à confirmer\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}03}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{16:54:11}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+La communication du DSK au pic au PC fonctionne. Il est possible d'envoyer un index d'orateur et d'afficher l'image sur le GUI. Il y avait des problèmes de synchronisation avant et en ajoutant des délais sur le DSK ça donne le temps au PIC d'envoyer les bonnes informations.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}04}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{10:14:40}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Ajout des routines pour lire soit sur 8 bits l'index et le status ou soit sur 2 * 8 bits\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}05}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{14:16:47}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Ajout du bouton train et des boutons individuels par orateur pour l'envoie facile de l'orateur par le PC\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}05}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{21:08:14}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Ajout des routine de train et de start ainsi que de la réinitialisation de tout le GUI avec le bouton STOP.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}07}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{22:53:27}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Changement dans la routine de start :~\newline%
+retrait du writing box et ajout d'un scaler à la place\newline%
+\newline%
+%
 \newpage
 
 %
@@ -653,6 +955,104 @@ Mise a jour finale des fonctions d'autocorrelation pour la demo. Le schema bloc 
 Courbe en S mise à jour pour la revue 2. Reste à mettre a jour le diagramme de gantt.\newline%
 \newline%
 %
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{16:29:08}%
+\newline%
+%
+\textbf{P1{-}64 }%
+\textbf{ : }%
+\textbf{ Revue 2 {-} Améliorer la gestion du temps}%
+\newline%
+\newline%
+%
+Diagramme de gantt mis a jour pour la revue\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}09}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{08:41:55}%
+\newline%
+%
+\textbf{P1{-}217 }%
+\textbf{ : }%
+\textbf{ 9.5 {-} Filtre FIR prétraitement auto{-}corrélation}%
+\newline%
+\newline%
+%
+Coefficient du filtre calculé sur matlab à l'aide de fir1. Ordre N = 20,~ Fc = 300Hz\textbackslash{}/{-}3dB.\newline%
+Implémentation initiale terminée.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}09}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{08:42:26}%
+\newline%
+%
+\textbf{P1{-}217 }%
+\textbf{ : }%
+\textbf{ 9.5 {-} Filtre FIR prétraitement auto{-}corrélation}%
+\newline%
+\newline%
+%
+Création d'un test bench pour la demo 2\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}09}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{08:43:29}%
+\newline%
+%
+\textbf{P1{-}217 }%
+\textbf{ : }%
+\textbf{ 9.5 {-} Filtre FIR prétraitement auto{-}corrélation}%
+\newline%
+\newline%
+%
+Modification effectués afin de filtrer un échantillon à la fois au lieu d'une trame de 256 à la fois.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}09}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{08:44:28}%
+\newline%
+%
+\textbf{P1{-}218 }%
+\textbf{ : }%
+\textbf{ 9.6 {-} Fonction du calcul de pitch}%
+\newline%
+\newline%
+%
+Fonction implémenté en C\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}09}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{08:45:43}%
+\newline%
+%
+\textbf{P1{-}217 }%
+\textbf{ : }%
+\textbf{ 9.5 {-} Filtre FIR prétraitement auto{-}corrélation}%
+\newline%
+\newline%
+%
+Note : A considérer, ajouter une protection au cas que le filtre dépasse les bornes du tableau d'entrée.\newline%
+\newline%
+%
 \newpage
 
 %
@@ -825,6 +1225,55 @@ Tension d'offset déjà gerée\newline%
 \newline%
 %
 {-}Buffer circulaire de données de 256 x short signé fonctionnel! Dans la SDRAM. Travaillé avec PY\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}03}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{11:45:10}%
+\newline%
+%
+\textbf{P1{-}112 }%
+\textbf{ : }%
+\textbf{ 1.3 {-} Buffer données}%
+\newline%
+\newline%
+%
+Ajout du buffer de données en C puis intégration avec le code du projet. (Travail avec P{-}Y, intégrer avec Raph)\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}08}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{17:05:49}%
+\newline%
+%
+\textbf{P1{-}78 }%
+\textbf{ : }%
+\textbf{ Team Meeting\textbackslash{}/Tuto {-} W13}%
+\newline%
+\newline%
+%
+Création de l'ODJ et planification de la réunion\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}08}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{17:08:27}%
+\newline%
+%
+\textbf{P1{-}23 }%
+\textbf{ : }%
+\textbf{ 1.2 {-} Paramétrage (configuration) ADC}%
+\newline%
+\newline%
+%
+ADC fonctionnel intégré dans le code !\newline%
 \newline%
 %
 \newpage
@@ -1082,6 +1531,88 @@ Structure global détaillé presque fini\newline%
 ~\newline%
 \newline%
 %
+\textbf{Date : }%
+\textbf{2018{-}03{-}15}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{22:31:30}%
+\newline%
+%
+\textbf{P1{-}204 }%
+\textbf{ : }%
+\textbf{ Diagramme des fonctions}%
+\newline%
+\newline%
+%
+Structure final du diagramme de fonction du DSK, explication de l'algorithme sous forme de power point\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{12:45:53}%
+\newline%
+%
+\textbf{P1{-}183 }%
+\textbf{ : }%
+\textbf{ Test unitaire}%
+\newline%
+\newline%
+%
+Création de la fonction principale et les fonctions auxiliaires. Manque à tester la fonction\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}03}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{14:07:22}%
+\newline%
+%
+\textbf{P1{-}137 }%
+\textbf{ : }%
+\textbf{ 8.10 Réaliser l'algorithme de construction du codebook}%
+\newline%
+\newline%
+%
+Réalisation de la fonction de testbench et début de validation, il reste encore des problèmes dans la fonction testé\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}07}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{22:40:34}%
+\newline%
+%
+\textbf{P1{-}137 }%
+\textbf{ : }%
+\textbf{ 8.10 Réaliser l'algorithme de construction du codebook}%
+\newline%
+\newline%
+%
+La fonction est testé et fonctionnelle\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}08}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{19:14:19}%
+\newline%
+%
+\textbf{P1{-}124 }%
+\textbf{ : }%
+\textbf{ 2.3 {-} Implémentation du code avec le setup du projet}%
+\newline%
+\newline%
+%
+intégration de l'ADC, SPI et de l'extraction des métriques et de la construction du dictionnaire\newline%
+\newline%
+%
 \newpage
 
 %
@@ -1131,7 +1662,7 @@ J'ai commencé à lire pour regarder les différentes approches afin de faire la
 \newline%
 \newline%
 %
-Le plan de test pour l'autocorrélation sur Matlab est complété. Le document a été déposé dans le dossier \textbackslash{}\newline%
+Le plan de test pour l'autocorrélation sur Matlab est complété. Le document a été déposé dans le dossier \textbackslash{}Testing\textbackslash{} de Team.\newline%
 \newline%
 %
 \textbf{Date : }%
@@ -1147,7 +1678,7 @@ Le plan de test pour l'autocorrélation sur Matlab est complété. Le document a
 \newline%
 \newline%
 %
-Le plan de test pour l'autocorrélation en C est complété. Le document a été déposé dans le dossier \textbackslash{}\newline%
+Le plan de test pour l'autocorrélation en C est complété. Le document a été déposé dans le dossier \textbackslash{}Testing\textbackslash{} de Team.\newline%
 \newline%
 %
 \textbf{Date : }%
@@ -1163,7 +1694,7 @@ Le plan de test pour l'autocorrélation en C est complété. Le document a été
 \newline%
 \newline%
 %
-Le plan de test pour l'autocorrélation en assembleur sur Code Composer Studio est complété. Le document a été déposé dans le dossier \textbackslash{}\newline%
+Le plan de test pour l'autocorrélation en assembleur sur Code Composer Studio est complété. Le document a été déposé dans le dossier \textbackslash{}Testing\textbackslash{} de Team.\newline%
 \newline%
 %
 \textbf{Date : }%
@@ -1181,6 +1712,54 @@ Le plan de test pour l'autocorrélation en assembleur sur Code Composer Studio e
 %
 Le document d'asusurance a été mise à jour selon les quelques changements apportés depuis le début du projet. La nouvelle version est disponible sur le Microsoft Team. De plus, le plan d'assurance~ qualité niveaux 3 et 4~ a été complété pour la revue 2\newline%
 ~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}21}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{10:03:47}%
+\newline%
+%
+\textbf{P1{-}214 }%
+\textbf{ : }%
+\textbf{ Faire du ménage dans les fichiers}%
+\newline%
+\newline%
+%
+Le ménage a été fait dans les fichiers. Tout les documents ont été séparé dans 4 dossiers principaux. Il faudra faire attention de bien trier les nouveaux documents ajoutés dans ces dossiers\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}22}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{09:11:54}%
+\newline%
+%
+\textbf{P1{-}215 }%
+\textbf{ : }%
+\textbf{ Réalisation d'un contrat de travail}%
+\newline%
+\newline%
+%
+Le contrat de travail a été complété et corrigé avec Pascal Beaulieu. La mise en page a aussi été retravaillée. La derniène version est disponible sur Team à tout les membres de l'équipe\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}02}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{18:19:57}%
+\newline%
+%
+\textbf{P1{-}216 }%
+\textbf{ : }%
+\textbf{ Extraction de l'index}%
+\newline%
+\newline%
+%
+Les fonctions servant à faire l'extraction de l'index ont été implémentées. Ils restent désormais à les tester avec le testbench afin~ de s'assurer qu'elles fonctionnent comme elles se doivent.\newline%
 \newline%
 %
 \newpage
@@ -1251,6 +1830,204 @@ La facture est sur le team.\newline%
 \newline%
 %
 Mise à jour du powerpoint du schéma matériel sur team.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}19}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{16:27:54}%
+\newline%
+%
+\textbf{P1{-}108 }%
+\textbf{ : }%
+\textbf{ 4.3 {-} Adapter le matériel initial pour répondre aux besoins du projet}%
+\newline%
+\newline%
+%
+{-}Dessoudage du relais sur la motherboard PIC\newline%
+{-}Soudage des connecteurs sur motherboard PIC et DSK et PC\newline%
+{-}Création des câbles pour communiquer entre les différents modules du projet.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}20}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{10:06:40}%
+\newline%
+%
+\textbf{P1{-}111 }%
+\textbf{ : }%
+\textbf{ 3.2 Recherche du protocole à utiliser pour la communication UART}%
+\newline%
+\newline%
+%
+On va utiliser un USB to UART. Cette tâche a été complété en même temps que P1{-}46.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}20}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{13:21:27}%
+\newline%
+%
+\textbf{P1{-}213 }%
+\textbf{ : }%
+\textbf{ Création d'un projet MPLAB pour la programmation du PIC18F67J94}%
+\newline%
+\newline%
+%
+Création d'un projet MPLAB et configuration EUART (non testé!!!!). Il y avait des problèmes au début, le PIC KIT ne détectait pas le PIC. Il y avait un short entre le GND et le VCC. Le problème est corrigé. Le projet compile et je suis en mesure de programmer le PIC.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}20}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{18:52:16}%
+\newline%
+%
+\textbf{P1{-}213 }%
+\textbf{ : }%
+\textbf{ Création d'un projet MPLAB pour la programmation du PIC18F67J94}%
+\newline%
+\newline%
+%
+J'ai configuré le UART correctement avec un baudrate de 19200, j'ai fait des tests avec des printf et une console tout va bien.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}20}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{20:55:18}%
+\newline%
+%
+\textbf{P1{-}213 }%
+\textbf{ : }%
+\textbf{ Création d'un projet MPLAB pour la programmation du PIC18F67J94}%
+\newline%
+\newline%
+%
+Test des interrupts~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}22}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{14:56:44}%
+\newline%
+%
+\textbf{P1{-}106 }%
+\textbf{ : }%
+\textbf{ 3.1 Obtenir une application compatible UART}%
+\newline%
+\newline%
+%
+Modification du code PIC pour améliorer la communication entre le PIC et le PC. Nous sommes maintenant en mesure de communiquer efficacement avec le PC.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}30}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{13:35:40}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+Configuration du SPI sur le PIC et test de communications pour l'instant on utilise MCBSP1 on pourra changer si nécessaire.~\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}03{-}30}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{13:36:22}%
+\newline%
+%
+\textbf{P1{-}37 }%
+\textbf{ : }%
+\textbf{ 2.1 {-} Déterminer les spécifications du SPI}%
+\newline%
+\newline%
+%
+On a configurer le SPI correctement dans le code du DSK\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}03}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{17:01:35}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+Réparation des connecteurs (câbles multibrins et inverser SDi et SDO du PIC)\newline%
+Correction de la config des interrupts SPI. La communication du DSK vers le PC se fait bien. Cependant, il faut retravailler la communication du PC vers le DSK. Le positif la dedans c'est qu'on est en mesure de faire afficher chaque orateur en intégrant un certain délai (300 ms) entre chaque transmission.~\newline%
+~\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}05}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{12:05:10}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+Amélioration de la communication du PC vers le DSK. Il reste encore du travail à faire au niveau du timing. On contrôle l'interruption via le timer0.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}05}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{17:26:16}%
+\newline%
+%
+\textbf{P1{-}38 }%
+\textbf{ : }%
+\textbf{ 2.2 {-} Conception du modèle ''C'' de la comunication SPI}%
+\newline%
+\newline%
+%
+J'ai débuggué le probleme de la communication SPI du PC vers le DSK.\newline%
+\newline%
+%
+\textbf{Date : }%
+\textbf{2018{-}04{-}08}%
+\textbf{,}%
+\textbf{ Heure : }%
+\textbf{19:11:40}%
+\newline%
+%
+\textbf{P1{-}124 }%
+\textbf{ : }%
+\textbf{ 2.3 {-} Implémentation du code avec le setup du projet}%
+\newline%
+\newline%
+%
+intégration de l'ADC, SPI et de l'extraction des métriques et de la construction du dictionnaire, J'ai aussi refait un des connecteurs...\newline%
 \newline%
 %
 \newpage
