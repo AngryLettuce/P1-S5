@@ -29,6 +29,29 @@
 #include <csl_mcbsp.h>
 #include <csl.h>
 #include "SPI_driver.h"
+#include "codebook.h"
+
+
+//data codebook
+
+#include "../Debug/codebook0.dat"
+#include "../Debug/codebook1.dat"
+#include "../Debug/codebook2.dat"
+#include "../Debug/codebook3.dat"
+#include "../Debug/codebook4.dat"
+#include "../Debug/codebook5.dat"
+#include "../Debug/codebook6.dat"
+#include "../Debug/codebook7.dat"
+#include "../Debug/codebook8.dat"
+#include "../Debug/codebook9.dat"
+#include "../Debug/codebookA.dat"
+#include "../Debug/codebookB.dat"
+#include "../Debug/codebookC.dat"
+#include "../Debug/codebookD.dat"
+
+
+#define LOAD_CODEBOOK_DATA 1
+
 
 //---------------------------------
 //COMMUNICATION
@@ -103,7 +126,6 @@ MetVecTab       mfcc_metVecTab;
 
 void dsk_main(void) {
 
-    int i;
     dsk_state = DSK_INIT;
     dsk_indexCurr = SPEAKER_IND_UNKNOW;
     dsk_stateCurr = dsk_state;
@@ -125,15 +147,19 @@ void dsk_main(void) {
         case DSK_INIT:
             // Initialize DSK
             dsk_init();
+
             // Initialize MFCC structure/algo.
             mfcc_init(&mfcc, &mfcc_metVecTab, &mfcc_speaker_list);
-
+            codebook_init();
             dsk_state = DSK_IDLE;
 
             break;
 
 
         case DSK_IDLE:
+            DSK6713_LED_off(0);
+            DSK6713_LED_off(1);
+            DSK6713_LED_off(2);
             DSK6713_LED_on(3);
             if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
 
@@ -145,6 +171,13 @@ void dsk_main(void) {
                     DSK6713_LED_off(3);
                     //the code will continue to check for further state/case (no break)
                 }
+            }
+            if (!DSK6713_DIP_get(0)){
+                DSK6713_LED_on(0);
+                DSK6713_LED_on(1);
+                mfcc_write_codebook(&mfcc_speaker_list, filename);
+                DSK6713_LED_off(0);
+                DSK6713_LED_off(1);
             }
             break;
 
@@ -251,19 +284,14 @@ void dsk_main(void) {
 
         case DSK_ERROR:
             //make sure to transmit the error state to the PC
-            dsk_indexCurr = dsk_indIn;
+            dsk_indexCurr = SPEAKER_IND_UNKNOW;
             DSK6713_LED_on(0);
             DSK6713_LED_on(1);
             DSK6713_LED_on(2);
             DSK6713_LED_on(3);
-            //if (dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
-                DSK6713_waitusec(1000000);
-                dsk_state = DSK_IDLE;
-                DSK6713_LED_off(0);
-                DSK6713_LED_off(1);
-                DSK6713_LED_off(2);
-                DSK6713_LED_off(3);
-            //}
+
+            if(dsk_dataIn_flag && dsk_dataIn_parsed_flag && dsk_cmdIn == DSK_IDLE)
+                dsk_state = dsk_cmdIn;
             break;
 
         }
@@ -275,7 +303,27 @@ void dsk_main(void) {
 
 
 
+void codebook_init() {
 
+    if (LOAD_CODEBOOK_DATA == 0)
+        return;
+
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[0].codebook, codebook0);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[1].codebook, codebook1);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[2].codebook, codebook2);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[3].codebook, codebook3);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[4].codebook, codebook4);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[5].codebook, codebook5);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[6].codebook, codebook6);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[7].codebook, codebook7);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[8].codebook, codebook8);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[9].codebook, codebook9);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[10].codebook, codebookA);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD);
+
+}
 
 
 

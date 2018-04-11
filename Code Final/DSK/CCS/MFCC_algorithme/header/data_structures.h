@@ -47,7 +47,7 @@
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
-#define SPEAKER_NB_MAX 16
+#define SPEAKER_NB_MAX 14
 #define SPEAKER_IND_UNKNOW 14
 
 //index

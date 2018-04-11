@@ -93,6 +93,11 @@ short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_si
 short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd, short threshold);
 
 
+//------------------------------------
+//  CODEBOOK STORE FUNCTION
+//------------------------------------
 
+void mfcc_write_codebook(SpeakerDataList *speakerDataList, char *username[]);
+void mfcc_read_codebook(Codebook *codebook, float *data);
 
 #endif /* INCLUDE_MFCC_H_ */

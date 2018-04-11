@@ -124,6 +124,55 @@ void mfcc_write_metVecTab(MFCCModule *mfcc) {
 }
 
 
+
+void mfcc_write_codebook(SpeakerDataList *speakerDataList, char *username[]) {
+
+    FILE *fptr;
+    int i, j, k;
+    char name[100];
+   for(i = 0; i < SPEAKER_NB_MAX; i++) {
+
+       if (speakerDataList->speaker_data[i].codebook.codeword_nb > 0) {
+
+           strcpy(name, username[i]);
+           strcat(name, ".dat");
+
+
+           fptr = fopen(name, "w");
+           fprintf(fptr, "float %s[] = {", username[i]);
+           if(fptr != NULL)
+               for(j = 0; j < CODEBOOK_CODEWORDS_NB; j++) {
+                   for(k = 0; k < METRIC_VECTOR_LENGTH; k++){
+                       if(j == CODEBOOK_CODEWORDS_NB-1 && k == METRIC_VECTOR_LENGTH-1){
+                           fprintf(fptr, "%f };", speakerDataList->speaker_data[i].codebook.codeword[j].met[k]);
+                       }
+                       else{
+                           fprintf(fptr, "%f, ", speakerDataList->speaker_data[i].codebook.codeword[j].met[k]);
+                       }
+                   }
+                   fprintf(fptr, "\n");
+               }
+
+
+           fclose(fptr);
+       }
+   }
+}
+
+void mfcc_read_codebook(Codebook *codebook, float *data) {
+
+    int j, k;
+    for(j = 0; j < CODEBOOK_CODEWORDS_NB; j++) {
+        for(k = 0; k < METRIC_VECTOR_LENGTH; k++){
+            codebook->codeword[j].met[k] = data[j*METRIC_VECTOR_LENGTH + k];
+        }
+    }
+    codebook->codeword_nb = CODEBOOK_CODEWORDS_NB;
+}
+
+
+
+
 //--------------------------------------------
 //  HAMMING WINDOW
 //--------------------------------------------
