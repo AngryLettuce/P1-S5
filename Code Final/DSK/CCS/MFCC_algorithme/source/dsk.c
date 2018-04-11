@@ -30,13 +30,13 @@
 #include <csl.h>
 #include "SPI_driver.h"
 
-
+//---------------------------------
 //COMMUNICATION
-
+//---------------------------------
 bool  dsk_dataIn_flag = 0;
 bool  dsk_dataIn_parsed_flag = 0;
 Uint8 dsk_dataIn = 0;
-Uint8 dsk_indexCurr = SPEAKER_NB_MAX - 2; //vaut 14 = orateur inconnue
+Uint8 dsk_indexCurr = SPEAKER_IND_UNKNOW; //vaut 14 = orateur inconnue
 Uint8 dsk_stateCurr = 0; //Uint8 à remettre à short si problème
 
 short dsk_indIn = 0;
@@ -48,25 +48,35 @@ char dsk_fsm_command = 0;
 
 volatile bool btn_pressed_flag = false;
 
+
+//---------------------------------
 //Tableau donnees brute AIC
+//---------------------------------
 short adcRecord[SIGNAL_BLOCK_SIZE] = {0};
 short adcCurrSample = 0;
 short *adcCurrPtr = adcRecord;
-bool adcSample_rdy = 0;
-
-//#pragma DATA_SECTION(record,".EXT_RAM")
-
 int adcCurrentInd = 0;
+bool adcSample_rdy = 0;
 bool adcInitDone = 0;
 
+//---------------------------------
 //Tableau donnees coefficient mfcc
+//---------------------------------
 float mfccCircBuffer[SIGNAL_BLOCK_SIZE] = {0};
 float mfccCurrSample = 0;
 float *mfccCurrPtr = mfccCircBuffer;
-//#pragma DATA_SECTION(record,".EXT_RAM")
 
 
+//---------------------------------
+//Tableau donnees coefficient mfcc
+//---------------------------------
+short spkerIndBuffer[INDEX_BUFFER_SIZE] = {SPEAKER_IND_UNKNOW};
+short *spkerCurrPtr = spkerIndBuffer;
+short spkerModeInd = SPEAKER_IND_UNKNOW;
+
+//---------------------------------
 //Param détection silence
+//---------------------------------
 short sample_acc = 0;
 float beta_acc = 0;
 int adcSample_acc = 0;
@@ -74,8 +84,9 @@ bool silenceDetection_rdy = 0;
 
 
 
-
+//---------------------------------
 //STRUCTURE
+//---------------------------------
 SpeakerDataList mfcc_speaker_list;
 MFCCModule      mfcc;
 MetVecTab       mfcc_metVecTab;
@@ -93,7 +104,7 @@ void dsk_main(void) {
 
     int i;
     dsk_state = DSK_INIT;
-    dsk_indexCurr = SPEAKER_NB_MAX - 2;
+    dsk_indexCurr = SPEAKER_IND_UNKNOW;
     dsk_stateCurr = dsk_state;
 
 
@@ -126,6 +137,8 @@ void dsk_main(void) {
             if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
 
                 dsk_dataIn_flag = 0;// in data not new anymore
+
+                dsk_indexCurr = SPEAKER_IND_UNKNOW;
                 if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT) {
                     dsk_state = dsk_cmdIn;
                     DSK6713_LED_off(3);
@@ -172,8 +185,11 @@ void dsk_main(void) {
 
         case DSK_TRAIN_INIT:
             if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
-                DSK6713_waitusec(1000000);
                 dsk_dataIn_flag = 0;// in data not new anymore
+
+                DSK6713_waitusec(1000000);
+
+                dsk_indexCurr = dsk_indIn;
                 mfcc_speaker_list.trained_speaker_ind = dsk_indIn;
                 dsk_state = DSK_TRAIN_ACQUISITION;
             }
@@ -227,6 +243,7 @@ void dsk_main(void) {
 
         case DSK_ERROR:
             //make sure to transmit the error state to the PC
+            dsk_indexCurr = dsk_indIn;
             DSK6713_LED_on(0);
             DSK6713_LED_on(1);
             DSK6713_LED_on(2);
@@ -348,11 +365,10 @@ void mfcc_main(char *state, float silence_threshold) {
 
             *state = DSK_TRAIN_CODEBOOK_CONSTRUCTION;
 
-            //DEBUG SEULEMENT
+            ////DEBUG SEULEMENT
             //DSK6713_LED_on(0);
             //mfcc_write_metVecTab(&mfcc);
             //DSK6713_LED_off(0);
-            //while(1);
 
             return;
         }
@@ -365,12 +381,21 @@ void mfcc_main(char *state, float silence_threshold) {
     //  TEST
     //------------------------------------
 
-        //détection d'index à faire
+        //ajout de l'index extrait et détecté dans le buffer circulaire d'index
+        *spkerCurrPtr = spkrec_get_speakerInd(met_curr.met, &mfcc_speaker_list);
+        spkerCurrPtr++;
+        if (spkerCurrPtr >= spkerIndBuffer + INDEX_BUFFER_SIZE)
+            spkerCurrPtr =  spkerIndBuffer;
+
+        //index extracted from mode
+        spkerModeInd = spkrec_get_modeSpeakerInd(spkerIndBuffer, spkerCurrPtr - 1, INDEX_MODE_SIZE, INDEX_BUFFER_SIZE);
+
+        //index extracted from accumulator
+        dsk_indexCurr =  spkrec_get_thresholdSpeakerInd(spkerModeInd, dsk_indexCurr, INDEX_ACCUMULATOR_THRESHOLD);
 
         break;
     }
 }
-
 
 
 
