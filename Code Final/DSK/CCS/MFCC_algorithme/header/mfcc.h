@@ -84,8 +84,13 @@ void cb_construct_codebook(MetVecTab *metVecTab,
 
 void cb_clear_metVecTab(MetVecTab *metVecTab);
 
+//------------------------------------
+//  SPEAKER INDEX FUNCTION
+//------------------------------------
 
-
+short spkrec_get_speakerInd(float *met,SpeakerDataList *speakerList);
+short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_size, int bank_size);
+short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd, short threshold);
 
 
 
