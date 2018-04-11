@@ -42,11 +42,18 @@
 
 //metrics
 #define METRIC_VECTOR_LENGTH        13
-#define METRIC_VECTOR_TAB_LENGTH    10000
+#define METRIC_VECTOR_TAB_LENGTH    5000
+#define SILENCE_THRESHOLD           200
 
 //codebook
 #define CODEBOOK_CODEWORDS_NB 16
 #define SPEAKER_NB_MAX 16
+#define SPEAKER_IND_UNKNOW 14
+
+//index
+#define INDEX_BUFFER_SIZE 256
+#define INDEX_MODE_SIZE 100
+#define INDEX_ACCUMULATOR_THRESHOLD 50
 
 //mel filter bank
 #define MEL_FILTER_NB     20

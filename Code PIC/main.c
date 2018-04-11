@@ -42,6 +42,7 @@ void interrupt high_priority DSK(void)
         if(TXSTA1bits.TRMT){
             TXREG1 = SSP1BUF; //envoi au PC
             SSP1BUF = dataUART;
+            dataUART = 0;
             
         }
     }

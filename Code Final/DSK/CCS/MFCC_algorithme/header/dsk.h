@@ -28,12 +28,7 @@ typedef enum DSKstate {
 void dsk_main(void);
 void dsk_init(void);
 void mfcc_main(char *state, float silence_threshold);
-void fsm_delete_user(void);
-void fsm_add_user(void);
-void fsm_analyze_user(void);
 
-char btn_dbnc(void);
-void interrupt itr7_fsm_btn_pressed(void);
-void c_int11(void);
+interrupt void c_int11(void);
 
 #endif /* HEADER_DSK_H_ */
