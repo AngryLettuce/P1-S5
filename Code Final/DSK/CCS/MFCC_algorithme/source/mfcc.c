@@ -38,6 +38,7 @@ void mfcc_init(MFCCModule *mfcc, MetVecTab *metVecTab, SpeakerDataList *speakerD
 
     //speaker_data_list
     speakerDataList->speaker_nb = 0;
+    speakerDataList->tested_speaker_nb = 0;
 
     for(i = 0; i < SPEAKER_NB_MAX; i++) {
         speakerDataList->speaker_data[i].isActive = 0;
@@ -432,6 +433,9 @@ void cb_construct_codebook(MetVecTab *metVecTab,
     int metVec_size = metVecTab->metVec_size;
     int metVecTab_size = metVecTab->metVecTab_size;
 
+
+    codebook->codeword_nb = codebook_size;
+
     //reset codebook
     for(i = 0; i < codebook_size; i++) {
         farray_reset(codebook->codeword[i].met, 0, metVec_size);
@@ -550,7 +554,7 @@ short spkrec_get_speakerInd(float *met,SpeakerDataList *speakerList)   {
             if(temp < minTemp)
             {
                 minTemp = temp;
-                speakerInd = speakerList->speaker_data[i].speaker_ind;
+                speakerInd = i;
             }
         }
     }

@@ -4,7 +4,9 @@
 
 extern bool dsk_dataIn_flag;
 extern bool dsk_dataIn_parsed_flag;
+
 extern Uint8 dsk_dataIn;
+extern Uint8 dsk_dataIn_last;
 extern Uint8 dsk_indexCurr; //Uint8 à remettre à short si problème
 extern Uint8 dsk_stateCurr; //Uint8 à remettre à short si problème
 
@@ -114,12 +116,15 @@ interrupt void c_int04(void){
     static Uint8 dataIn_temp = 0;
     SPI_write(((dsk_indexCurr + 1) << 4) | dsk_stateCurr);
 
-    dataIn_temp = SPI_read();
-    if (dataIn_temp != 0)
-        dsk_dataIn = dataIn_temp;
+    dsk_dataIn_last = dsk_dataIn;//keep track of last datain
 
-    dsk_dataIn_flag = 1; //tell the dsk that the SPI data is new
-    dsk_dataIn_parsed_flag = 0; //tell to the dsk main that new data has not been parsed
+    dataIn_temp = SPI_read();
+    if (dataIn_temp != 0) {
+        dsk_dataIn = dataIn_temp;
+        dsk_dataIn_flag = 1; //tell the dsk that the SPI data is new
+        dsk_dataIn_parsed_flag = 0; //tell to the dsk main that new data has not been parsed
+    }
+
 }
 
 void configAndStartTimer0(unsigned int prd){
