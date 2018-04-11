@@ -22,6 +22,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurInDiscussion  = 0
         self.start = False
         self.startInit = False
+        self.OngoinConv = False
         self.lastCommand = None
         self.confirmOrateur = False
         self.MaxOrateur = fn.imageDictionnary(0, True) -1
@@ -75,9 +76,6 @@ class ApplicationProjetS5(tk.Frame):
         self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
 
-        self.writingThread = fn.RepeatedTimer(5, fn.writingSerial, self.realSerial, 5)
-        self.writingThread.start()
-
 
     def createWidgets(self):
         '''Create all the widgets for the GUI but the grid of orateur Buttons'''
@@ -87,11 +85,14 @@ class ApplicationProjetS5(tk.Frame):
         pathAndName = fn.imageDictionnary(self.MaxOrateur)
         fn.changeImage(self.orateurPicLabel, pathAndName[0])
 
-        self.orateurLabel = tk.Label(self.topFrame, text='Orateur : Inconnu ')
+        self.orateurLabel = tk.Label(self.topFrame, text='Speaker : Unknown')
         self.orateurLabel.pack()
+        self.orateurLabel.config(font=("Open Sans", 12), width=200)
 
-        self.dskStatusLabel = tk.Label(self.topFrame, text='Statut du DSK : Inconnu')
+        self.dskStatusLabel = tk.Label(self.topFrame, text='Unknown')
         self.dskStatusLabel.pack()
+        self.dskStatusLabel.config(font=("Open Sans", 12), width=200)
+
 
         self.scalingOrateur = tk.Scale(self.scalingFrame, from_=2, to_=self.MaxOrateur, orient='horizontal', 
                                        tickinterval=1, length=300)
@@ -102,7 +103,7 @@ class ApplicationProjetS5(tk.Frame):
 
         self.appMessageLabel = tk.Label(self.labelFrame)
         self.appMessageLabel.pack()
-        self.appMessageLabel.config(font=("Courier", 20), width=200)
+        self.appMessageLabel.config(font=("Open Sans", 20), width=200)
 
         self.trainButton_B = tk.Button(self.buttonFrame, text='Train', command=lambda: self.trainRoutine())            
         self.trainButton_B.pack(side='left')
@@ -116,41 +117,27 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.pack(side='left')
         self.stopReading_B.config(height = 3, width = 10 )
 
-        #self.writingBox = tk.Entry(self.midFrame)
-        #self.writingBox.bind('<Return>', lambda x: self.writingSerialButton(self.ser2))
-        #self.writingBox.pack()
-        #self.writingBox.config(width=30, justify='center')
-
         self.orateurButtons()  
-
-
-    #def writingSerialButton(self, serialPort):
-    #    data = self.writingBox.get()
-    #    if data != '':
-    #        if fn.check_int(data) : 
-    #            data = int(data)
-    #            #saturate the byte for the next operation
-    #            if data >= 256 : 
-    #                data = 255
-    #            data = data.to_bytes(1, 'big')
-    #            fn.writingSerial(serialPort, data)
-
-    #        else : 
-    #            self.errorMessageBox('Please enter an integer')
 
 
     def readingThread(self, serialPort):
         '''read on the serial port and decode the command into an index and a status'''
         data =  fn.readSerial(serialPort)
         if data != b'' and data != b'\x00' : 
-            print(data)
-            self.lastCommand = int.from_bytes(data, 'big')
-            self.lastCommand -= 16 #patch pour protection contre les données fantomes
-            fn._8bitsRead(self.lastCommand, self)
+            command = int.from_bytes(data, 'big')
+            command -= 16 #patch pour protection contre les données fantomes
+            fn._8bitsRead(command, self)
+
+            if command & 0x0F == 3 and not self.OngoinConv:
+                self.OngoinConv = True
+                fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
+
 
 
     def trainRoutine(self):
-        if not self.start and not self.startInit: 
+        if not self.start: 
+            if self.startInit :
+                fn.setInvisible(self.scalingFrame)
             self.trainButton_B.config(relief=tk.SUNKEN)
 
             fn.changeLabelText(self.appMessageLabel, "Selectionnez l'orateur à entrainer")
@@ -163,7 +150,12 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def startRoutine(self):
-        if not self.train :
+        if not self.trainButtonPressed :
+            if self.train : 
+                for frame in self.OrateurFrame : 
+                    fn.setInvisible(frame)
+                    self.trainButton_B.config(relief=tk.RAISED)
+
             fn.setVisible(self.labelFrame)
             fn.setVisible(self.scalingFrame)
             fn.changeLabelText(self.appMessageLabel, "Sélectionnez le nombre d'orateur dans la discussion")
@@ -175,14 +167,12 @@ class ApplicationProjetS5(tk.Frame):
             fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + 2) #send test init command + number of speaker
             self.start = True
             self.start_B.config(relief=tk.SUNKEN)
-            fn.changeLabelText(self.appMessageLabel, "Sélectionner les orateurs dans la discussion")
+            fn.changeLabelText(self.appMessageLabel, "Sélectionnez les orateurs dans la discussion")
             fn.setInvisible(self.scalingFrame)
 
             for frame in self.OrateurFrame : 
                 fn.setVisible(frame)
                 
-
-
 
     def orateurButton(self, index):
         button = self.buttonList[index]
@@ -190,7 +180,6 @@ class ApplicationProjetS5(tk.Frame):
         if self.train : 
             if not self.trainButtonPressed : 
                 fn.writingSerial(self.realSerial, (index << 4) + 4)
-                fn.changeOrateur(index, self)
                 fn.changeLabelText(self.appMessageLabel, "Entrainement de " + pathAndName[1])
                 button.config(relief=tk.SUNKEN)
                 self.trainButtonPressed = True
@@ -199,7 +188,6 @@ class ApplicationProjetS5(tk.Frame):
         elif self.start : 
             if self.orateurButtonPressed < self.orateurInDiscussion : 
                 fn.writingSerial(self.realSerial, (index << 4) + 2)
-                fn.changeOrateur(index, self)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
 
@@ -207,11 +195,11 @@ class ApplicationProjetS5(tk.Frame):
 
 
 
+
     def confirmOrateurFunction(self):
         self.confirmOrateur = True
         self.startRoutine()
  
-
 
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
@@ -221,6 +209,7 @@ class ApplicationProjetS5(tk.Frame):
         self.trainButtonPressed = False
         self.start = False
         self.startInit = False
+        self.OngoinConv = False
         self.confirmOrateur = False
         self.orateurButtonPressed = 0
 
@@ -240,8 +229,8 @@ class ApplicationProjetS5(tk.Frame):
 
         #self.writingBox.delete(0, tk.END)
 
-        fn.changeOrateur(63, self)
-        fn.changeDSKStatus(63, self)
+        fn.changeOrateur(14, self)
+        fn.changeDSKStatus(14, self)
 
 
     def orateurButtons(self):
@@ -332,12 +321,12 @@ class ApplicationProjetS5(tk.Frame):
         self.buttonList.append(self.orateurButtons11)
         index += 1
 
-        #pathAndName = fn.imageDictionnary(index)
-        #self.orateurButtons12 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(11))
-        #self.orateurButtons12.pack(side='left')
-        #self.orateurButtons12.config(height = 1, width = 10 )
-        #self.buttonList.append(self.orateurButtons12)
-        #index += 1
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons12 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(11))
+        self.orateurButtons12.pack(side='left')
+        self.orateurButtons12.config(height = 1, width = 10 )
+        self.buttonList.append(self.orateurButtons12)
+        index += 1
 
         frame += 1
 

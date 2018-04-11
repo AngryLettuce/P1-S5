@@ -43,21 +43,21 @@ def dskStatusDictionnary(status, getlength=False) :
     Dict = {  0  : 'INIT', 
               1  : 'IDLE', 
               2  : 'Test Init',
-              3  : 'Test Acquisition',
+              3  : 'Ongoing conversation',
               4  : 'Train Init',
-              5  : 'Train Acquisition',
-              6  : 'Train Codebook Construction',
+              5  : 'Ongoing training',
+              6  : 'Codebook Construction',
               7  : 'Error',
 
                
-             15 : 'Inconnu',             
+             15 : 'Unknown',             
            }
 
     if getlength : 
         return len(Dict)
 
     if status not in Dict :
-        status = 14
+        status = 15
 
     return Dict[status]
 
@@ -77,11 +77,9 @@ def imageDictionnary(Orateur, getlength=False):
               8  : (r"newVit Hess.jpg",      'Jeffrey R.',    ), 
               9  : (r"newChuck.jpg",         'Charles',       ), 
               10 : (r"newGonzo.jpg",         'Cristhian',     ), 
-              #11 : (r"newL_P.jpg",           'Tatlock',       ), 
-              #12 : (r"newfeu_serviette.jpg", 'RIP serviette', ), 
-              #13 : (r"newbutrice.jpg",       'Butrice',       ),
-                      
-              14 : (r"newnoImage.jpg",       'Inconnu',     ),
+              11 : (r"newJB.png",            'Jean-Bastiste', ), 
+
+              14 : (r"newnoImage.jpg",       'Unknown',     ),
              } 
 
     if getlength : 
@@ -204,10 +202,13 @@ def changeOrateur(index, app):
     '''Change the image and the label to the coresponding speaker'''
     pathAndName = imageDictionnary(index)
     changeImage(app.orateurPicLabel, pathAndName[0])
-    changeLabelText(app.orateurLabel, 'Orateur : ' + pathAndName[1])
+    changeLabelText(app.orateurLabel, 'Speaker : ' + pathAndName[1])
 
 
 def changeDSKStatus(status, app):
     '''change the status of the DSK label'''
     status = dskStatusDictionnary(status)
-    changeLabelText(app.dskStatusLabel, 'Statut du DSK : ' + status)
+    changeLabelText(app.dskStatusLabel, status)
+
+
+resizePicture("JB.JPG", 381)
