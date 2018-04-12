@@ -40,7 +40,7 @@ void interruptConfig(){
     INTCONbits.GIEH = 1;    //Enables all High priority peripherical interrupts
     INTCONbits.GIEL = 1;    //Enables all low priority peripherical interrupts
     PIE1bits.RC1IE = 1;      //Enables the EUSART receive interrupt bit
-    PIE2bits.SSP2IE = 1;
+    //PIE2bits.SSP2IE = 1;
     PIE1bits.SSP1IE = 1;
     
     

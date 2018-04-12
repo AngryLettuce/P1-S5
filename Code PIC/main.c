@@ -11,6 +11,7 @@
 #include "config_bits.h"
 #include <stdio.h>
 #include "ProjetS5P1.h"
+#include "LCD_SPI.h"
 #define _XTAL_FREQ 8000000
 void interrupt low_priority comPC(void);
 void interrupt high_priority DSK(void);
@@ -54,11 +55,15 @@ int main(void){
     uartConfig();
     interruptConfig();
     spiConfig();
+    initialisation_LCD();
     data.currentState = STATE_DSK;
     data.state = 3;
     data.speaker = 4;
+    putStringLCD("Hello World");
     //char i = 0;     
     while(1){
+        
+        
       /*  switch(data.currentState) {
             case STATE_DSK :
                 __delay_ms(1000);
