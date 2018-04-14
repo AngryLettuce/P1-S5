@@ -60,52 +60,7 @@ int main(void){
     data.state = 3;
     data.speaker = 4;
     putStringLCD("Hello World");
-    //char i = 0;     
     while(1){
-        
-        
-      /*  switch(data.currentState) {
-            case STATE_DSK :
-                __delay_ms(1000);
-                sendState(&data);
-                data.currentState = INDEX;
-                break;
-            
-            case INDEX :
-                __delay_ms(1000);
-                sendIndex(&data);
-                data.currentState = STATE_DSK;
-                break;            
-        }*/
-
-        
     }
     return (EXIT_SUCCESS);
 }
-    
-        
-        
-        
-        
-                
-                        
-                            
-                    
-        
-        
-        
-        
-        
-
-//            for (i = 97; i <= 112; i++){
-//               TXREG1 = i;
-//               
-//            }
-
-
-        
-        
-       // printf("Hello\n");
-    
-    
-
