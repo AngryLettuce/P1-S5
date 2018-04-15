@@ -20,8 +20,13 @@
 #include "dsk.h"
 #include "data_structures.h"
 #include "mfcc.h"
+#include "pitchCalculation.h"
+#include "filtreFIR300Hz.h"
 #include "utils.h"
 #include "fft_utility.h"
+
+#include "CoeffFIR300HzN20.dat"
+
 #include "C6713Helper_UdeS.h"
 #include <dsk6713.h>
 #include <dsk6713_led.h>
@@ -98,14 +103,23 @@ short spkerIndBuffer[INDEX_BUFFER_SIZE] = {SPEAKER_IND_UNKNOW};
 short *spkerCurrPtr = spkerIndBuffer;
 short spkerModeInd = SPEAKER_IND_UNKNOW;
 
+
+//---------------------------------
+//Tableau donnees detection pitch
+//---------------------------------
+short pitchCircBuffer[SIGNAL_BLOCK_SIZE] = {0};
+short *pitchCurrPtr = pitchCircBuffer;
+long autoCorrBuffer[SIGNAL_BLOCK_SIZE] = {0};
+
+
 //---------------------------------
 //Param détection silence
 //---------------------------------
 short sample_acc = 0;
 float beta_acc = 0;
 int adcSample_acc = 0;
-bool silenceDetection_rdy = 0;
-
+bool  silenceDetection_rdy = 0;
+short silence_acc = 0;
 
 
 //---------------------------------
@@ -239,7 +253,7 @@ void dsk_main(void) {
             DSK6713_LED_on(0);
             if (adcSample_rdy == 1) {
                 adcSample_rdy = 0;
-                mfcc_main(&dsk_state, 150);
+                mfcc_main(&dsk_state, SILENCE_THRESHOLD);
             }
 
             if (dsk_cmdIn == DSK_IDLE)
@@ -251,7 +265,7 @@ void dsk_main(void) {
 
             if (adcSample_rdy == 1) {
                 adcSample_rdy = 0;
-                mfcc_main(&dsk_state, 150);
+                mfcc_main(&dsk_state, SILENCE_THRESHOLD);
             }
 
             if (dsk_cmdIn == DSK_IDLE) {
@@ -322,7 +336,7 @@ void codebook_init() {
     mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB);
     mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC);
     mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD);
-
+    mfcc_speaker_list.speaker_nb = 14;
 }
 
 
@@ -347,8 +361,13 @@ void mfcc_main(char *state, float silence_threshold) {
 
         sound_amplitude = moving_average(&beta_acc, SIGNAL_BLOCK_SIZE, SIGNAL_BLOCK_OVERLAP);
         silenceDetection_rdy = 0;
-        if (sound_amplitude > silence_threshold && adcInitDone == 1)
+        if (sound_amplitude > silence_threshold && adcInitDone == 1) {
             mfcc_rdy = 1;
+            silence_acc = 0;
+        }
+        else
+            silence_acc += 1;
+
     }
 
     //------------------------------------
@@ -378,22 +397,40 @@ void mfcc_main(char *state, float silence_threshold) {
 
 
     //------------------------------------
-    //  Extraction MFCC
+    //  Extraction PITCH
     //------------------------------------
 
     //routine pitch, duplication de buffer circulaire (filtre FIR d'ordre 20)
+    static short bufferFIR20[21] = {0};
+    static short bufferPreAutoCorr[SIGNAL_BLOCK_SIZE] = {0};
+    static long bufferPostAutoCor[SIGNAL_BLOCK_SIZE] = {0};
 
+    cpy_circTab_int16_forward(bufferFIR20, adcRecord, adcCurrPtr, SIGNAL_BLOCK_SIZE, 21);
+
+    //ajout valeur filtré ua tableau circulaire
+    *pitchCurrPtr = filterFIR_sym_OrdN(20, coeffFIR300HzN20, bufferFIR20 + 20);
+    pitchCurrPtr++;
+    if (pitchCurrPtr >= pitchCircBuffer + SIGNAL_BLOCK_SIZE)
+        pitchCurrPtr = pitchCircBuffer;
 
     if (mfcc_rdy == 1) {
 
         //extraction du pitch avec autocorr
+        cpy_circTab_int16_forward(bufferPreAutoCorr, pitchCircBuffer, pitchCurrPtr, SIGNAL_BLOCK_SIZE, SIGNAL_BLOCK_SIZE);
 
-        met_curr.met[0] = 0; // à changer
+        autoCorrASM(bufferPreAutoCorr, bufferPostAutoCor);
+
+        met_curr.met[0] = (autoCorr_getpitch(bufferPostAutoCor, SAMPLE_RATE, SIGNAL_BLOCK_SIZE) - 150) / 25;
 
     }
     else {
+        //if (silence_acc < SPEAKER_TIMEOUT * SAMPLE_RATE / SIGNAL_BLOCK_OVERLAP)
+        //    dsk_indexCurr = SPEAKER_IND_UNKNOW;
+
         return;
     }
+
+
 
 
     switch(*state) {
@@ -413,6 +450,8 @@ void mfcc_main(char *state, float silence_threshold) {
             return;
         }
 
+
+
         break;
 
 
@@ -431,7 +470,9 @@ void mfcc_main(char *state, float silence_threshold) {
         spkerModeInd = spkrec_get_modeSpeakerInd(spkerIndBuffer, spkerCurrPtr - 1, INDEX_MODE_SIZE, INDEX_BUFFER_SIZE);
 
         //index extracted from accumulator
-        dsk_indexCurr =  spkrec_get_thresholdSpeakerInd(spkerModeInd, dsk_indexCurr, INDEX_ACCUMULATOR_THRESHOLD);
+        dsk_indexCurr = spkrec_get_thresholdSpeakerInd(spkerModeInd, dsk_indexCurr, INDEX_ACCUMULATOR_THRESHOLD);
+
+
 
         break;
     }

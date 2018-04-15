@@ -99,7 +99,7 @@ BouclePaire:
 				STW			.D2			B8 ,		*B4++[2]				; Storer B8  dans l'addresse pointée par le pointeur B4, incrémenter le pointeur A6
 	||			SUB			.S1			A1,			0x02,		A1			; Incrémenter le compteur A1
 				STW			.D1			B9 ,		*A8++[2]				; Storer B9  dans l'addresse pointée par le pointeur B4, incrémenter le pointeur A6
-	||			CMPEQ		.L1			A1,			-1,		A2			; Compteur A0 > A3, resultat -> A2
+	||			CMPEQ		.L1			A1,			-1,		A2				; Compteur A0 > A3, resultat -> A2
 
 	  [!A2]					B			DoubleCycle							; While autocorrelation non terminée
 				NOP			5

@@ -77,6 +77,8 @@ void mfcc_get_metrics(float *met, MFCCModule *mfcc) {
     mfcc_dct            (mfcc->dct.coeff, met               , mfcc->dct.cosTab  , mfcc->mfb.melFilter_nb    , mfcc->mfcc_nb );
 
     //pitch pipeline (value store at the location of the first mfcc coefficient, which do not have any speaker dependant information)
+
+
 }
 
 
