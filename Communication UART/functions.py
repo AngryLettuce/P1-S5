@@ -48,8 +48,9 @@ def dskStatusDictionnary(status, getlength=False) :
               5  : 'Ongoing training',
               6  : 'Codebook Construction',
               7  : 'Error',
+              8  : 'Saving Codebook',
+              9  : 'Error : Orator not trained',
 
-               
              15 : 'Unknown',             
            }
 
@@ -66,20 +67,22 @@ def imageDictionnary(Orateur, getlength=False):
     '''holds the possible speakers'''
     #Picture size : 381 * 285 px
 
-    Dict = {  0  : (r"newAntoine.jpg",       'Antoine'  ,     ),
-              1  : (r"newPascal.jpg",        'Pascal L.',     ),
-              2  : (r"newPascal_B.jpg",      'Pascal B.',     ),
-              3  : (r"newGuillaume.jpg",     'Guillaume',     ),
-              4  : (r"newRaphael.jpg",       'Raphael',       ),
-              5  : (r"newThomas.jpg",        'Thomas',        ),
-              6  : (r"newP_Y.jpg",           'Pierre-Yves',   ), 
-              7  : (r"newJeff.jpg",          'Jeffrey F.',    ), 
-              8  : (r"newVit Hess.jpg",      'Jeffrey R.',    ), 
-              9  : (r"newChuck.jpg",         'Charles',       ), 
-              10 : (r"newGonzo.jpg",         'Cristhian',     ), 
-              11 : (r"newJB.png",            'Jean-Bastiste', ), 
-
-              14 : (r"newnoImage.jpg",       'Unknown',     ),
+    Dict = {  0  : (r"newAntoine.jpg",     'Antoine'  ,     ),
+              1  : (r"newPascal.jpg",      'Pascal L.',     ),
+              2  : (r"newPascal_B.jpg",    'Pascal B.',     ),
+              3  : (r"newGuillaume.jpg",   'Guillaume',     ),
+              4  : (r"newRaphael.jpg",     'Raphael',       ),
+              5  : (r"newThomas.jpg",      'Thomas',        ),
+              6  : (r"newP_Y.jpg",         'Pierre-Yves',   ), 
+              7  : (r"newJeff.jpg",        'Jeffrey F.',    ), 
+              8  : (r"newVit Hess.jpg",    'Jeffrey R.',    ), 
+              9  : (r"newChuck.jpg",       'Charles',       ), 
+              10 : (r"newGonzo.jpg",       'Cristhian',     ), 
+              11 : (r"MonkeyNose.jpg",     'Guest A',       ), 
+              12 : (r"Monkey2.jpg",        'Guest B',       ), 
+              13 : (r"newBlobFish.jpg",    'Guest C',       ), 
+                                           
+              14 : (r"newnoImage.jpg",     'Unknown',       ),
              } 
 
     if getlength : 
@@ -177,6 +180,9 @@ def check_int(data):
     return data.isdigit()
 
 
+########################## -- Routines functions -- ##########################
+
+
 def _2x8bitsRead(data, app):
     if data >= 192:
         #data is an index of a speaker
@@ -210,5 +216,3 @@ def changeDSKStatus(status, app):
     status = dskStatusDictionnary(status)
     changeLabelText(app.dskStatusLabel, status)
 
-
-resizePicture("JB.JPG", 381)

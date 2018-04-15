@@ -158,7 +158,7 @@ class ApplicationProjetS5(tk.Frame):
 
             fn.setVisible(self.labelFrame)
             fn.setVisible(self.scalingFrame)
-            fn.changeLabelText(self.appMessageLabel, "Sélectionnez le nombre d'orateur dans la discussion")
+            fn.changeLabelText(self.appMessageLabel, "Sélectionnez le nombre d'orateurs dans la discussion")
             self.startInit =  True
 
         self.orateurInDiscussion = self.scalingOrateur.get()
@@ -192,8 +192,6 @@ class ApplicationProjetS5(tk.Frame):
                 button.config(relief=tk.SUNKEN)
 
                 self.orateurButtonPressed += 1 
-
-
 
 
     def confirmOrateurFunction(self):
@@ -331,19 +329,19 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Fourth line ------------------ ##
-        #pathAndName = fn.imageDictionnary(index)
-        #self.orateurButtons13 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(12))
-        #self.orateurButtons13.pack(side='left')
-        #self.orateurButtons13.config(height = 1, width = 10 )
-        #self.buttonList.append(self.orateurButtons13)
-        #index += 1
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons13 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(12))
+        self.orateurButtons13.pack(side='left')
+        self.orateurButtons13.config(height = 1, width = 10 )
+        self.buttonList.append(self.orateurButtons13)
+        index += 1
 
-        #pathAndName = fn.imageDictionnary(index)
-        #self.orateurButtons14 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(13))
-        #self.orateurButtons14.pack(side='left')
-        #self.orateurButtons14.config(height = 1, width = 10 )
-        #self.buttonList.append(self.orateurButtons14)
-        #index += 1
+        pathAndName = fn.imageDictionnary(index)
+        self.orateurButtons14 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(13))
+        self.orateurButtons14.pack(side='left')
+        self.orateurButtons14.config(height = 1, width = 10 )
+        self.buttonList.append(self.orateurButtons14)
+        index += 1
 
         #pathAndName = fn.imageDictionnary(index)
         #self.orateurButtons15 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(14))
