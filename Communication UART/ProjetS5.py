@@ -15,10 +15,10 @@ class ApplicationProjetS5(tk.Frame):
         baurate             = 19200
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
-
+        
         self.train = False
         self.trainButtonPressed   = False
-        self.orateurButtonPressed = 0
+        self.orateurButtonPressed = []
         self.orateurInDiscussion  = 0
         self.start = False
         self.startInit = False
@@ -186,12 +186,12 @@ class ApplicationProjetS5(tk.Frame):
 
 
         elif self.start : 
-            if self.orateurButtonPressed < self.orateurInDiscussion : 
+            if (len(self.orateurButtonPressed) < self.orateurInDiscussion) and (button not in self.orateurButtonPressed): 
                 fn.writingSerial(self.realSerial, (index << 4) + 2)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
 
-                self.orateurButtonPressed += 1 
+                self.orateurButtonPressed.append(button)
 
 
     def confirmOrateurFunction(self):
@@ -209,7 +209,8 @@ class ApplicationProjetS5(tk.Frame):
         self.startInit = False
         self.OngoinConv = False
         self.confirmOrateur = False
-        self.orateurButtonPressed = 0
+
+        self.orateurButtonPressed = []
 
         self.trainButton_B.config(relief=tk.RAISED)
         self.start_B.config(relief=tk.RAISED)
