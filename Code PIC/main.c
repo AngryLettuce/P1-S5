@@ -55,11 +55,11 @@ int main(void){
     uartConfig();
     interruptConfig();
     spiConfig();
-    initialisation_LCD();
+    //initialisation_LCD();
     data.currentState = STATE_DSK;
     data.state = 3;
     data.speaker = 4;
-    putStringLCD("Hello World");
+    //putStringLCD("Hello World");
     while(1){
     }
     return (EXIT_SUCCESS);

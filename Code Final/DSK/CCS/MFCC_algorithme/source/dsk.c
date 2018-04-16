@@ -210,7 +210,7 @@ void dsk_main(void) {
                         mfcc_speaker_list.trained_speaker_ind = 0;//use as a temporary index
                     }
                     else
-                        dsk_state = DSK_ERROR;
+                        dsk_state = DSK_ERROR_INSUFFICENT_TRAINED_SPEAKER;
                 }
                 // Second phase : get the index of all speaker to be tested from PC
                 else if (mfcc_speaker_list.trained_speaker_ind < mfcc_speaker_list.tested_speaker_nb ) {
@@ -221,12 +221,14 @@ void dsk_main(void) {
                     }
                     else {
                         mfcc_speaker_list.tested_speaker_nb = 0;
-                        dsk_state = DSK_ERROR;
+                        dsk_state = DSK_ERROR_SELECTED_SPEAKER_NOT_TRAINED;
                         break;
                     }
 
-                    if (mfcc_speaker_list.trained_speaker_ind == mfcc_speaker_list.tested_speaker_nb)
+                    if (mfcc_speaker_list.trained_speaker_ind == mfcc_speaker_list.tested_speaker_nb) {
+                        //DSK6713_waitusec(1000000);
                         dsk_state = DSK_TEST_ACQUISITION;
+                    }
                 }
             }
             break;
@@ -253,6 +255,7 @@ void dsk_main(void) {
             DSK6713_LED_on(0);
             if (adcSample_rdy == 1) {
                 adcSample_rdy = 0;
+                dsk_indexCurr = dsk_indIn;
                 mfcc_main(&dsk_state, SILENCE_THRESHOLD);
             }
 
@@ -296,7 +299,8 @@ void dsk_main(void) {
 
 
 
-        case DSK_ERROR:
+        case DSK_ERROR_INSUFFICENT_TRAINED_SPEAKER:
+        case DSK_ERROR_SELECTED_SPEAKER_NOT_TRAINED:
             //make sure to transmit the error state to the PC
             dsk_indexCurr = SPEAKER_IND_UNKNOW;
             DSK6713_LED_on(0);
@@ -346,6 +350,7 @@ void codebook_init() {
 
 void mfcc_main(char *state, float silence_threshold) {
 
+    int i;
     bool mfcc_rdy = 0; // vaut 1 lorsque "SIGNAL_BLOCK_OVERLAP" nouvelles données sont ajouté au buffer adcRecord
     float sound_amplitude = 0;
 
@@ -365,9 +370,10 @@ void mfcc_main(char *state, float silence_threshold) {
             mfcc_rdy = 1;
             silence_acc = 0;
         }
-        else
+        else {
+            //dsk_indexCurr = SPEAKER_IND_UNKNOW;
             silence_acc += 1;
-
+        }
     }
 
     //------------------------------------
@@ -424,8 +430,12 @@ void mfcc_main(char *state, float silence_threshold) {
 
     }
     else {
-        //if (silence_acc < SPEAKER_TIMEOUT * SAMPLE_RATE / SIGNAL_BLOCK_OVERLAP)
-        //    dsk_indexCurr = SPEAKER_IND_UNKNOW;
+        if (silence_acc >= (int)(SPEAKER_TIMEOUT * SAMPLE_RATE / SIGNAL_BLOCK_OVERLAP)) {
+            dsk_indexCurr = SPEAKER_IND_UNKNOW;
+            for(i = 0; i < INDEX_BUFFER_SIZE; i+=4) {
+                spkerIndBuffer[i] = SPEAKER_IND_UNKNOW;
+            }
+        }
 
         return;
     }
@@ -461,6 +471,7 @@ void mfcc_main(char *state, float silence_threshold) {
     //------------------------------------
 
         //ajout de l'index extrait et détecté dans le buffer circulaire d'index
+
         *spkerCurrPtr = spkrec_get_speakerInd(met_curr.met, &mfcc_speaker_list);
         spkerCurrPtr++;
         if (spkerCurrPtr >= spkerIndBuffer + INDEX_BUFFER_SIZE)
@@ -471,7 +482,6 @@ void mfcc_main(char *state, float silence_threshold) {
 
         //index extracted from accumulator
         dsk_indexCurr = spkrec_get_thresholdSpeakerInd(spkerModeInd, dsk_indexCurr, INDEX_ACCUMULATOR_THRESHOLD);
-
 
 
         break;
