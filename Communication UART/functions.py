@@ -40,18 +40,18 @@ def setVisible(widjet) :
 
 def dskStatusDictionnary(status, getlength=False) :
     '''holds the status of the dsk'''
-    Dict = {  0  : 'INIT', 
-              1  : 'IDLE', 
-              2  : 'Test Init',
-              3  : 'Ongoing conversation',
-              4  : 'Train Init',
-              5  : 'Ongoing training',
-              6  : 'Codebook Construction',
-              7  : 'Error',
-              8  : 'Saving Codebook',
-              9  : 'Error : Orator not trained',
+    Dict = {  0   : 'INIT', 
+              1   : 'IDLE', 
+              2   : 'Conversation init',
+              3   : 'Ongoing conversation',
+              4   : 'Train Init',
+              5   : 'Ongoing training',
+              6   : 'Codebook Construction',
+              7   : 'Saving Codebook',
+              8   : 'Error : Selected speaker not trained',
+              9   : 'Error : Insufficient trained speakers',
 
-             15 : 'Unknown',             
+              15  : 'Unknown',             
            }
 
     if getlength : 
@@ -63,27 +63,48 @@ def dskStatusDictionnary(status, getlength=False) :
     return Dict[status]
 
 
-def imageDictionnary(Orateur, getlength=False):
+def imageDictionnary(Orateur, getlength=False, animal=False):
     '''holds the possible speakers'''
     #Picture size : 381 * 285 px
 
-    Dict = {  0  : (r"newAntoine.jpg",     'Antoine'  ,     ),
-              1  : (r"newPascal.jpg",      'Pascal L.',     ),
-              2  : (r"newPascal_B.jpg",    'Pascal B.',     ),
-              3  : (r"newGuillaume.jpg",   'Guillaume',     ),
-              4  : (r"newRaphael.jpg",     'Raphael',       ),
-              5  : (r"newThomas.jpg",      'Thomas',        ),
-              6  : (r"newP_Y.jpg",         'Pierre-Yves',   ), 
-              7  : (r"newJeff.jpg",        'Jeffrey F.',    ), 
-              8  : (r"newVit Hess.jpg",    'Jeffrey R.',    ), 
-              9  : (r"newChuck.jpg",       'Charles',       ), 
-              10 : (r"newGonzo.jpg",       'Cristhian',     ), 
-              11 : (r"MonkeyNose.jpg",     'Guest A',       ), 
-              12 : (r"Monkey2.jpg",        'Guest B',       ), 
-              13 : (r"newBlobFish.jpg",    'Guest C',       ), 
-                                           
-              14 : (r"newnoImage.jpg",     'Unknown',       ),
-             } 
+    if not animal : 
+        Dict = {  0  : (r"orator/newAntoine.jpg",     'Antoine'  ,     ),
+                  1  : (r"orator/newPascal.jpg",      'Pascal L.',     ),
+                  2  : (r"orator/newPascal_B.jpg",    'Pascal B.',     ),
+                  3  : (r"orator/newGuillaume.jpg",   'Guillaume',     ),
+                  4  : (r"orator/newRaphael.jpg",     'Raphael',       ),
+                  5  : (r"orator/newThomas.jpg",      'Thomas',        ),
+                  6  : (r"orator/newP_Y.jpg",         'Pierre-Yves',   ), 
+                  7  : (r"orator/newJeff.jpg",        'Jeffrey F.',    ), 
+                  8  : (r"orator/newVit Hess.jpg",    'Jeffrey R.',    ), 
+                  9  : (r"orator/newChuck.jpg",       'Charles',       ), 
+                  10 : (r"orator/newGonzo.jpg",       'Cristhian',     ), 
+                  11 : (r"orator/MonkeyNose.jpg",     'Guest A',       ), 
+                  12 : (r"orator/Monkey2.jpg",        'Guest B',       ), 
+                  13 : (r"orator/newBlobFish.jpg",    'Guest C',       ), 
+                             
+                  14 : (r"orator/newnoImage.jpg",     'Unknown',       ),
+                 } 
+
+
+    elif animal : 
+        Dict =   {  0  : (r"Animal/ane.jpg",            'Donkey',     ),
+                    1  : (r"Animal/canard.jpg",         'Duck',       ),
+                    2  : (r"Animal/chat.jpg",           'Cat',        ),
+                    3  : (r"Animal/cheval.jpg",         'Horse',      ),
+                    4  : (r"Animal/chien.jpg",          'Dog',        ),
+                    5  : (r"Animal/chewbacca.jpg",      'Chewbacca',  ),
+                    6  : (r"Animal/cochon.jpg",         'Pig',        ), 
+                    7  : (r"Animal/fox.jpg",            'Fox',        ), 
+                    8  : (r"Animal/loup.jpg",           'Wolf',       ), 
+                    9  : (r"Animal/Monkey2.jpg",        'Monkey',     ), 
+                    10 : (r"Animal/mouton.jpg",         'Sheep',      ), 
+                    11 : (r"Animal/vache.jpg",          'Cow',        ), 
+                    12 : (r"Animal/poule.jpg",          'Chicken',    ), 
+                    13 : (r"Animal/newBlobFish.jpg",    'Blob fish',  ), 
+                             
+                    14 : (r"Animal/animalInconnu.jpg",  'Unknown',    ),
+                    } 
 
     if getlength : 
         return len(Dict)
@@ -206,7 +227,7 @@ def _8bitsRead(data, app):
 
 def changeOrateur(index, app):
     '''Change the image and the label to the coresponding speaker'''
-    pathAndName = imageDictionnary(index)
+    pathAndName = imageDictionnary(index, animal=app.animalApplication)
     changeImage(app.orateurPicLabel, pathAndName[0])
     changeLabelText(app.orateurLabel, 'Speaker : ' + pathAndName[1])
 

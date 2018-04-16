@@ -16,6 +16,8 @@ class ApplicationProjetS5(tk.Frame):
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
         
+        self.animalApplication = False # Set it to True for the animal application (Warning use trainning with caution in this mode)
+
         self.train = False
         self.trainButtonPressed   = False
         self.orateurButtonPressed = []
@@ -25,7 +27,7 @@ class ApplicationProjetS5(tk.Frame):
         self.OngoinConv = False
         self.lastCommand = None
         self.confirmOrateur = False
-        self.MaxOrateur = fn.imageDictionnary(0, True) -1
+        self.MaxOrateur = fn.imageDictionnary(0, getlength=True) -1
 
         self.buttonList = []
         
@@ -71,7 +73,7 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
 
         self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
@@ -82,7 +84,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurPicLabel = tk.Label(self.topFrame)
         self.orateurPicLabel.pack()
 
-        pathAndName = fn.imageDictionnary(self.MaxOrateur)
+        pathAndName = fn.imageDictionnary(self.MaxOrateur, animal=self.animalApplication)
         fn.changeImage(self.orateurPicLabel, pathAndName[0])
 
         self.orateurLabel = tk.Label(self.topFrame, text='Speaker : Unknown')
@@ -127,7 +129,7 @@ class ApplicationProjetS5(tk.Frame):
             command = int.from_bytes(data, 'big')
             command -= 16 #patch pour protection contre les données fantomes
             fn._8bitsRead(command, self)
-
+            #print(data)
             if command & 0x0F == 3 and not self.OngoinConv:
                 self.OngoinConv = True
                 fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
@@ -176,7 +178,7 @@ class ApplicationProjetS5(tk.Frame):
 
     def orateurButton(self, index):
         button = self.buttonList[index]
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         if self.train : 
             if not self.trainButtonPressed : 
                 fn.writingSerial(self.realSerial, (index << 4) + 4)
@@ -203,6 +205,7 @@ class ApplicationProjetS5(tk.Frame):
         '''Revert the status of the GUI to the initial one'''
         
         fn.writingSerial(self.realSerial, 1)  #send IDLE command
+
         self.train = False
         self.trainButtonPressed = False
         self.start = False
@@ -237,28 +240,28 @@ class ApplicationProjetS5(tk.Frame):
         frame = 0
 
         ## ------------------ First line ------------------ ##
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons1 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(0))
         self.orateurButtons1.pack(side='left')
         self.orateurButtons1.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons1)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons2 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(1))
         self.orateurButtons2.pack(side='left')
         self.orateurButtons2.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons2)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons3 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(2))
         self.orateurButtons3.pack(side='left')
         self.orateurButtons3.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons3)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons4 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(3))
         self.orateurButtons4.pack(side='left')
         self.orateurButtons4.config(height = 1, width = 10 )
@@ -268,28 +271,28 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Second line ------------------ ##
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons5 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(4))
         self.orateurButtons5.pack(side='left')
         self.orateurButtons5.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons5)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons6 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(5))
         self.orateurButtons6.pack(side='left')
         self.orateurButtons6.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons6)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons7 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(6))
         self.orateurButtons7.pack(side='left')
         self.orateurButtons7.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons7)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons8 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(7))
         self.orateurButtons8.pack(side='left')
         self.orateurButtons8.config(height = 1, width = 10 )
@@ -299,28 +302,28 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Third line ------------------ ##
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons9 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(8))
         self.orateurButtons9.pack(side='left')
         self.orateurButtons9.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons9)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons10 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(9))
         self.orateurButtons10.pack(side='left')
         self.orateurButtons10.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons10)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons11 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(10))
         self.orateurButtons11.pack(side='left')
         self.orateurButtons11.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons11)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons12 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(11))
         self.orateurButtons12.pack(side='left')
         self.orateurButtons12.config(height = 1, width = 10 )
@@ -330,34 +333,21 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Fourth line ------------------ ##
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons13 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(12))
         self.orateurButtons13.pack(side='left')
         self.orateurButtons13.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons13)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index)
+        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         self.orateurButtons14 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(13))
         self.orateurButtons14.pack(side='left')
         self.orateurButtons14.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons14)
         index += 1
 
-        #pathAndName = fn.imageDictionnary(index)
-        #self.orateurButtons15 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(14))
-        #self.orateurButtons15.pack(side='left')
-        #self.orateurButtons15.config(height = 1, width = 10 )
-        #self.buttonList.append(self.orateurButtons15)
-        #index += 1
-
-        #pathAndName = fn.imageDictionnary(index)
-        #self.orateurButtons16 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(15))
-        #self.orateurButtons16.pack(side='left')
-        #self.orateurButtons16.config(height = 1, width = 10 )
-        #self.buttonList.append(self.orateurButtons16)
-        #index += 1
-                
+         
 
 
     def errorMessageBox(self, message):
