@@ -641,7 +641,7 @@ short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_si
     {
         temp = AccSpeaker[k];
 
-        if(temp>maxInd)
+        if(temp > maxInd)
         {
             maxInd = temp;
             modeSpeakerInd = k;
@@ -667,6 +667,8 @@ short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd
         return new_speakerInd;
     else
         return curr_speakerInd;
+
+    return curr_speakerInd;
 }
 
 
