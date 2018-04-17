@@ -90,7 +90,7 @@ def imageDictionnary(Orateur, getlength=False, animal=False):
     elif animal : 
         Dict =   {  0  : (r"Animal/ane.jpg",            'Donkey',     ),
                     1  : (r"Animal/canard.jpg",         'Duck',       ),
-                    2  : (r"Animal/chat.jpg",           'Cat',        ),
+                    2  : (r"Animal/chatMagalie.jpg",    'Cat',        ),
                     3  : (r"Animal/cheval.jpg",         'Horse',      ),
                     4  : (r"Animal/chien.jpg",          'Dog',        ),
                     5  : (r"Animal/chewbacca.jpg",      'Chewbacca',  ),

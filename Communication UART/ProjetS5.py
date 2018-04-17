@@ -205,7 +205,7 @@ class ApplicationProjetS5(tk.Frame):
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         
-        fn.writingSerial(self.realSerial, 1)  #send IDLE command
+        #fn.writingSerial(self.realSerial, 1)  #send IDLE command
 
         self.train = False
         self.trainButtonPressed = False
@@ -236,7 +236,7 @@ class ApplicationProjetS5(tk.Frame):
 
 
     def changeApp(self):
-        if not startInit and not self.train : 
+        if not self.startInit and not self.train : 
             self.animalApplication = ~self.animalApplication 
 
 
