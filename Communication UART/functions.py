@@ -5,6 +5,19 @@ from threading import Timer
 import tkinter as tk
 
 
+
+
+########################## -- Enums  -- ##########################
+class command() :
+    def __init__(self) : 
+        self.IDLE       = 1 
+        self.test_init  = 2 
+        self.train_init = 4
+
+        self.animalApp  = 10 
+        self.humainApp  = 11
+
+
 ########################## -- Widgets related -- ##########################
 
 def changeImage(label, path):

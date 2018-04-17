@@ -7,7 +7,6 @@ import tkinter as tk
 import tkinter.messagebox as tkmessageBox
 import functions as fn 
 
-
     
 class ApplicationProjetS5(tk.Frame):         
     'Main object of the GUI'
@@ -17,6 +16,8 @@ class ApplicationProjetS5(tk.Frame):
         readingUARTinterval = 1e-3
         
         self.animalApplication = False # Set it to True for the animal application (Warning use trainning with caution in this mode)
+       
+        self.command = fn.command()
 
         self.train = False
         self.trainButtonPressed   = False
@@ -138,10 +139,10 @@ class ApplicationProjetS5(tk.Frame):
             if command != self.lastCommand : 
                 fn._8bitsRead(command, self)
                 self.lastCommand = command
-            #print(data)
             if command & 0x0F == 3 and not self.OngoinConv:
-                self.OngoinConv = True
                 fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
+                self.OngoinConv = True
+
 
 
 
@@ -175,7 +176,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurInDiscussion = self.scalingOrateur.get()
 
         if self.confirmOrateur:
-            fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + 2) #send test init command + number of speaker
+            fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + self.command.test_init) #send test init command + number of speaker
             self.start = True
             self.start_B.config(relief=tk.SUNKEN)
             fn.changeLabelText(self.appMessageLabel, "Sélectionnez les orateurs dans la discussion")
@@ -190,7 +191,7 @@ class ApplicationProjetS5(tk.Frame):
         pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
         if self.train : 
             if not self.trainButtonPressed : 
-                fn.writingSerial(self.realSerial, (index << 4) + 4)
+                fn.writingSerial(self.realSerial, (index << 4) + self.command.train_init) 
                 fn.changeLabelText(self.appMessageLabel, "Entrainement de " + pathAndName[1])
                 button.config(relief=tk.SUNKEN)
                 self.trainButtonPressed = True
@@ -198,7 +199,7 @@ class ApplicationProjetS5(tk.Frame):
 
         elif self.start : 
             if (len(self.orateurButtonPressed) < self.orateurInDiscussion) and (button not in self.orateurButtonPressed): 
-                fn.writingSerial(self.realSerial, (index << 4) + 2)
+                fn.writingSerial(self.realSerial, (index << 4) + self.command.test_init)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
 
@@ -213,7 +214,7 @@ class ApplicationProjetS5(tk.Frame):
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         
-        fn.writingSerial(self.realSerial, 1)  #send IDLE command
+        fn.writingSerial(self.realSerial, self.command.IDLE)  #send IDLE command
 
         self.train = False
         self.trainButtonPressed = False
@@ -247,10 +248,10 @@ class ApplicationProjetS5(tk.Frame):
         if not self.startInit and not self.train : 
             if animal : 
                 self.animalApplication = True
-                fn.writingSerial(self.realSerial, (0xF << 4) + 10) # Send the command to switch to animal app
+                fn.writingSerial(self.realSerial, (0xF << 4) + self.command.animalApp) # Send the command to switch to animal app
             else : 
                 self.animalApplication = False 
-                fn.writingSerial(self.realSerial, (0xF << 4) + 11) # Send the command to switch to humain app
+                fn.writingSerial(self.realSerial, (0xF << 4) + self.command.humainApp) # Send the command to switch to humain app
 
 
     def orateurButtons(self):
