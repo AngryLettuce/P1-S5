@@ -73,7 +73,7 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
         self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
@@ -133,12 +133,11 @@ class ApplicationProjetS5(tk.Frame):
     def readingThread(self, serialPort):
         '''read on the serial port and decode the command into an index and a status'''
         data =  fn.readSerial(serialPort)
-        if data != b'' and data != b'\x00' : 
+        if data != b'' :#and data != b'\x00' : 
+            print(data)
             command = int.from_bytes(data, 'big')
-            command -= 16 #patch pour protection contre les données fantomes
-            if command != self.lastCommand : 
-                fn._8bitsRead(command, self)
-                self.lastCommand = command
+            command -= 16 #patch pour protection contre les données 
+            fn._8bitsRead(command, self)
             if command & 0x0F == 3 and not self.OngoinConv:
                 fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
                 self.OngoinConv = True

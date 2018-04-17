@@ -68,7 +68,7 @@ def formatjsonLine(jsonline) :
 				############## |_|  |_/_/ \_\___|_|\_| ##############
 
 
-slackExportPath = r"C:\Users\Guill\Downloads\P1-S5 Slack export Apr 9 2018"
+slackExportPath = r"C:\Users\Guill\Downloads\P1-S5 Slack export Apr 17 2018"
 directoryFolder = os.listdir(slackExportPath)
 logbooks = [folder for folder in directoryFolder if "logbook" in folder]
 doc = Document(default_filepath = "LogBook" )
