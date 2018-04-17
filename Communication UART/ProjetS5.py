@@ -61,7 +61,7 @@ class ApplicationProjetS5(tk.Frame):
             frame.pack(side='top')
             fn.setInvisible(frame)
 
-        
+        self.topFrame.bind("<Button-3>", lambda x: self.changeApp())
         self.createWidgets()
 
         #Virtual Serial Port for testing (desktop)
@@ -73,10 +73,10 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
+        #self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
 
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
-        self.readingThread.start()
+        #self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
+        #self.readingThread.start()
 
 
     def createWidgets(self):
@@ -120,6 +120,7 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.config(height = 3, width = 10 )
 
         self.orateurButtons()  
+
 
 
     def readingThread(self, serialPort):
@@ -229,10 +230,14 @@ class ApplicationProjetS5(tk.Frame):
         for frame in self.OrateurFrame : 
             fn.setInvisible(frame)
 
-        #self.writingBox.delete(0, tk.END)
 
         fn.changeOrateur(14, self)
         fn.changeDSKStatus(14, self)
+
+
+    def changeApp(self):
+        if not startInit and not self.train : 
+            self.animalApplication = ~self.animalApplication 
 
 
     def orateurButtons(self):
@@ -349,7 +354,6 @@ class ApplicationProjetS5(tk.Frame):
 
          
 
-
     def errorMessageBox(self, message):
         tkmessageBox.showinfo("Error", message)
 
@@ -360,7 +364,9 @@ class ApplicationProjetS5(tk.Frame):
 				############## |_|  |_/_/ \_\___|_|\_| ##############
 
 
+
 MyRoot = tk.Tk()
+
 
 app = ApplicationProjetS5(MyRoot)                       
 app.master.title('Projet S5 P01')    
