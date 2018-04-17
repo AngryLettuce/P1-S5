@@ -61,7 +61,6 @@ class ApplicationProjetS5(tk.Frame):
             frame.pack(side='top')
             fn.setInvisible(frame)
 
-        self.topFrame.bind("<Button-3>", lambda x: self.changeApp())
         self.createWidgets()
 
         #Virtual Serial Port for testing (desktop)
@@ -73,10 +72,10 @@ class ApplicationProjetS5(tk.Frame):
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        #self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM5", baurate, readingTimeout)  
 
-        #self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
-        #self.readingThread.start()
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
+        self.readingThread.start()
 
 
     def createWidgets(self):
@@ -100,7 +99,7 @@ class ApplicationProjetS5(tk.Frame):
                                        tickinterval=1, length=300)
         self.scalingOrateur.pack(side='left')
 
-        self.confirmOrateur_B = tk.Button(self.scalingFrame, text='Confirm', command= lambda: self.confirmOrateurFunction())
+        self.confirmOrateur_B = tk.Button(self.scalingFrame, text='Confirm', command=lambda: self.confirmOrateurFunction())
         self.confirmOrateur_B.pack(side='left')
 
         self.appMessageLabel = tk.Label(self.labelFrame)
@@ -119,6 +118,13 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.pack(side='left')
         self.stopReading_B.config(height = 3, width = 10 )
 
+
+
+        self.popupMenu = tk.Menu(self, tearoff=0)
+        self.popupMenu.add_command(label="Animal",   command=lambda: self.changeApp(True))
+        self.popupMenu.add_command(label="Humanoid", command=lambda: self.changeApp(False))
+
+
         self.orateurButtons()  
 
 
@@ -129,7 +135,9 @@ class ApplicationProjetS5(tk.Frame):
         if data != b'' and data != b'\x00' : 
             command = int.from_bytes(data, 'big')
             command -= 16 #patch pour protection contre les données fantomes
-            fn._8bitsRead(command, self)
+            if command != self.lastCommand : 
+                fn._8bitsRead(command, self)
+                self.lastCommand = command
             #print(data)
             if command & 0x0F == 3 and not self.OngoinConv:
                 self.OngoinConv = True
@@ -205,7 +213,7 @@ class ApplicationProjetS5(tk.Frame):
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         
-        #fn.writingSerial(self.realSerial, 1)  #send IDLE command
+        fn.writingSerial(self.realSerial, 1)  #send IDLE command
 
         self.train = False
         self.trainButtonPressed = False
@@ -235,9 +243,14 @@ class ApplicationProjetS5(tk.Frame):
         fn.changeDSKStatus(14, self)
 
 
-    def changeApp(self):
+    def changeApp(self, animal):
         if not self.startInit and not self.train : 
-            self.animalApplication = ~self.animalApplication 
+            if animal : 
+                self.animalApplication = True
+                fn.writingSerial(self.realSerial, (0xF << 4) + 10) # Send the command to switch to animal app
+            else : 
+                self.animalApplication = False 
+                fn.writingSerial(self.realSerial, (0xF << 4) + 11) # Send the command to switch to humain app
 
 
     def orateurButtons(self):
@@ -369,7 +382,22 @@ MyRoot = tk.Tk()
 
 
 app = ApplicationProjetS5(MyRoot)                       
-app.master.title('Projet S5 P01')    
+app.master.title('Projet S5 P01')
+
+popup = tk.Menu(app, tearoff=0)
+popup.add_command(label="Animal",   command= lambda: app.changeApp(True)) # , command=next) etc...
+popup.add_command(label="Humanoid", command= lambda: app.changeApp(False))
+
+
+def do_popup(event):
+    # display the popup menu
+    try:
+        popup.tk_popup(event.x_root, event.y_root, 0)
+    finally:
+        # make sure to release the grab (Tk 8.0a1 only)
+        popup.grab_release()
+
+app.topFrame.bind("<Button-3>", do_popup)
 
 w = MyRoot.winfo_screenwidth()
 h = MyRoot.winfo_screenheight()

@@ -29,7 +29,7 @@ def changeWitingBoxText(box, data) :
 def setInvisible(widjet) :
     '''Set a widjet or a frame invisible'''
     widjet.pack_forget()
-
+    
 
 def setVisible(widjet) : 
     '''Set a widjet or a frame visible'''
