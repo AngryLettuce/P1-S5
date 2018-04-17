@@ -3,19 +3,24 @@ from PIL import Image, ImageTk
 from serial import Serial
 from threading import Timer
 import tkinter as tk
-
-
+from enum import IntEnum
 
 
 ########################## -- Enums  -- ##########################
-class command() :
-    def __init__(self) : 
-        self.IDLE       = 1 
-        self.test_init  = 2 
-        self.train_init = 4
+class command(IntEnum) :
+    IDLE          = 1 
+    test_init     = 2 
+    train_init    = 4
+                  
+    animalApp     = 10 
+    humainApp     = 11
+    phonemeApp    = 12
 
-        self.animalApp  = 10 
-        self.humainApp  = 11
+
+class appStyle(IntEnum) : 
+    humain  = 1 
+    animal  = 2 
+    phoneme = 3
 
 
 ########################## -- Widgets related -- ##########################
@@ -76,11 +81,11 @@ def dskStatusDictionnary(status, getlength=False) :
     return Dict[status]
 
 
-def imageDictionnary(Orateur, getlength=False, animal=False):
+def imageDictionnary(Orateur, getlength=False, speakerType=appStyle.humain):
     '''holds the possible speakers'''
     #Picture size : 381 * 285 px
 
-    if not animal : 
+    if speakerType == appStyle.humain : 
         Dict = {  0  : (r"orator/newAntoine.jpg",     'Antoine'  ,     ),
                   1  : (r"orator/newPascal.jpg",      'Pascal L.',     ),
                   2  : (r"orator/newPascal_B.jpg",    'Pascal B.',     ),
@@ -100,7 +105,7 @@ def imageDictionnary(Orateur, getlength=False, animal=False):
                  } 
 
 
-    elif animal : 
+    elif speakerType == appStyle.animal : 
         Dict =   {  0  : (r"Animal/ane.jpg",            'Donkey',     ),
                     1  : (r"Animal/canard.jpg",         'Duck',       ),
                     2  : (r"Animal/chatMagalie.png",    'Cat',        ),
@@ -118,6 +123,27 @@ def imageDictionnary(Orateur, getlength=False, animal=False):
                              
                     14 : (r"Animal/animalInconnu.jpg",  'Unknown',    ),
                     } 
+
+
+    elif speakerType == appStyle.phoneme : 
+        Dict =   {  0  : (r"Phoneme/A.png",        'A',          ),
+                    1  : (r"Phoneme/E.png",        'E',          ),
+                    2  : (r"Phoneme/U.png",        'U',          ),
+                    3  : (r"Phoneme/O.png",        'O',          ),
+                    4  : (r"Phoneme/É.png",        'É'           ),
+                    5  : (r"Phoneme/È.png",        'È',          ),
+                    6  : (r"Phoneme/I.png",        'I',          ), 
+                    7  : (r"Phoneme/OI.png",       'OI',         ), 
+                    8  : (r"Phoneme/OU.png",       'OU',         ), 
+                    9  : (r"Phoneme/EN.png",       'EN',         ), 
+                    10 : (r"Phoneme/EIN.png",      'EIN',        ), 
+                    11 : (r"Phoneme/ON.png",       'ON',         ), 
+                    12 : (r"Phoneme/EU.png",       'EU',         ), 
+                    13 : (r"Phoneme/UN.png",       'UN',         ), 
+                             
+                    14 : (r"Phoneme/unknown.png",  'Unknown',    ),
+                    } 
+
 
     if getlength : 
         return len(Dict)
@@ -240,7 +266,7 @@ def _8bitsRead(data, app):
 
 def changeOrateur(index, app):
     '''Change the image and the label to the coresponding speaker'''
-    pathAndName = imageDictionnary(index, animal=app.animalApplication)
+    pathAndName = imageDictionnary(index, speakerType=app.typeOfSpeaker)
     changeImage(app.orateurPicLabel, pathAndName[0])
     changeLabelText(app.orateurLabel, 'Speaker : ' + pathAndName[1])
 

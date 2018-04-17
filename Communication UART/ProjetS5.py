@@ -7,7 +7,7 @@ import tkinter as tk
 import tkinter.messagebox as tkmessageBox
 import functions as fn 
 
-    
+
 class ApplicationProjetS5(tk.Frame):         
     'Main object of the GUI'
     def __init__(self, master=None):
@@ -15,10 +15,9 @@ class ApplicationProjetS5(tk.Frame):
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
         
-        self.animalApplication = False # Set it to True for the animal application (Warning use trainning with caution in this mode)
+        self.typeOfSpeaker = fn.appStyle.humain # Set it to True for the animal application (Warning use trainning with caution in this mode)
        
-        self.command = fn.command()
-
+        
         self.train = False
         self.trainButtonPressed   = False
         self.orateurButtonPressed = []
@@ -65,17 +64,17 @@ class ApplicationProjetS5(tk.Frame):
         self.createWidgets()
 
         #Virtual Serial Port for testing (desktop)
-        #self.ser1 = fn.setupSerialPort("COM2", baurate, readingTimeout)
-        #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM2", baurate, readingTimeout)
+        self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
         #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
+        #self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.ser2)
         self.readingThread.start()
 
 
@@ -84,7 +83,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurPicLabel = tk.Label(self.topFrame)
         self.orateurPicLabel.pack()
 
-        pathAndName = fn.imageDictionnary(self.MaxOrateur, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(self.MaxOrateur, speakerType=self.typeOfSpeaker)
         fn.changeImage(self.orateurPicLabel, pathAndName[0])
 
         self.orateurLabel = tk.Label(self.topFrame, text='Speaker : Unknown')
@@ -135,10 +134,10 @@ class ApplicationProjetS5(tk.Frame):
         data =  fn.readSerial(serialPort)
         if data != b'' :#and data != b'\x00' : 
             print(data)
-            command = int.from_bytes(data, 'big')
-            command -= 16 #patch pour protection contre les données 
-            fn._8bitsRead(command, self)
-            if command & 0x0F == 3 and not self.OngoinConv:
+            currentCommand = int.from_bytes(data, 'big')
+            currentCommand -= 16 #patch pour protection contre les données 
+            fn._8bitsRead(currentCommand, self)
+            if currentCommand & 0x0F == 3 and not self.OngoinConv:
                 fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
                 self.OngoinConv = True
 
@@ -175,7 +174,7 @@ class ApplicationProjetS5(tk.Frame):
         self.orateurInDiscussion = self.scalingOrateur.get()
 
         if self.confirmOrateur:
-            fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + self.command.test_init) #send test init command + number of speaker
+            fn.writingSerial(self.realSerial, (self.orateurInDiscussion << 4) + fn.command.test_init) #send test init command + number of speaker
             self.start = True
             self.start_B.config(relief=tk.SUNKEN)
             fn.changeLabelText(self.appMessageLabel, "Sélectionnez les orateurs dans la discussion")
@@ -187,10 +186,10 @@ class ApplicationProjetS5(tk.Frame):
 
     def orateurButton(self, index):
         button = self.buttonList[index]
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         if self.train : 
             if not self.trainButtonPressed : 
-                fn.writingSerial(self.realSerial, (index << 4) + self.command.train_init) 
+                fn.writingSerial(self.realSerial, (index << 4) + fn.command.train_init) 
                 fn.changeLabelText(self.appMessageLabel, "Entrainement de " + pathAndName[1])
                 button.config(relief=tk.SUNKEN)
                 self.trainButtonPressed = True
@@ -198,7 +197,7 @@ class ApplicationProjetS5(tk.Frame):
 
         elif self.start : 
             if (len(self.orateurButtonPressed) < self.orateurInDiscussion) and (button not in self.orateurButtonPressed): 
-                fn.writingSerial(self.realSerial, (index << 4) + self.command.test_init)
+                fn.writingSerial(self.realSerial, (index << 4) + fn.command.test_init)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
 
@@ -213,7 +212,7 @@ class ApplicationProjetS5(tk.Frame):
     def backToInit(self) : 
         '''Revert the status of the GUI to the initial one'''
         
-        fn.writingSerial(self.realSerial, self.command.IDLE)  #send IDLE command
+        fn.writingSerial(self.realSerial, fn.command.IDLE)  #send IDLE command
 
         self.train = False
         self.trainButtonPressed = False
@@ -243,14 +242,29 @@ class ApplicationProjetS5(tk.Frame):
         fn.changeDSKStatus(14, self)
 
 
-    def changeApp(self, animal):
+    def changeApp(self, appStyleEnum):
         if not self.startInit and not self.train : 
-            if animal : 
-                self.animalApplication = True
-                fn.writingSerial(self.realSerial, (0xF << 4) + self.command.animalApp) # Send the command to switch to animal app
-            else : 
-                self.animalApplication = False 
-                fn.writingSerial(self.realSerial, (0xF << 4) + self.command.humainApp) # Send the command to switch to humain app
+            if appStyleEnum == fn.appStyle.animal : 
+                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.animalApp) # Send the command to switch to animal app
+
+            elif appStyleEnum == fn.appStyle.humain : 
+                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.humainApp) # Send the command to switch to humain app
+
+            elif appStyleEnum == fn.appStyle.phoneme : 
+                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.phonemeApp) # Send the command to switch to humain app
+
+            self.typeOfSpeaker = appStyleEnum
+            self.configButtonsText()
+
+    
+    def configButtonsText(self) : 
+        index = 0 
+        for button in self.buttonList : 
+            pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
+
+            fn.changeLabelText(button, pathAndName[1])
+
+            index += 1
 
 
     def orateurButtons(self):
@@ -258,28 +272,28 @@ class ApplicationProjetS5(tk.Frame):
         frame = 0
 
         ## ------------------ First line ------------------ ##
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons1 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(0))
         self.orateurButtons1.pack(side='left')
         self.orateurButtons1.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons1)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons2 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(1))
         self.orateurButtons2.pack(side='left')
         self.orateurButtons2.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons2)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons3 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(2))
         self.orateurButtons3.pack(side='left')
         self.orateurButtons3.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons3)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons4 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(3))
         self.orateurButtons4.pack(side='left')
         self.orateurButtons4.config(height = 1, width = 10 )
@@ -289,28 +303,28 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Second line ------------------ ##
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons5 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(4))
         self.orateurButtons5.pack(side='left')
         self.orateurButtons5.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons5)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons6 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(5))
         self.orateurButtons6.pack(side='left')
         self.orateurButtons6.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons6)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons7 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(6))
         self.orateurButtons7.pack(side='left')
         self.orateurButtons7.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons7)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons8 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(7))
         self.orateurButtons8.pack(side='left')
         self.orateurButtons8.config(height = 1, width = 10 )
@@ -320,28 +334,28 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Third line ------------------ ##
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons9 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(8))
         self.orateurButtons9.pack(side='left')
         self.orateurButtons9.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons9)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons10 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(9))
         self.orateurButtons10.pack(side='left')
         self.orateurButtons10.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons10)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons11 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(10))
         self.orateurButtons11.pack(side='left')
         self.orateurButtons11.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons11)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons12 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(11))
         self.orateurButtons12.pack(side='left')
         self.orateurButtons12.config(height = 1, width = 10 )
@@ -351,14 +365,14 @@ class ApplicationProjetS5(tk.Frame):
         frame += 1
 
         ## ------------------ Fourth line ------------------ ##
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons13 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(12))
         self.orateurButtons13.pack(side='left')
         self.orateurButtons13.config(height = 1, width = 10 )
         self.buttonList.append(self.orateurButtons13)
         index += 1
 
-        pathAndName = fn.imageDictionnary(index, animal=self.animalApplication)
+        pathAndName = fn.imageDictionnary(index, speakerType=self.typeOfSpeaker)
         self.orateurButtons14 = tk.Button(self.OrateurFrame[frame], text=pathAndName[1], command=lambda: self.orateurButton(13))
         self.orateurButtons14.pack(side='left')
         self.orateurButtons14.config(height = 1, width = 10 )
@@ -385,16 +399,18 @@ app = ApplicationProjetS5(MyRoot)
 app.master.title('Projet S5 P01')
 
 popup = tk.Menu(app, tearoff=0)
-popup.add_command(label="Animal",   command= lambda: app.changeApp(True)) # , command=next) etc...
-popup.add_command(label="Humanoid", command= lambda: app.changeApp(False))
+popup.add_command(label="Animal",   command= lambda: app.changeApp(fn.appStyle.animal)) 
+popup.add_command(label="Humanoid", command= lambda: app.changeApp(fn.appStyle.humain))
+popup.add_command(label="Phoneme",  command= lambda: app.changeApp(fn.appStyle.phoneme))
+
 
 
 def do_popup(event):
     # display the popup menu
     try:
         popup.tk_popup(event.x_root, event.y_root, 0)
+
     finally:
-        # make sure to release the grab (Tk 8.0a1 only)
         popup.grab_release()
 
 app.topFrame.bind("<Button-3>", do_popup)
