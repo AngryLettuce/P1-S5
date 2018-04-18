@@ -140,7 +140,7 @@ def imageDictionnary(Orateur, getlength=False, speakerType=appStyle.humain):
                     10 : (r"Phoneme/EIN.png",      'EIN',        ), 
                     11 : (r"Phoneme/ON.png",       'ON',         ), 
                     12 : (r"Phoneme/EU.png",       'EU',         ), 
-                    13 : (r"Phoneme/UN.png",       'UN',         ), 
+                    13 : (r"Phoneme/CH.png",       'CH',         ), 
                              
                     14 : (r"Phoneme/unknown.png",  'Unknown',    ),
                     } 
