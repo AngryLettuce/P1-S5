@@ -90,7 +90,7 @@ void cb_clear_metVecTab(MetVecTab *metVecTab);
 
 short spkrec_get_speakerInd(float *met,SpeakerDataList *speakerList);
 short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_size, int bank_size);
-short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd, short threshold);
+short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short *last_speakerInd, short curr_speakerInd, short threshold);
 
 
 //------------------------------------

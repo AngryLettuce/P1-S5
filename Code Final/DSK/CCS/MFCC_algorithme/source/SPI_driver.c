@@ -119,7 +119,7 @@ interrupt void c_int04(void){
     dsk_dataIn_last = dsk_dataIn;//keep track of last datain
 
     dataIn_temp = SPI_read();
-    if (dataIn_temp != 0) {
+    if (dataIn_temp != 0 && dsk_dataIn_last != dataIn_temp) {
         dsk_dataIn = dataIn_temp;
         dsk_dataIn_flag = 1; //tell the dsk that the SPI data is new
         dsk_dataIn_parsed_flag = 0; //tell to the dsk main that new data has not been parsed
