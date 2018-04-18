@@ -21,17 +21,35 @@ typedef enum DSKstate {
     DSK_SAVING_CODEBOOK,
     DSK_ERROR_INSUFFICENT_TRAINED_SPEAKER,
     DSK_ERROR_SELECTED_SPEAKER_NOT_TRAINED,
+    DSK_CHANGE_MODE,
 
     //use to store the number of state
     DSK_STATE_COUNT
 } DSKstate;
+
+typedef enum DSKmode {
+
+    DSK_SPEAKER,
+    DSK_ANIMAL,
+    DSK_PHONEME,
+
+    //use to store the number of state
+    DSK_MODE_COUNT
+} DSKmode;
+
 
 #include "data_structures.h"
 
 void dsk_main(void);
 void dsk_init(void);
 void mfcc_main(char *state, float silence_threshold);
-void codebook_init(void);
+
+
+void load_codebook_speaker(void);
+void load_codebook_animal(void);
+void load_codebook_phoneme(void);
+
+
 interrupt void c_int11(void);
 
 #endif /* HEADER_DSK_H_ */

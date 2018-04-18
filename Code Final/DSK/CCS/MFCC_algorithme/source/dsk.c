@@ -37,26 +37,22 @@
 #include "codebook.h"
 
 
-//data codebook
-
-#include "../Debug/codebook0.dat"
-#include "../Debug/codebook1.dat"
-#include "../Debug/codebook2.dat"
-#include "../Debug/codebook3.dat"
-#include "../Debug/codebook4.dat"
-#include "../Debug/codebook5.dat"
-#include "../Debug/codebook6.dat"
-#include "../Debug/codebook7.dat"
-#include "../Debug/codebook8.dat"
-#include "../Debug/codebook9.dat"
-#include "../Debug/codebookA.dat"
-#include "../Debug/codebookB.dat"
-#include "../Debug/codebookC.dat"
-#include "../Debug/codebookD.dat"
 
 
 #define LOAD_CODEBOOK_DATA 1
 
+//---------------------------------
+//MODE
+//---------------------------------
+
+short dsk_mode = DSK_SPEAKER;
+
+//---------------------------------
+//PARAM INDEX
+//---------------------------------
+
+int index_mode_size = INDEX_MODE_SIZE_SPEAKER;
+int index_accumulator_nb = INDEX_ACCUMULATOR_THRESHOLD_SPEAKER;
 
 //---------------------------------
 //COMMUNICATION
@@ -102,7 +98,7 @@ float *mfccCurrPtr = mfccCircBuffer;
 short spkerIndBuffer[INDEX_BUFFER_SIZE] = {SPEAKER_IND_UNKNOW};
 short *spkerCurrPtr = spkerIndBuffer;
 short spkerModeInd = SPEAKER_IND_UNKNOW;
-
+short last_spkerModeInd = -1;
 
 //---------------------------------
 //Tableau donnees detection pitch
@@ -140,6 +136,7 @@ MetVecTab       mfcc_metVecTab;
 
 void dsk_main(void) {
 
+    dsk_mode = DSK_SPEAKER;
     dsk_state = DSK_INIT;
     dsk_indexCurr = SPEAKER_IND_UNKNOW;
     dsk_stateCurr = dsk_state;
@@ -164,7 +161,7 @@ void dsk_main(void) {
 
             // Initialize MFCC structure/algo.
             mfcc_init(&mfcc, &mfcc_metVecTab, &mfcc_speaker_list);
-            codebook_init();
+            load_codebook_speaker();
             dsk_state = DSK_IDLE;
 
             break;
@@ -180,7 +177,7 @@ void dsk_main(void) {
                 dsk_indexCurr = SPEAKER_IND_UNKNOW;
 
 
-                if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT) {
+                if(dsk_cmdIn == DSK_TEST_INIT || dsk_cmdIn == DSK_TRAIN_INIT || dsk_cmdIn == DSK_CHANGE_MODE) {
                     dsk_state = dsk_cmdIn;
                     DSK6713_LED_off(3);
                     //the code will continue to check for further state/case (no break)
@@ -201,7 +198,10 @@ void dsk_main(void) {
             if(dsk_dataIn_flag && dsk_dataIn_parsed_flag) {
 
                 dsk_dataIn_flag = 0;// in data not new anymore
-
+                if(dsk_cmdIn == DSK_IDLE) {
+                    dsk_state = dsk_cmdIn;
+                    break;
+                }
                 // First phase : get the number of speaker to be tested from PC
                 if(mfcc_speaker_list.tested_speaker_nb == 0) {
                     if (mfcc_speaker_list.speaker_nb >= dsk_indIn) {
@@ -298,6 +298,39 @@ void dsk_main(void) {
             break;
 
 
+        case DSK_CHANGE_MODE:
+
+            switch(dsk_indIn){
+
+            case DSK_SPEAKER:
+
+                index_mode_size = INDEX_MODE_SIZE_SPEAKER;
+                index_accumulator_nb = INDEX_ACCUMULATOR_THRESHOLD_SPEAKER;
+                load_codebook_speaker();
+
+                break;
+            case DSK_ANIMAL:
+
+                index_mode_size = INDEX_MODE_SIZE_ANIMAL;
+                index_accumulator_nb = INDEX_ACCUMULATOR_THRESHOLD_ANIMAL;
+                load_codebook_animal();
+
+                break;
+            case DSK_PHONEME:
+
+                index_mode_size = INDEX_MODE_SIZE_PHONEME;
+                index_accumulator_nb = INDEX_ACCUMULATOR_THRESHOLD_PHONEME;
+                load_codebook_phoneme();
+
+                break;
+
+            }
+            dsk_state = DSK_IDLE;
+            dsk_cmdIn = DSK_IDLE;
+            dsk_dataIn = 0xFF;
+            break;
+
+
 
         case DSK_ERROR_INSUFFICENT_TRAINED_SPEAKER:
         case DSK_ERROR_SELECTED_SPEAKER_NOT_TRAINED:
@@ -321,31 +354,72 @@ void dsk_main(void) {
 
 
 
-void codebook_init() {
+void load_codebook_speaker() {
 
     if (LOAD_CODEBOOK_DATA == 0)
         return;
 
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[0].codebook, codebook0);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[1].codebook, codebook1);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[2].codebook, codebook2);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[3].codebook, codebook3);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[4].codebook, codebook4);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[5].codebook, codebook5);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[6].codebook, codebook6);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[7].codebook, codebook7);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[8].codebook, codebook8);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[9].codebook, codebook9);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[10].codebook, codebookA);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC);
-    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[0].codebook, codebook0_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[1].codebook, codebook1_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[2].codebook, codebook2_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[3].codebook, codebook3_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[4].codebook, codebook4_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[5].codebook, codebook5_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[6].codebook, codebook6_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[7].codebook, codebook7_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[8].codebook, codebook8_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[9].codebook, codebook9_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[10].codebook, codebookA_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC_speaker);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD_speaker);
     mfcc_speaker_list.speaker_nb = 14;
 }
 
+void load_codebook_animal() {
 
+    if (LOAD_CODEBOOK_DATA == 0)
+        return;
 
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[0].codebook, codebook0_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[1].codebook, codebook1_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[2].codebook, codebook2_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[3].codebook, codebook3_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[4].codebook, codebook4_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[5].codebook, codebook5_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[6].codebook, codebook6_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[7].codebook, codebook7_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[8].codebook, codebook8_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[9].codebook, codebook9_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[10].codebook, codebookA_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC_animal);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD_animal);
+    mfcc_speaker_list.speaker_nb = 14;
+}
 
+void load_codebook_phoneme() {
+
+    if (LOAD_CODEBOOK_DATA == 0)
+        return;
+
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[0].codebook, codebook0_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[1].codebook, codebook1_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[2].codebook, codebook2_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[3].codebook, codebook3_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[4].codebook, codebook4_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[5].codebook, codebook5_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[6].codebook, codebook6_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[7].codebook, codebook7_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[8].codebook, codebook8_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[9].codebook, codebook9_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[10].codebook, codebookA_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[11].codebook, codebookB_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[12].codebook, codebookC_phoneme);
+    mfcc_read_codebook(&mfcc_speaker_list.speaker_data[13].codebook, codebookD_phoneme);
+    mfcc_speaker_list.speaker_nb = 14;
+
+}
 
 
 void mfcc_main(char *state, float silence_threshold) {
@@ -432,7 +506,7 @@ void mfcc_main(char *state, float silence_threshold) {
     else {
         if (silence_acc >= (int)(SPEAKER_TIMEOUT * SAMPLE_RATE / SIGNAL_BLOCK_OVERLAP)) {
             dsk_indexCurr = SPEAKER_IND_UNKNOW;
-            for(i = 0; i < INDEX_BUFFER_SIZE; i+=4) {
+            for(i = 0; i < INDEX_BUFFER_SIZE; i++) {
                 spkerIndBuffer[i] = SPEAKER_IND_UNKNOW;
             }
         }
@@ -472,16 +546,17 @@ void mfcc_main(char *state, float silence_threshold) {
 
         //ajout de l'index extrait et détecté dans le buffer circulaire d'index
 
+
         *spkerCurrPtr = spkrec_get_speakerInd(met_curr.met, &mfcc_speaker_list);
         spkerCurrPtr++;
         if (spkerCurrPtr >= spkerIndBuffer + INDEX_BUFFER_SIZE)
             spkerCurrPtr =  spkerIndBuffer;
 
         //index extracted from mode
-        spkerModeInd = spkrec_get_modeSpeakerInd(spkerIndBuffer, spkerCurrPtr - 1, INDEX_MODE_SIZE, INDEX_BUFFER_SIZE);
+        spkerModeInd = spkrec_get_modeSpeakerInd(spkerIndBuffer, spkerCurrPtr - 1, index_mode_size, INDEX_BUFFER_SIZE);
 
         //index extracted from accumulator
-        dsk_indexCurr = spkrec_get_thresholdSpeakerInd(spkerModeInd, dsk_indexCurr, INDEX_ACCUMULATOR_THRESHOLD);
+        dsk_indexCurr = spkrec_get_thresholdSpeakerInd(spkerModeInd, &last_spkerModeInd, dsk_indexCurr, index_accumulator_nb);
 
 
         break;

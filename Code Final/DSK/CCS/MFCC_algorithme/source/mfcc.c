@@ -617,11 +617,11 @@ short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_si
 
     short modeSpeakerInd;
     short i,j,k;
-    static short AccSpeaker[SPEAKER_NB_MAX];
+    static short AccSpeaker[SPEAKER_NB_MAX+1];
     short temp = 0;
     short maxInd = 0;
 
-    for(i=0; i<SPEAKER_NB_MAX; i++)
+    for(i=0; i<SPEAKER_NB_MAX+1; i++)
     {
         AccSpeaker[i] = 0;
     }
@@ -637,7 +637,7 @@ short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_si
            }
     }
 
-    for(k=0; k<SPEAKER_NB_MAX; k++)
+    for(k=0; k<SPEAKER_NB_MAX+1; k++)
     {
         temp = AccSpeaker[k];
 
@@ -651,17 +651,16 @@ short spkrec_get_modeSpeakerInd(short *speakerBank, short *curr_ind, int mode_si
     return modeSpeakerInd;
 }
 
-short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short curr_speakerInd, short threshold)    {
+short spkrec_get_thresholdSpeakerInd(short new_speakerInd, short *last_speakerInd, short curr_speakerInd, short threshold)    {
 
-    static short last_speakerInd = -1;
     static short compt = 0;
 
-    if(last_speakerInd == new_speakerInd)
+    if(*last_speakerInd == new_speakerInd)
        compt += 1;
     else
        compt = 0;
 
-    last_speakerInd = new_speakerInd;
+    *last_speakerInd = new_speakerInd;
 
     if(compt >= threshold)
         return new_speakerInd;
@@ -691,7 +690,7 @@ short spkrec_get_currentSpeaker(float *met,SpeakerDataList *speakerList,short cu
 
     modeSpeakerInd = spkrec_get_modeSpeakerInd(speakerBank, curr_ind, mode_size, bank_size);
 
-    new_speakerInd = spkrec_get_thresholdSpeakerInd(modeSpeakerInd, curr_speakerInd, threshold);
+    new_speakerInd = 0;//spkrec_get_thresholdSpeakerInd(modeSpeakerInd, curr_speakerInd, threshold);
 
     return new_speakerInd;
 }
