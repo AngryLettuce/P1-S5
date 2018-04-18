@@ -15,7 +15,7 @@ class ApplicationProjetS5(tk.Frame):
         readingTimeout      = 1e-6
         readingUARTinterval = 1e-3
         
-        self.typeOfSpeaker = fn.appStyle.humain # Set it to True for the animal application (Warning use trainning with caution in this mode)
+        self.typeOfSpeaker = fn.appStyle.humain #default application speaker mode
        
         
         self.train = False
@@ -64,17 +64,17 @@ class ApplicationProjetS5(tk.Frame):
         self.createWidgets()
 
         #Virtual Serial Port for testing (desktop)
-        self.realSerial = fn.setupSerialPort("COM2", baurate, readingTimeout)
-        self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
+        #self.ser1 = fn.setupSerialPort("COM2", baurate, readingTimeout)
+        #self.ser2 = fn.setupSerialPort("COM3", baurate, readingTimeout)  
         
         #Virtual Serial Port (laptop)
-        #self.ser1 = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
+        #self.realSerial = fn.setupSerialPort("\\\\.\\CNCA0", baurate, readingTimeout)
         #self.ser2 = fn.setupSerialPort("\\\\.\\CNCB0", baurate, readingTimeout)
 
         #real serial port with the pic
-        #self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
+        self.realSerial = fn.setupSerialPort("COM6", baurate, readingTimeout)  
 
-        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.ser2)
+        self.readingThread    = fn.RepeatedTimer(readingUARTinterval, self.readingThread, self.realSerial)
         self.readingThread.start()
 
 
@@ -119,29 +119,20 @@ class ApplicationProjetS5(tk.Frame):
         self.stopReading_B.config(height = 3, width = 10 )
 
 
-
-        self.popupMenu = tk.Menu(self, tearoff=0)
-        self.popupMenu.add_command(label="Animal",   command=lambda: self.changeApp(True))
-        self.popupMenu.add_command(label="Humanoid", command=lambda: self.changeApp(False))
-
-
         self.orateurButtons()  
-
 
 
     def readingThread(self, serialPort):
         '''read on the serial port and decode the command into an index and a status'''
         data =  fn.readSerial(serialPort)
         if data != b'' :#and data != b'\x00' : 
-            print(data)
+            #print(data)
             currentCommand = int.from_bytes(data, 'big')
             currentCommand -= 16 #patch pour protection contre les données 
             fn._8bitsRead(currentCommand, self)
             if currentCommand & 0x0F == 3 and not self.OngoinConv:
                 fn.changeLabelText(self.appMessageLabel, "Conversation en cours...")
                 self.OngoinConv = True
-
-
 
 
     def trainRoutine(self):
@@ -197,7 +188,7 @@ class ApplicationProjetS5(tk.Frame):
 
         elif self.start : 
             if (len(self.orateurButtonPressed) < self.orateurInDiscussion) and (button not in self.orateurButtonPressed): 
-                fn.writingSerial(self.realSerial, (index << 4) + fn.command.test_init)
+                fn.writingSerial(self.realSerial, (index << 4) + fn.command.placebo)
                 fn.changeLabelText(self.appMessageLabel, "Ajout de " + pathAndName[1] +  " à la discussion")
                 button.config(relief=tk.SUNKEN)
 
@@ -244,14 +235,7 @@ class ApplicationProjetS5(tk.Frame):
 
     def changeApp(self, appStyleEnum):
         if not self.startInit and not self.train : 
-            if appStyleEnum == fn.appStyle.animal : 
-                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.animalApp) # Send the command to switch to animal app
-
-            elif appStyleEnum == fn.appStyle.humain : 
-                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.humainApp) # Send the command to switch to humain app
-
-            elif appStyleEnum == fn.appStyle.phoneme : 
-                fn.writingSerial(self.realSerial, (0xF << 4) + fn.command.phonemeApp) # Send the command to switch to humain app
+            fn.writingSerial(self.realSerial, (appStyleEnum << 4) + fn.command.changeMode) # Send the command to switch to animal app
 
             self.typeOfSpeaker = appStyleEnum
             self.configButtonsText()

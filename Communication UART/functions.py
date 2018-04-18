@@ -11,16 +11,16 @@ class command(IntEnum) :
     IDLE          = 1 
     test_init     = 2 
     train_init    = 4
-                  
-    animalApp     = 10 
-    humainApp     = 11
-    phonemeApp    = 12
+     
+    changeMode    = 10
+    placebo       = 15
+
 
 
 class appStyle(IntEnum) : 
-    humain  = 1 
-    animal  = 2 
-    phoneme = 3
+    humain  = 0 
+    animal  = 1 
+    phoneme = 2
 
 
 ########################## -- Widgets related -- ##########################
@@ -68,6 +68,7 @@ def dskStatusDictionnary(status, getlength=False) :
               7   : 'Saving Codebook',
               8   : 'Error : Selected speaker not trained',
               9   : 'Error : Insufficient trained speakers',
+              10  : 'Changing mode',
 
               15  : 'Unknown',             
            }
@@ -133,7 +134,7 @@ def imageDictionnary(Orateur, getlength=False, speakerType=appStyle.humain):
                     4  : (r"Phoneme/É.png",        'É'           ),
                     5  : (r"Phoneme/È.png",        'È',          ),
                     6  : (r"Phoneme/I.png",        'I',          ), 
-                    7  : (r"Phoneme/OI.png",       'OI',         ), 
+                    7  : (r"Phoneme/Â.png",        'Â',          ), 
                     8  : (r"Phoneme/OU.png",       'OU',         ), 
                     9  : (r"Phoneme/EN.png",       'EN',         ), 
                     10 : (r"Phoneme/EIN.png",      'EIN',        ), 
